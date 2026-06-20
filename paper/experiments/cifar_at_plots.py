@@ -19,12 +19,12 @@ FIGDIR = os.path.join(os.path.dirname(__file__), "..", "report", "figures")
 ARM_LABEL = {"standard": "standard", "blurpool": "anti-aliased", "circular": "exact cyclic", "aug": "shift-aug"}
 ARM_COLOR = {"standard": "#444444", "blurpool": "#1f77b4", "circular": "#d62728", "aug": "#2ca02c"}
 W_MARKER = {32: "o", 64: "s"}
-AA = "aa_Linf_8_255"   # the informative robustness axis under AT
 
 def load(path=None):
     if path is None:
-        cands = sorted(glob.glob(os.path.join(RESDIR, "cifar_at_*_*.json")))
-        if not cands: sys.exit("no cifar_at JSON found")
+        cands = sorted(glob.glob(os.path.join(RESDIR, "at_*.json")) +
+                       glob.glob(os.path.join(RESDIR, "cifar_at_*_*.json")))
+        if not cands: sys.exit("no AT JSON found")
         path = cands[-1]
     print(f"# results: {path}")
     return json.load(open(path)), path
@@ -53,20 +53,19 @@ def corr(x, y):
     if m.sum() < 3: return float("nan"), float("nan")
     return float(pearsonr(x[m], y[m])[0]), float(spearmanr(x[m], y[m])[0])
 
-def fig_predict(results, celld, fn):
+def fig_predict(results, celld, fn, aakey, matchkey, matchlab, aalab):
     fig, ax = plt.subplots(1, 2, figsize=(8.2, 3.6))
-    for xi, (key, lab) in enumerate([("etaLinf", r"$\ell_\infty$-matched ratio $\eta/\|\nabla M\|_1$"),
-                                     ("consist", "shift-consistency")]):
+    for xi, (key, lab) in enumerate([(matchkey, matchlab), ("consist", "shift-consistency")]):
         for r in results:
-            ax[xi].scatter(r.get(key, np.nan), r.get(AA, np.nan), s=14, alpha=0.30,
+            ax[xi].scatter(r.get(key, np.nan), r.get(aakey, np.nan), s=14, alpha=0.30,
                            color=ARM_COLOR[r["arm"]], marker=W_MARKER.get(r["w"], "o"), linewidths=0)
         xs, ys = [], []
         for d in celld.values():
-            ax[xi].scatter(d[key], d[AA], s=70, color=ARM_COLOR[d["arm"]],
+            ax[xi].scatter(d[key], d[aakey], s=70, color=ARM_COLOR[d["arm"]],
                            marker=W_MARKER.get(d["w"], "o"), edgecolor="k", linewidths=0.6, zorder=3)
-            xs.append(d[key]); ys.append(d[AA])
+            xs.append(d[key]); ys.append(d[aakey])
         p, s = corr(xs, ys)
-        ax[xi].set_xlabel(lab); ax[xi].set_ylabel(r"AutoAttack robust acc ($\ell_\infty=8/255$)")
+        ax[xi].set_xlabel(lab); ax[xi].set_ylabel(aalab)
         ax[xi].set_title(f"Pearson {p:+.2f},  Spearman {s:+.2f}", fontsize=10); ax[xi].grid(alpha=0.25)
     from matplotlib.lines import Line2D
     handles = [Line2D([], [], marker="o", color="w", markerfacecolor=ARM_COLOR[a], markeredgecolor="k",
@@ -97,19 +96,28 @@ def fig_decomp(celld, fn):
 def main():
     data, path = load(sys.argv[1] if len(sys.argv) > 1 else None)
     results, aa_specs = data["results"], data["aa_specs"]
-    for r in results:                              # Linf-matched ratio: margin / ||grad M||_1 (Linf dual)
-        r["etaLinf"] = (r["dec_margin"] / r["dec_L1"]) if r.get("dec_L1") else float("nan")
+    prim = aa_specs[0]; aakey = "aa_" + prim[0]; pnorm = prim[1]          # primary (threat-matched) AA spec
+    matchdual = "dec_L1" if pnorm == "Linf" else "dec_L2"                 # dual norm of the training threat
+    missdual  = "dec_L2" if pnorm == "Linf" else "dec_L1"
+    for r in results:
+        r["match"] = (r["dec_margin"] / r[matchdual]) if r.get(matchdual) else float("nan")
+        r["miss"]  = (r["dec_margin"] / r[missdual]) if r.get(missdual) else float("nan")
     celld = agg(results); cm = list(celld.values()); os.makedirs(FIGDIR, exist_ok=True)
     aa_names = [s[0] for s in aa_specs]
+    rec = data.get("recipe", {}); tag = f"{rec.get('dataset','cifar')}_{rec.get('norm','linf')}"
+    nsym = r"\ell_\infty" if pnorm == "Linf" else r"\ell_2"
+    dn = r"\|\nabla M\|_1" if pnorm == "Linf" else r"\|\nabla M\|_2"
+    dno = r"\|\nabla M\|_2" if pnorm == "Linf" else r"\|\nabla M\|_1"
+    aalab = f"AutoAttack robust acc (${nsym}={prim[2]:.3g}$)"; matchlab = f"matched ratio $\\eta/{dn}$"
+    print(f"# {tag}: primary AA = {prim[0]} ({pnorm}); threat-matched ratio = eta/{dn}")
 
-    print("\n## Correlations (across all per-seed points):")
-    for key, lab in [("etaLinf", "eta/L_inf (matched)"), ("dec_etaL", "eta/L_2"), ("rr_l2", "robust radius (L2)"), ("consist", "consistency")]:
-        p, s = corr([r.get(key, np.nan) for r in results], [r.get(AA, np.nan) for r in results])
-        print(f"  {lab:20s} vs AA@8/255 : Pearson {p:+.3f}  Spearman {s:+.3f}")
-    p, s = corr([r.get("dec_etaL", np.nan) for r in results], [r["rr_l2"] for r in results])
-    print(f"  eta/L            vs rr_L2    : Pearson {p:+.3f}  Spearman {s:+.3f}")
+    print("\n## Correlations (per-seed) vs primary AutoAttack:")
+    for key, lab in [("match", f"MATCHED eta/{dn}"), ("miss", f"mismatched eta/{dno}"),
+                     ("rr_l2", "robust radius L2"), ("consist", "consistency")]:
+        p, s = corr([r.get(key, np.nan) for r in results], [r.get(aakey, np.nan) for r in results])
+        print(f"  {lab:30s} vs AA : Pearson {p:+.3f}  Spearman {s:+.3f}")
 
-    print("\n## Gradient-masking check (robust acc; AutoAttack must be <= PGD):")
+    print("\n## Gradient-masking check (AutoAttack must be <= PGD):")
     for d in cm:
         for n in aa_names:
             pg, aa = d.get("pgd_" + n), d.get("aa_" + n)
@@ -117,32 +125,32 @@ def main():
                 flag = "" if aa <= pg + 1e-6 else "  <-- AA>PGD (suspicious)"
                 print(f"  {d['arm']:9s} w{d['w']} {n:11s}: PGD {pg:.3f}  AA {aa:.3f}{flag}")
 
-    print("\n## Within-width decomposition vs standard (AT):")
+    print("\n## Within-width decomposition vs standard:")
     for w in sorted({d["w"] for d in cm}):
         base = celld[("standard", w)]
         for a in ["blurpool", "circular", "aug"]:
             d = celld[(a, w)]
             dm = np.log(d["dec_margin"] / base["dec_margin"]); dL = np.log(d["dec_L2"] / base["dec_L2"])
             print(f"  w={w} {a:9s}: Dlog margin {dm:+.3f}  Dlog L {dL:+.3f}  Dlog(eta/L) {dm-dL:+.3f}  "
-                  f"(AA {d.get(AA, float('nan')):.3f} vs {base.get(AA, float('nan')):.3f}; rr {d['rr_l2']:.3f})")
+                  f"(AA {d.get(aakey, float('nan')):.3f} vs {base.get(aakey, float('nan')):.3f})")
 
-    fig_predict(results, celld, os.path.join(FIGDIR, "cifar_at_predict.pdf"))
-    fig_decomp(celld, os.path.join(FIGDIR, "cifar_at_decomp.pdf"))
+    fig_predict(results, celld, os.path.join(FIGDIR, f"at_predict_{tag}.pdf"), aakey, "match", matchlab, aalab)
+    fig_decomp(celld, os.path.join(FIGDIR, f"at_decomp_{tag}.pdf"))
 
-    # LaTeX table
     widths = sorted({d["w"] for d in cm}); arms = ["standard", "blurpool", "circular", "aug"]
-    L = [r"\begin{tabular}{ll cccc ccc}", r"\toprule",
-         r"arm & $w$ & clean & consist. & AA$_{\infty}$ & AA$_{2}$ & $r_2$ & $\eta$ & $\eta/L$ \\", r"\midrule"]
+    aacols = " & ".join("AA(" + n.replace("_", " ") + ")" for n in aa_names)
+    L = [r"\begin{tabular}{ll cc " + "c" * len(aa_names) + r" ccc}", r"\toprule",
+         r"arm & $w$ & clean & consist. & " + aacols + r" & $r_2$ & $\eta$ & $\eta/L_2$ \\", r"\midrule"]
     for w in widths:
         for a in arms:
             d = celld[(a, w)]
-            L.append(f"{ARM_LABEL[a]} & {w} & {d['clean']:.3f} & {d['consist']:.3f} & "
-                     f"{d.get('aa_Linf_8_255', float('nan')):.3f} & {d.get('aa_L2_0_5', float('nan')):.3f} & "
+            aav = " & ".join(f"{d.get('aa_'+n, float('nan')):.3f}" for n in aa_names)
+            L.append(f"{ARM_LABEL[a]} & {w} & {d['clean']:.3f} & {d['consist']:.3f} & {aav} & "
                      f"{d['rr_l2']:.3f} & {d['dec_margin']:.3f} & {d['dec_etaL']:.3f} \\\\")
         L.append(r"\midrule")
     L[-1] = r"\bottomrule"; L.append(r"\end{tabular}")
-    open(os.path.join(RESDIR, "cifar_at_table.tex"), "w").write("\n".join(L))
-    print("\n## LaTeX table -> results/cifar_at_table.tex\n"); print("\n".join(L))
+    open(os.path.join(RESDIR, f"at_table_{tag}.tex"), "w").write("\n".join(L))
+    print(f"\n## LaTeX table -> results/at_table_{tag}.tex\n"); print("\n".join(L))
 
 if __name__ == "__main__":
     main()

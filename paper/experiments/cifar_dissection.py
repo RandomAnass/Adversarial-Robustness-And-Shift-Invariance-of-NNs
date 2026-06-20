@@ -69,12 +69,12 @@ class CIFARNet(nn.Module):
     """3 stages x 2 conv-BN-ReLU; channels [w,2w,4w]; GAP head. Only padding mode + the
     downsampling operator change across arms, none of which add learnable parameters, so all
     arms have identical parameter counts."""
-    def __init__(self, arm="standard", w=32, ncls=10):
+    def __init__(self, arm="standard", w=32, ncls=10, in_ch=3, norm_mean=CIFAR_MEAN, norm_std=CIFAR_STD):
         super().__init__()
         self.arm = arm
         self.pad_mode = "circular" if arm == "circular" else "zeros"
-        self.norm = Normalize(CIFAR_MEAN, CIFAR_STD)
-        chs = [3, w, 2 * w, 4 * w]
+        self.norm = Normalize(norm_mean, norm_std)
+        chs = [in_ch, w, 2 * w, 4 * w]
         self.stages = nn.ModuleList()
         self.downs = nn.ModuleList()
         for s in range(3):
@@ -99,8 +99,25 @@ class CIFARNet(nn.Module):
         return self.head(z)
 
 ARMS = ["standard", "blurpool", "circular", "aug"]
-def build(arm, w): return CIFARNet(arm=arm, w=w)
+MNIST_STATS = ((0.1307,), (0.3081,)); FASHION_STATS = ((0.2860,), (0.3530,))
+def dataset_stats(d): return {"cifar": (CIFAR_MEAN, CIFAR_STD), "mnist": MNIST_STATS, "fashion": FASHION_STATS}[d]
+def in_channels(d): return 1 if d in ("mnist", "fashion") else 3
+def build(arm, w, in_ch=3, norm_mean=CIFAR_MEAN, norm_std=CIFAR_STD):
+    return CIFARNet(arm=arm, w=w, in_ch=in_ch, norm_mean=norm_mean, norm_std=norm_std)
 def nparams(m): return sum(p.numel() for p in m.parameters())
+
+def load_data(dataset, n_train, n_test, seed=0):
+    """cifar / mnist / fashion -> ([0,1] tensors). MNIST/Fashion are (N,1,28,28)."""
+    if dataset == "cifar":
+        return load_cifar(n_train, n_test, seed)
+    D = datasets.MNIST if dataset == "mnist" else datasets.FashionMNIST
+    tr = D(ROOT, train=True, download=True); te = D(ROOT, train=False, download=True)
+    Xtr = tr.data.float().div(255.0).unsqueeze(1); ytr = tr.targets.long()
+    Xte = te.data.float().div(255.0).unsqueeze(1); yte = te.targets.long()
+    g = torch.Generator().manual_seed(seed)
+    if n_train < len(Xtr): i = torch.randperm(len(Xtr), generator=g)[:n_train]; Xtr, ytr = Xtr[i], ytr[i]
+    if n_test < len(Xte): i = torch.randperm(len(Xte), generator=g)[:n_test]; Xte, yte = Xte[i], yte[i]
+    return Xtr, ytr, Xte, yte
 
 # ---------------- train ----------------
 def circular_roll(x, max_shift):

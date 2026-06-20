@@ -75,13 +75,30 @@ def quad_surrogate(X, y):
     nrm = w.norm(); eta = 1.0 / float(nrm)
     return (lambda x: (Q(x) @ (w / nrm) + b0 / nrm)), eta
 
-def train(model, X, y, steps=20000, lr=1.0):
+def train(model, X, y, steps=20000, lr=0.5, lossbased=True, lr_cap=200.0):
+    """GD on the logistic loss. The Lyu-Li loss-based increasing LR (lr *= loss0/loss, capped)
+    reaches the max-margin / implicit-bias regime far faster than fixed LR, whose convergence is
+    only O(1/log t); see github.com/vfleaking/max-margin. Bias-free homogeneous nets."""
     opt = torch.optim.SGD(model.parameters(), lr=lr)
+    with torch.no_grad():
+        loss0 = float(F.softplus(-y * model(X)).mean().clamp_min(1e-6))
     for _ in range(steps):
         opt.zero_grad(set_to_none=True)
-        loss = F.softplus(-y * model(X)).mean()                   # logistic loss
-        loss.backward(); opt.step()
+        loss = F.softplus(-y * model(X)).mean()
+        loss.backward()
+        if lossbased:
+            f = min(loss0 / float(loss.detach().clamp_min(1e-12)), lr_cap)
+            for grp in opt.param_groups:
+                grp["lr"] = lr * f
+        opt.step()
     return model.eval()
+
+@torch.no_grad()
+def norm_margin(model, X, y):
+    """Normalized margin min_i y_i f(x_i) / ||theta||^2 (degree-2 homogeneous); a convergence
+    diagnostic for the implicit bias (plateaus when the max-margin direction is reached)."""
+    pn2 = sum((p ** 2).sum() for p in model.parameters()).clamp_min(1e-12)
+    return float((y * model(X)).min() / pn2)
 
 @torch.no_grad()
 def acc(fmodel, X, y): return float((torch.sign(fmodel(X)) == torch.sign(y)).float().mean())
