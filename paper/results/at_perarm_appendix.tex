@@ -1,0 +1,35 @@
+\begin{tabular}{ll ccc}
+\toprule
+arm & $w$ & clean & consist. & robust acc. \\
+\midrule
+\multicolumn{5}{l}{\emph{MNIST}, $\ell_\infty=0.3$} \\
+standard & 32 & 0.994 & 0.945 & 0.942 \\
+anti-aliased & 32 & 0.994 & 0.953 & 0.942 \\
+exact cyclic & 32 & 0.994 & 1.000 & 0.926 \\
+shift-aug & 32 & 0.994 & 0.998 & 0.939 \\
+standard & 64 & 0.994 & 0.946 & 0.947 \\
+anti-aliased & 64 & 0.994 & 0.954 & 0.947 \\
+exact cyclic & 64 & 0.994 & 1.000 & 0.934 \\
+shift-aug & 64 & 0.995 & 0.999 & 0.952 \\
+\midrule
+\multicolumn{5}{l}{\emph{Fashion-MNIST}, $\ell_\infty=0.1$} \\
+standard & 32 & 0.876 & 0.684 & 0.776 \\
+anti-aliased & 32 & 0.876 & 0.683 & 0.776 \\
+exact cyclic & 32 & 0.855 & 1.000 & 0.724 \\
+shift-aug & 32 & 0.862 & 0.958 & 0.747 \\
+standard & 64 & 0.886 & 0.680 & 0.781 \\
+anti-aliased & 64 & 0.885 & 0.690 & 0.783 \\
+exact cyclic & 64 & 0.868 & 1.000 & 0.736 \\
+shift-aug & 64 & 0.870 & 0.964 & 0.760 \\
+\midrule
+\multicolumn{5}{l}{\emph{CIFAR-10}, $\ell_2=0.5$} \\
+standard & 32 & 0.804 & 0.829 & 0.581 \\
+anti-aliased & 32 & 0.815 & 0.832 & 0.594 \\
+exact cyclic & 32 & 0.711 & 1.000 & 0.464 \\
+shift-aug & 32 & 0.794 & 0.902 & 0.570 \\
+standard & 64 & 0.846 & 0.847 & 0.609 \\
+anti-aliased & 64 & 0.854 & 0.857 & 0.628 \\
+exact cyclic & 64 & 0.769 & 1.000 & 0.511 \\
+shift-aug & 64 & 0.841 & 0.924 & 0.613 \\
+\bottomrule
+\end{tabular}

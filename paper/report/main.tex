@@ -250,7 +250,7 @@ shift-aug     & 64 & 0.750 & 0.891 & 0.395 & 0.548 & 0.0409 & 1.100 \\
 \label{fig:cifar-at}
 \end{figure}
 
-\paragraph{Generality across datasets and threats.} The two laws hold when we repeat the adversarial-training dissection on MNIST and Fashion-MNIST ($\ell_\infty$) and on CIFAR-10 under an $\ell_2$ threat (Table~\ref{tab:at-general}). Across all four conditions the threat-matched ratio $\eta/\|\nabla M\|_q$ (with $q$ the dual norm of the attack) predicts AutoAttack robust accuracy (up to $+0.92$), exceeding the mismatched ratio in every $\ell_\infty$ condition, and shift-consistency \emph{anti}-predicts it (Pearson $-0.44$ to $-0.92$). The anti-prediction is weakest on MNIST: at $\ell_\infty{=}0.3$ every arm is roughly $94\%$ robust, so the AutoAttack spread across arms is narrow and the consistency correlation, while still negative, is not significant at this grid size; the threat-matched $\eta/L$ stays a strong predictor there ($+0.92$) because it does not saturate. The one place the matched ratio does not lead is $\ell_2$-CIFAR, where the two are comparable and the mismatched ratio is in fact marginally higher (matched $+0.88$, mismatched $+0.91$) because the $\ell_1$ and $\ell_2$ gradient norms run nearly proportional there; the threat-matching is then better read at the metric level, where the $\ell_2$ robust radius predicts $\ell_2$ AutoAttack ($+0.80$) even though it had decoupled under $\ell_\infty$ training. No gradient masking appears in any condition (AutoAttack $\le$ matched PGD throughout), and the exact-cyclic arm has the lowest robust accuracy in every condition, again through a margin deficit ($\Delta\log\eta<0$ for circular on all datasets).
+\paragraph{Generality across datasets and threats.} The two laws hold when we repeat the adversarial-training dissection on MNIST and Fashion-MNIST ($\ell_\infty$) and on CIFAR-10 under an $\ell_2$ threat (Table~\ref{tab:at-general}; the per-arm robust accuracies behind these correlations are in Appendix~\ref{app:at-tables}). Across all four conditions the threat-matched ratio $\eta/\|\nabla M\|_q$ (with $q$ the dual norm of the attack) predicts AutoAttack robust accuracy (up to $+0.92$), exceeding the mismatched ratio in every $\ell_\infty$ condition, and shift-consistency \emph{anti}-predicts it (Pearson $-0.44$ to $-0.92$). The anti-prediction is weakest on MNIST: at $\ell_\infty{=}0.3$ every arm is roughly $94\%$ robust, so the AutoAttack spread across arms is narrow and the consistency correlation, while still negative, is not significant at this grid size; the threat-matched $\eta/L$ stays a strong predictor there ($+0.92$) because it does not saturate. The one place the matched ratio does not lead is $\ell_2$-CIFAR, where the two are comparable and the mismatched ratio is in fact marginally higher (matched $+0.88$, mismatched $+0.91$) because the $\ell_1$ and $\ell_2$ gradient norms run nearly proportional there; the threat-matching is then better read at the metric level, where the $\ell_2$ robust radius predicts $\ell_2$ AutoAttack ($+0.80$) even though it had decoupled under $\ell_\infty$ training. No gradient masking appears in any condition (AutoAttack $\le$ matched PGD throughout), and the exact-cyclic arm has the lowest robust accuracy in every condition, again through a margin deficit ($\Delta\log\eta<0$ for circular on all datasets).
 
 \begin{table}[h]\centering
 \caption{Adversarial-training dissection across datasets and threat models (four arms $\times$ two widths $\times$ two seeds; Pearson computed over the sixteen per-seed points against AutoAttack robust accuracy at the threat threshold). Matched ${=}$ dual norm of the training threat ($\ell_1$ gradient for $\ell_\infty$, $\ell_2$ gradient for $\ell_2$). The consistency anti-prediction and threat-matched $\eta/L$ prediction hold throughout.}
@@ -332,5 +332,49 @@ Let $U,V$ be orthogonal subspaces of $\R^\dd$ and let $X_+=\{u\in U:\|u\|_2=a\}$
 \begin{proof}
 For $x\in X_+$, $P_Vx=0$ and $\|x\|_2=a$, so $f(x)=a^2>0$. Decompose a perturbation as $\delta=\delta_U+\delta_V+\delta_W$ with $W=(U\oplus V)^\perp$. The boundary condition $f(x+\delta)\le0$ reads $\|x+\delta_U\|_2^2\le\|\delta_V\|_2^2$; $\delta_W$ cannot help, so set it to $0$. With $r=\|x+\delta_U\|_2$, the smallest $\|\delta_U\|_2$ is $|a-r|$ (move along the ray through $x$) and the smallest feasible $\|\delta_V\|_2$ is $r$, so $\|\delta\|_2^2\ge(a-r)^2+r^2$, minimized at $r=a/2$ with value $a^2/2$; hence the radius is $a/\sqrt2$, attained. The case $x\in X_-$ is symmetric. No affine hyperplane separates the classes because $0$ lies in both class convex hulls, so the hulls intersect.
 \end{proof}
+
+\subsection{Per-arm robust accuracies under adversarial training}\label{app:at-tables}
+Table~\ref{tab:at-general} reports the correlations that summarize the generality experiment of \S\ref{sec:exp}; Table~\ref{tab:at-perarm} gives the per-arm AutoAttack robust accuracies behind them, with clean accuracy and circular-shift consistency alongside. The numbers make the saturation on MNIST explicit: at $\ell_\infty=0.3$ every arm is robust to within one point of $94\%$, so the across-arm spread that the consistency correlation reads is narrow, which is why that correlation, though still negative, is not significant at this grid size. On Fashion-MNIST and $\ell_2$-CIFAR the spread is several times wider and the exactly invariant arm, whose consistency is $1.0$ by construction, is the least robust in each width.
+
+\begin{table}[h]\centering
+\caption{Per-arm AutoAttack robust accuracy under PGD adversarial training for the three generality conditions (means over two seeds). MNIST and Fashion-MNIST are $\ell_\infty$-trained and evaluated at the listed threshold; CIFAR-10 is $\ell_2$-trained and evaluated at $\ell_2=0.5$. Clean accuracy and circular-shift consistency are shown for reference. The four arms share a channel schedule and so an identical parameter count at each width.}
+\label{tab:at-perarm}
+\small
+\begin{tabular}{ll ccc}
+\toprule
+arm & $w$ & clean & consist. & robust acc. \\
+\midrule
+\multicolumn{5}{l}{\emph{MNIST}, $\ell_\infty=0.3$} \\
+standard & 32 & 0.994 & 0.945 & 0.942 \\
+anti-aliased & 32 & 0.994 & 0.953 & 0.942 \\
+exact cyclic & 32 & 0.994 & 1.000 & 0.926 \\
+shift-aug & 32 & 0.994 & 0.998 & 0.939 \\
+standard & 64 & 0.994 & 0.946 & 0.947 \\
+anti-aliased & 64 & 0.994 & 0.954 & 0.947 \\
+exact cyclic & 64 & 0.994 & 1.000 & 0.934 \\
+shift-aug & 64 & 0.995 & 0.999 & 0.952 \\
+\midrule
+\multicolumn{5}{l}{\emph{Fashion-MNIST}, $\ell_\infty=0.1$} \\
+standard & 32 & 0.876 & 0.684 & 0.776 \\
+anti-aliased & 32 & 0.876 & 0.683 & 0.776 \\
+exact cyclic & 32 & 0.855 & 1.000 & 0.724 \\
+shift-aug & 32 & 0.862 & 0.958 & 0.747 \\
+standard & 64 & 0.886 & 0.680 & 0.781 \\
+anti-aliased & 64 & 0.885 & 0.690 & 0.783 \\
+exact cyclic & 64 & 0.868 & 1.000 & 0.736 \\
+shift-aug & 64 & 0.870 & 0.964 & 0.760 \\
+\midrule
+\multicolumn{5}{l}{\emph{CIFAR-10}, $\ell_2=0.5$} \\
+standard & 32 & 0.804 & 0.829 & 0.581 \\
+anti-aliased & 32 & 0.815 & 0.832 & 0.594 \\
+exact cyclic & 32 & 0.711 & 1.000 & 0.464 \\
+shift-aug & 32 & 0.794 & 0.902 & 0.570 \\
+standard & 64 & 0.846 & 0.847 & 0.609 \\
+anti-aliased & 64 & 0.854 & 0.857 & 0.628 \\
+exact cyclic & 64 & 0.769 & 1.000 & 0.511 \\
+shift-aug & 64 & 0.841 & 0.924 & 0.613 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \end{document}
