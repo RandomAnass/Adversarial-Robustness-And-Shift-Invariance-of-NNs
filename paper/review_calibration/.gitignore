@@ -1,0 +1,4 @@
+reviews/raw/
+__pycache__/
+*.pyc
+_picked_ids.txt

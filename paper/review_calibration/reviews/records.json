@@ -1,0 +1,645 @@
+[
+ {
+  "label": "ICLR_2020_SJxSDxrKDr",
+  "forum": "SJxSDxrKDr",
+  "conf": "ICLR",
+  "year": "2020",
+  "title": "Adversarial Training and Provable Defenses: Bridging the Gap",
+  "n_reviews": 3,
+  "ratings": [
+   8.0,
+   6.0,
+   8.0
+  ],
+  "decision": "Accept (Talk)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 7,
+  "md": "ICLR_2020_SJxSDxrKDr.md"
+ },
+ {
+  "label": "ICLR_2020_BJx040EFvH",
+  "forum": "BJx040EFvH",
+  "conf": "ICLR",
+  "year": "2020",
+  "title": "Fast is better than free: Revisiting adversarial training",
+  "n_reviews": 3,
+  "ratings": [
+   8.0,
+   6.0,
+   6.0
+  ],
+  "decision": "Accept (Poster)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 18,
+  "md": "ICLR_2020_BJx040EFvH.md"
+ },
+ {
+  "label": "ICLR_2022_zIUyj55nXR",
+  "forum": "zIUyj55nXR",
+  "conf": "ICLR",
+  "year": "2022",
+  "title": "Frame Averaging for Invariant and Equivariant Network Design",
+  "n_reviews": 4,
+  "ratings": [
+   8.0,
+   8.0,
+   8.0,
+   8.0
+  ],
+  "decision": "Accept (Oral)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 8,
+  "md": "ICLR_2022_zIUyj55nXR.md"
+ },
+ {
+  "label": "ICLR_2025_SuH5SdOXpe",
+  "forum": "SuH5SdOXpe",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "Robustness Reprogramming for Representation Learning",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   8.0,
+   8.0,
+   8.0
+  ],
+  "decision": "Accept (Spotlight)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 18,
+  "md": "ICLR_2025_SuH5SdOXpe.md"
+ },
+ {
+  "label": "NeurIPS_2023_xtADRDRsM2",
+  "forum": "xtADRDRsM2",
+  "conf": "NeurIPS",
+  "year": "2023",
+  "title": "Adversarial Robustness in Graph Neural Networks: A Hamiltonian Approach",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   5.0,
+   7.0,
+   7.0
+  ],
+  "decision": "Accept (spotlight)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 5,
+  "n_author_comments": 3,
+  "md": "NeurIPS_2023_xtADRDRsM2.md"
+ },
+ {
+  "label": "NeurIPS_2024_MN4nt01TeO",
+  "forum": "MN4nt01TeO",
+  "conf": "NeurIPS",
+  "year": "2024",
+  "title": "Adaptive Randomized Smoothing: Certified Adversarial Robustness for Multi-Step Defences",
+  "n_reviews": 4,
+  "ratings": [
+   7.0,
+   8.0,
+   6.0,
+   7.0
+  ],
+  "decision": "Accept (spotlight)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 5,
+  "n_author_comments": 0,
+  "md": "NeurIPS_2024_MN4nt01TeO.md"
+ },
+ {
+  "label": "NeurIPS_2025_xDxskDUvte",
+  "forum": "xDxskDUvte",
+  "conf": "NeurIPS",
+  "year": "2025",
+  "title": "Bridging Symmetry and Robustness: On the Role of Equivariance in Enhancing Adversarial Robustness",
+  "n_reviews": 3,
+  "ratings": [
+   5.0,
+   5.0,
+   5.0
+  ],
+  "decision": "Accept (spotlight)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 3,
+  "n_author_comments": 7,
+  "md": "NeurIPS_2025_xDxskDUvte.md"
+ },
+ {
+  "label": "NeurIPS_2023_phnN1eu5AX",
+  "forum": "phnN1eu5AX",
+  "conf": "NeurIPS",
+  "year": "2023",
+  "title": "Learning Probabilistic Symmetrization for Architecture Agnostic Equivariance",
+  "n_reviews": 5,
+  "ratings": [
+   6.0,
+   6.0,
+   6.0,
+   5.0,
+   7.0
+  ],
+  "decision": "Accept (spotlight)",
+  "bucket": "strong-accept",
+  "n_rebuttal": 6,
+  "n_author_comments": 7,
+  "md": "NeurIPS_2023_phnN1eu5AX.md"
+ },
+ {
+  "label": "ICLR_2020_rJx1Na4Fwr",
+  "forum": "rJx1Na4Fwr",
+  "conf": "ICLR",
+  "year": "2020",
+  "title": "MACER: Attack-free and Scalable Robust Training via Maximizing Certified Radius",
+  "n_reviews": 3,
+  "ratings": [
+   8.0,
+   6.0,
+   3.0
+  ],
+  "decision": "Accept (Poster)",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 6,
+  "md": "ICLR_2020_rJx1Na4Fwr.md"
+ },
+ {
+  "label": "ICLR_2021_Xb8xvrtB8Ce",
+  "forum": "Xb8xvrtB8Ce",
+  "conf": "ICLR",
+  "year": "2021",
+  "title": "Bag of Tricks for Adversarial Training",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   7.0,
+   7.0,
+   5.0
+  ],
+  "decision": "Accept (Poster)",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 8,
+  "md": "ICLR_2021_Xb8xvrtB8Ce.md"
+ },
+ {
+  "label": "ICLR_2022_Q76Y7wkiji",
+  "forum": "Q76Y7wkiji",
+  "conf": "ICLR",
+  "year": "2022",
+  "title": "Boosting the Certified Robustness of L-infinity Distance Nets",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   5.0,
+   6.0,
+   8.0
+  ],
+  "decision": "Accept (Poster)",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 10,
+  "md": "ICLR_2022_Q76Y7wkiji.md"
+ },
+ {
+  "label": "NeurIPS_2022_xaWO6bAY0xM",
+  "forum": "xaWO6bAY0xM",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "title": "Rethinking Lipschitz Neural Networks and Certified Robustness: A Boolean Function Perspective",
+  "n_reviews": 4,
+  "ratings": [
+   5.0,
+   8.0,
+   8.0,
+   8.0
+  ],
+  "decision": "Accept",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 9,
+  "md": "NeurIPS_2022_xaWO6bAY0xM.md"
+ },
+ {
+  "label": "NeurIPS_2022_dT0eNsO2YLu",
+  "forum": "dT0eNsO2YLu",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "title": "Learnable Polyphase Sampling for Shift Invariant and Equivariant Convolutional Networks",
+  "n_reviews": 3,
+  "ratings": [
+   7.0,
+   5.0,
+   6.0
+  ],
+  "decision": "Accept",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 5,
+  "md": "NeurIPS_2022_dT0eNsO2YLu.md"
+ },
+ {
+  "label": "ICLR_2024_C36v8541Ns",
+  "forum": "C36v8541Ns",
+  "conf": "ICLR",
+  "year": "2024",
+  "title": "The Lipschitz-Variance-Margin Tradeoff for Enhanced Randomized Smoothing",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   6.0,
+   8.0,
+   6.0
+  ],
+  "decision": "Accept (poster)",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 11,
+  "md": "ICLR_2024_C36v8541Ns.md"
+ },
+ {
+  "label": "ICLR_2025_sOte83GogU",
+  "forum": "sOte83GogU",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "Group Downsampling with Equivariant Anti-aliasing",
+  "n_reviews": 4,
+  "ratings": [
+   8.0,
+   6.0,
+   5.0,
+   6.0
+  ],
+  "decision": "Accept (Poster)",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 22,
+  "md": "ICLR_2025_sOte83GogU.md"
+ },
+ {
+  "label": "ICLR_2025_M9SKazbVkJ",
+  "forum": "M9SKazbVkJ",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "Rethinking Invariance Regularization in Adversarial Training to Improve Robustness-Accuracy Trade-off",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   8.0,
+   8.0,
+   6.0
+  ],
+  "decision": "Accept (Poster)",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 0,
+  "n_author_comments": 15,
+  "md": "ICLR_2025_M9SKazbVkJ.md"
+ },
+ {
+  "label": "NeurIPS_2024_jLUbLxa4XV",
+  "forum": "jLUbLxa4XV",
+  "conf": "NeurIPS",
+  "year": "2024",
+  "title": "Certified Adversarial Robustness via Randomized $\\alpha$-Smoothing for Regression Models",
+  "n_reviews": 3,
+  "ratings": [
+   5.0,
+   5.0,
+   5.0
+  ],
+  "decision": "Accept (poster)",
+  "bucket": "borderline-accept",
+  "n_rebuttal": 4,
+  "n_author_comments": 4,
+  "md": "NeurIPS_2024_jLUbLxa4XV.md"
+ },
+ {
+  "label": "ICLR_2021_IUYthV32lbK",
+  "forum": "IUYthV32lbK",
+  "conf": "ICLR",
+  "year": "2021",
+  "title": "On the Certified Robustness for Ensemble Models and Beyond",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   5.0,
+   4.0,
+   5.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 9,
+  "md": "ICLR_2021_IUYthV32lbK.md"
+ },
+ {
+  "label": "ICLR_2021_DHSNrGhAY7W",
+  "forum": "DHSNrGhAY7W",
+  "conf": "ICLR",
+  "year": "2021",
+  "title": "The Lipschitz Constant of Self-Attention",
+  "n_reviews": 4,
+  "ratings": [
+   5.0,
+   5.0,
+   7.0,
+   7.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 5,
+  "md": "ICLR_2021_DHSNrGhAY7W.md"
+ },
+ {
+  "label": "ICLR_2021_sI4SVtktqJ2",
+  "forum": "sI4SVtktqJ2",
+  "conf": "ICLR",
+  "year": "2021",
+  "title": "Efficient randomized smoothing by denoising with learned score function",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   3.0,
+   6.0,
+   6.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 10,
+  "md": "ICLR_2021_sI4SVtktqJ2.md"
+ },
+ {
+  "label": "ICLR_2022_U9zTUXVdoIr",
+  "forum": "U9zTUXVdoIr",
+  "conf": "ICLR",
+  "year": "2022",
+  "title": "GSmooth: Certified Robustness against Semantic Transformations via Generalized Randomized Smoothing",
+  "n_reviews": 4,
+  "ratings": [
+   5.0,
+   8.0,
+   3.0,
+   8.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 13,
+  "md": "ICLR_2022_U9zTUXVdoIr.md"
+ },
+ {
+  "label": "ICLR_2022_O0g6uPDLW7",
+  "forum": "O0g6uPDLW7",
+  "conf": "ICLR",
+  "year": "2022",
+  "title": "On the Adversarial Robustness of Vision Transformers",
+  "n_reviews": 4,
+  "ratings": [
+   5.0,
+   5.0,
+   5.0,
+   5.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 12,
+  "md": "ICLR_2022_O0g6uPDLW7.md"
+ },
+ {
+  "label": "ICLR_2024_kWS4iOkhXv",
+  "forum": "kWS4iOkhXv",
+  "conf": "ICLR",
+  "year": "2024",
+  "title": "Scalable Lipschitz Estimation for CNNs",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   6.0,
+   5.0,
+   5.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 6,
+  "md": "ICLR_2024_kWS4iOkhXv.md"
+ },
+ {
+  "label": "ICLR_2024_gtMbnrsyLA",
+  "forum": "gtMbnrsyLA",
+  "conf": "ICLR",
+  "year": "2024",
+  "title": "SMAAT: Scalable Manifold-Aware Adversarial Training for Large Language Models",
+  "n_reviews": 5,
+  "ratings": [
+   6.0,
+   8.0,
+   5.0,
+   6.0,
+   5.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 11,
+  "md": "ICLR_2024_gtMbnrsyLA.md"
+ },
+ {
+  "label": "ICLR_2025_sBpYRQOrMn",
+  "forum": "sBpYRQOrMn",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "New Paradigm of Adversarial Training: Breaking Inherent Trade-Off between Accuracy and Robustness via Dummy Classes",
+  "n_reviews": 4,
+  "ratings": [
+   6.0,
+   6.0,
+   6.0,
+   5.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 17,
+  "md": "ICLR_2025_sBpYRQOrMn.md"
+ },
+ {
+  "label": "NeurIPS_2023_aS2Yl8s5OG",
+  "forum": "aS2Yl8s5OG",
+  "conf": "NeurIPS",
+  "year": "2023",
+  "title": "On Adversarial Training without Perturbing all Examples",
+  "n_reviews": 5,
+  "ratings": [
+   5.0,
+   7.0,
+   5.0,
+   5.0,
+   7.0
+  ],
+  "decision": "Reject",
+  "bucket": "weak-reject",
+  "n_rebuttal": 6,
+  "n_author_comments": 0,
+  "md": "NeurIPS_2023_aS2Yl8s5OG.md"
+ },
+ {
+  "label": "ICLR_2020_SyxD7lrFPH",
+  "forum": "SyxD7lrFPH",
+  "conf": "ICLR",
+  "year": "2020",
+  "title": "Frequency Pooling: Shift-Equivalent and Anti-Aliasing Down Sampling",
+  "n_reviews": 3,
+  "ratings": [
+   3.0,
+   6.0,
+   1.0
+  ],
+  "decision": "Reject",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 6,
+  "md": "ICLR_2020_SyxD7lrFPH.md"
+ },
+ {
+  "label": "ICLR_2024_bDooTVT4t2",
+  "forum": "bDooTVT4t2",
+  "conf": "ICLR",
+  "year": "2024",
+  "title": "Universally Amplifying Randomized Smoothing for Certified Robustness with Anisotropic Noise",
+  "n_reviews": 4,
+  "ratings": [
+   3.0,
+   3.0,
+   3.0,
+   3.0
+  ],
+  "decision": "Reject",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 15,
+  "md": "ICLR_2024_bDooTVT4t2.md"
+ },
+ {
+  "label": "ICLR_2024_aAE44ivBtx",
+  "forum": "aAE44ivBtx",
+  "conf": "ICLR",
+  "year": "2024",
+  "title": "Diffusion Denoising as a Certified Defense Against Clean-Label Poisoning Attacks",
+  "n_reviews": 4,
+  "ratings": [
+   3.0,
+   3.0,
+   3.0,
+   3.0
+  ],
+  "decision": "Withdrawn (after reviews)",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 1,
+  "md": "ICLR_2024_aAE44ivBtx.md"
+ },
+ {
+  "label": "ICLR_2024_dA4EWchlbn",
+  "forum": "dA4EWchlbn",
+  "conf": "ICLR",
+  "year": "2024",
+  "title": "Advancing the Adversarial Robustness of Neural Networks from the Data Perspective",
+  "n_reviews": 4,
+  "ratings": [
+   3.0,
+   3.0,
+   5.0,
+   3.0
+  ],
+  "decision": "Reject",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 8,
+  "md": "ICLR_2024_dA4EWchlbn.md"
+ },
+ {
+  "label": "ICLR_2025_KX5hd1RhYP",
+  "forum": "KX5hd1RhYP",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "Average Certified Radius is a Poor Metric for Randomized Smoothing",
+  "n_reviews": 3,
+  "ratings": [
+   3.0,
+   5.0,
+   6.0
+  ],
+  "decision": "Reject",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 6,
+  "md": "ICLR_2025_KX5hd1RhYP.md"
+ },
+ {
+  "label": "ICLR_2025_OwtkY3LyvC",
+  "forum": "OwtkY3LyvC",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "Bridging The Gap Between Training and Testing for Certified Robustness",
+  "n_reviews": 5,
+  "ratings": [
+   3.0,
+   5.0,
+   1.0,
+   5.0,
+   3.0
+  ],
+  "decision": "Reject",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 5,
+  "md": "ICLR_2025_OwtkY3LyvC.md"
+ },
+ {
+  "label": "ICLR_2025_KoQkr9eIUG",
+  "forum": "KoQkr9eIUG",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "Roll the dice: Monte Carlo Downsampling as a low-cost Adversarial Defence",
+  "n_reviews": 4,
+  "ratings": [
+   3.0,
+   3.0,
+   3.0,
+   1.0
+  ],
+  "decision": "Withdrawn (after reviews)",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 1,
+  "md": "ICLR_2025_KoQkr9eIUG.md"
+ },
+ {
+  "label": "ICLR_2025_yi3QcCGfP1",
+  "forum": "yi3QcCGfP1",
+  "conf": "ICLR",
+  "year": "2025",
+  "title": "Enhancing Certified Robustness via Block Reflector Orthogonal Layers",
+  "n_reviews": 5,
+  "ratings": [
+   3.0,
+   6.0,
+   6.0,
+   3.0,
+   6.0
+  ],
+  "decision": "Reject",
+  "bucket": "reject",
+  "n_rebuttal": 0,
+  "n_author_comments": 16,
+  "md": "ICLR_2025_yi3QcCGfP1.md"
+ }
+]
