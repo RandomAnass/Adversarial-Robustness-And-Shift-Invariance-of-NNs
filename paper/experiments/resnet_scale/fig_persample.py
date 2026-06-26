@@ -2,7 +2,7 @@
 """
 Figures for the two STABLE per-sample findings (independent of the AutoAttack sample size, so safe to
 build before the full-10k re-eval lands):
-  F1  within-cell certificate: the local first-order ratio eta/L_loc = M/||grad M||_2 predicts each
+  F1  within-model certificate: the local first-order ratio eta/L_loc = M/||grad M||_2 predicts each
       point's own DDN l2 radius (per-sample), in every cell -- deepening the cell-mean headline.
   F2  AT inverts the margin<->sensitivity coupling: Spearman(M, ||grad M||_2) is negative under
       standard training and positive after adversarial training, in every cell.
@@ -41,7 +41,7 @@ def fig_f1():
     ax[0].set_title(rf"within one adversarially trained model: $\rho_S={rho:+.2f}$", fontsize=9.5)
     ax[0].legend(fontsize=8, loc="upper left"); ax[0].grid(alpha=.25)
     cb = fig.colorbar(hb, ax=ax[0], pad=.02); cb.set_label("points (log)", fontsize=8)
-    # -- panel B: within-cell rho_S for every cell, grouped std / AT-c10 / AT-c100 --
+    # -- panel B: within-model rho_S for every cell, grouped std / AT-c10 / AT-c100 --
     groups = [("std_cifar10", 0, "standard\ntraining"), ("at_cifar10", 1, "adversarial\ntraining"),
               ("at_cifar100", 2, "AT\nCIFAR-100")]
     rng = np.random.default_rng(0)
@@ -50,8 +50,8 @@ def fig_f1():
             ax[1].scatter(gx + rng.uniform(-.13, .13), q["spearman"], s=42,
                           color=ARM_COL.get(q["arm"], "#888"), edgecolor="k", linewidths=.5, alpha=.9, zorder=3)
     ax[1].set_xticks([g[1] for g in groups]); ax[1].set_xticklabels([g[2] for g in groups], fontsize=8.5)
-    ax[1].set_ylim(0.85, 1.0); ax[1].set_ylabel(r"within-cell $\rho_S(\eta/L_{\mathrm{loc}},\, r_2)$")
-    ax[1].set_title("holds in every cell", fontsize=9.5); ax[1].grid(alpha=.25, axis="y")
+    ax[1].set_ylim(0.85, 1.0); ax[1].set_ylabel(r"within-model $\rho_S(\eta/L_{\mathrm{loc}},\, r_2)$")
+    ax[1].set_title("holds in every model", fontsize=9.5); ax[1].grid(alpha=.25, axis="y")
     # arm legend
     seen = {}
     for arm in ["standard", "blurpool", "aps", "aug", "stdzero", "maxpool"]:
@@ -73,7 +73,7 @@ def fig_f2():
     ax.axhline(0, color="k", lw=.9)
     ax.set_xticks([g[1] for g in groups]); ax.set_xticklabels([g[2] for g in groups], fontsize=9)
     ax.set_ylim(-0.74, 0.80); ax.set_xlim(-0.45, 2.45)
-    ax.set_ylabel(r"within-cell $\rho_S(M,\ \|\nabla M\|_2)$")
+    ax.set_ylabel(r"within-model $\rho_S(M,\ \|\nabla M\|_2)$")
     ax.set_title("adversarial training inverts the\nmargin--sensitivity coupling", fontsize=10)
     ax.grid(alpha=.25, axis="y")
     # interpretation cues placed in the empty band around 0 (clear of the data clusters)

@@ -287,7 +287,7 @@ A mechanism for why shift-consistency is the unreliable signal is visible in the
 \begin{figure}[t]\centering
 \includegraphics[width=0.62\linewidth]{figures/resnet_persample_certificate.pdf}\hfill
 \includegraphics[width=0.36\linewidth]{figures/resnet_persample_signflip.pdf}
-\caption{Per-sample structure on the PreActResNet-18 cells. Left: within one adversarially trained model, the first-order ratio $M/\|\nabla M\|_2$ predicts each point's own $\ell_2$ robust radius (Spearman $+0.91$), and the within-cell rank correlation is positive in every cell across standard training, adversarial training, and CIFAR-100. Right: the within-cell coupling between margin $M$ and input-gradient norm $\|\nabla M\|_2$ is negative under standard training and positive after adversarial training, in every cell.}
+\caption{Per-sample structure on the PreActResNet-18 models. Left: within one adversarially trained model, the first-order ratio $M/\|\nabla M\|_2$ predicts each point's own $\ell_2$ robust radius (Spearman $+0.91$); the right inset plots that within-model rank correlation for each model and it is positive in every one, across standard training, adversarial training, and CIFAR-100. Right: the within-model coupling between margin $M$ and input-gradient norm $\|\nabla M\|_2$ is negative under standard training and positive after adversarial training, for every model.}
 \label{fig:persample}
 \end{figure}
 
