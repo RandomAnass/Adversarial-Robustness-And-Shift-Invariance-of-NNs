@@ -273,6 +273,7 @@ def etaL_decomposition(model, X, y, dev, n_max=1000, bs=128):
 # ---------------- AutoAttack robust accuracy ----------------
 def autoattack_acc(model, X, y, dev, eps, norm="Linf", n=512, version="standard", bs=256):
     from autoattack import AutoAttack
+    bs = int(os.environ.get("AA_BS", bs))   # env override: AutoAttack robust acc is batch-size-independent (per-sample), so a smaller batch only cuts memory, not the result
     Xa = X[:n].to(dev); ya = y[:n].to(dev)
     adv = AutoAttack(model, norm=norm, eps=eps, version=version, device=dev, verbose=False)
     adv.seed = 0                                   # fix the (randomized) Square attack for reproducibility

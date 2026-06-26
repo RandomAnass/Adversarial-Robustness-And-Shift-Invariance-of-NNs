@@ -38,7 +38,7 @@ def fig_f1():
     ax[0].plot(lim, lim, "--", color="0.4", lw=1, label="$y=x$ (first order)")
     ax[0].set_xlim(lim); ax[0].set_ylim(0, np.percentile(y, 99.5))
     ax[0].set_xlabel(r"local $\eta/L = M/\|\nabla M\|_2$"); ax[0].set_ylabel(r"DDN $\ell_2$ radius $r_2$")
-    ax[0].set_title(rf"within one model (standard, AT): $\rho_S={rho:+.2f}$", fontsize=9.5)
+    ax[0].set_title(rf"within one adversarially trained model: $\rho_S={rho:+.2f}$", fontsize=9.5)
     ax[0].legend(fontsize=8, loc="upper left"); ax[0].grid(alpha=.25)
     cb = fig.colorbar(hb, ax=ax[0], pad=.02); cb.set_label("points (log)", fontsize=8)
     # -- panel B: within-cell rho_S for every cell, grouped std / AT-c10 / AT-c100 --

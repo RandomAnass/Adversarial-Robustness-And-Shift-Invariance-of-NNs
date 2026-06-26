@@ -88,6 +88,7 @@ def main():
     K = max(1, args.workers_per_gpu)
     _maxw = max(widths); _heavy = (args.dataset == "cifar")
     if _maxw >= 96: K = min(K, 1 if _heavy else 2)
+    elif _heavy: K = min(K, 2)         # CIFAR (3-channel) AA-standard-10k is ~8 GiB/job at ANY width -> >=3 maxes a 48 GiB card
     elif _maxw >= 64: K = min(K, 2)
     A = dict(dataset=args.dataset, norm=args.norm, flip=flip, n=args.n, ntest=args.ntest,
              epochs=args.epochs, eps=eps, alpha=alpha, steps=steps, rad_n=args.rad_n, aa_n=args.aa_n,
