@@ -62,7 +62,7 @@ under it. The certificate's missing converse is exactly a co-Lipschitz statement
 
 \begin{remark}[Notation: one margin, several names]
 \label{rem:margin-notation}
-The same conceptual quantity --- the \emph{margin}, ``how decisively is a point classified'' ---
+The same conceptual quantity (the \emph{margin}, ``how decisively is a point classified'')
 wears different symbols depending on the setting, and we flag this once so it never confuses.
 In Part~I's robustness section the \emph{logit} margin (top logit minus best competitor) was
 $M_{F,x}$; in Part~I's learning section the \emph{geometric} (SVM) margin, a distance to the
@@ -516,6 +516,46 @@ locally Lipschitz with constant $O(B^2)$, versus $O(B)$ for the quadratic power 
 margin a larger $L$ means a smaller certified $\eta/L$, which is the stated trade: the higher-order
 invariant buys separability of the phase-coded corner at the price of a smaller certificate.
 \end{proof}
+
+\begin{example}[A DC-matched pair the bispectrum separates, by hand]
+\label{ex:bispec-dc}
+The dot pair $\pm e_j$ above is already separated by the linear DC feature, so it does not yet
+exhibit the bispectrum doing something \emph{no} shift-invariant linear or power-spectrum feature can.
+Here is a pair that does, reusing the two real length-$4$ signals of Example~\ref{ex:bispecn4}
+(Part~I):
+\[
+  x_A = (1.25,\ 0.25,\ 0.25,\ 0.25), \qquad
+  x_B = (0.75,\ -0.25,\ 0.75,\ 0.75).
+\]
+With the length-$4$ DFT matrix $F_4$ of Section~\ref{sec:dft}, their transforms are
+$\hat x_A = F_4 x_A = (2,\,1,\,1,\,1)$ and $\hat x_B = F_4 x_B = (2,\,i,\,1,\,-i)$.
+\begin{itemize}[nosep]
+\item \emph{Same DC (mean).} Both have $\hat x_0 = 2$, i.e.\ the same mean $\tfrac12$. A
+shift-invariant \emph{linear} feature sees only this DC coordinate (Theorem~\ref{thm:fg-margin}), so
+it returns the identical value on $x_A$ and $x_B$ and cannot separate them.
+\item \emph{Same power spectrum.} The magnitudes coincide, $|\hat x_A| = |\hat x_B| = (2,1,1,1)$, so
+both have power spectrum $(4,1,1,1)$. By Lemma~\ref{lem:ps} every conv--square--pool feature is a
+nonnegative combination of these power coordinates, so it too is blind to the difference.
+\item \emph{Different bispectrum.} The single coordinate
+$B_{1,1} = \hat x_1\,\hat x_1\,\overline{\hat x_2}$ splits them:
+\[
+  B^{(A)}_{1,1} = 1\cdot 1\cdot \overline{1} = +1,
+  \qquad
+  B^{(B)}_{1,1} = i\cdot i\cdot \overline{1} = -1 .
+\]
+The sign differs purely because $x_B$ carries the relative phase $i$ on its first Fourier coordinate
+while $x_A$ does not.
+\end{itemize}
+Because each bispectrum coordinate is shift-invariant (Theorem~\ref{thm:bispecinv}), the separation
+survives every circular shift: shifting $x_B$ to $(0.75,\,0.75,\,-0.25,\,0.75)$ leaves both its power
+spectrum $(4,1,1,1)$ and its $B_{1,1} = -1$ unchanged, while $x_A$ keeps $B_{1,1} = +1$. So a
+degree-three invariant separates a pair matched in \emph{both} DC and power spectrum, which no
+shift-invariant linear or quadratic feature can: this is the concrete form of the sharper claim in
+Proposition~\ref{prop:bispectrum}. (The numbers use Part~I's unnormalised $F_4$; under the unitary
+DFT of this part the DC value scales by $d^{-1/2}=\tfrac12$, each power coordinate by
+$d^{-1}=\tfrac14$, and the bispectrum by $d^{-3/2}=\tfrac18$, none of which changes an equality or a
+sign.)
+\end{example}
 
 
 % =====================================================================

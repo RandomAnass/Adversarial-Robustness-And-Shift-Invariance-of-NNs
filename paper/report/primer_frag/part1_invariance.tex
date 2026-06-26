@@ -362,7 +362,7 @@ itself is the circulant whose first column is $(0,1,0,\dots,0)$.
 
 The reason circulants matter is that they are \emph{precisely} the matrices that
 commute with the shift, and ``commutes with the shift'' is the algebraic spelling of
-``treats every position the same way'' --- the defining feature of a translation-blind
+``treats every position the same way'', the defining feature of a translation-blind
 operation \citep{fourier_bamieh,groups_bronstein}.
 
 \begin{lemma}[Circulants are polynomials in the shift]
@@ -378,7 +378,7 @@ commutes with $S$, and any two circulants commute with each other.
 \begin{proof}
 Note first that $S^p$ is the circulant that shifts by $p$ places, $(S^p x)_k = x_{k-p}$.
 Hence a polynomial $\sum_p c_p S^p$ sends $x$ to the vector with $k$-th entry $\sum_p
-c_p x_{k-p}$, which is the circular convolution $(c \conv x)_k$ --- a circulant with
+c_p x_{k-p}$, which is the circular convolution $(c \conv x)_k$, a circulant with
 first column $c$. Conversely, given a circulant $C$ with first column $c$, the operator
 $\sum_p c_p S^p$ has the same first column ($S^p e_0 = e_p$, so $\sum_p c_p S^p$ applied
 to $e_0$ returns $c$) and, being shift-invariant, the same every column; so the two
@@ -397,7 +397,7 @@ $j$-th DFT coefficient of $a$:
   C_a\, h_j \;=\; \widehat{a}_j\, h_j,
   \qquad\text{where } \widehat{a}_j = (Fa)_j = \sum_{l=0}^{N-1} a_l\, \omega^{jl}.
 \]
-Consequently the DFT turns convolution into entrywise multiplication --- the
+Consequently the DFT turns convolution into entrywise multiplication, the
 \emph{convolution theorem}:
 \[
   \boxed{\ \mathrm{DFT}(a \conv x) \;=\; \mathrm{DFT}(a)\,\odot\,\mathrm{DFT}(x)\ }
@@ -545,7 +545,7 @@ The DFT story was about \emph{one} symmetry, the cyclic shift. To talk about
 shift-invariance and adversarial robustness in general we need the vocabulary that
 makes ``a symmetry acting on data'' precise. The right language is that of group
 actions, and the right tool is the operation that ``averages a function over a
-symmetry'' --- the classical Reynolds operator. We follow the geometric deep learning
+symmetry'', the classical Reynolds operator. We follow the geometric deep learning
 treatment of Bronstein, Bruna, Cohen and Veli\v{c}kovi\'c \citep{groups_bronstein} and
 the Wikipedia articles on group actions and equivariant maps
 \citep{wiki_groupaction,wiki_equivariant}, downgrading their integrals over abstract
@@ -602,7 +602,7 @@ Orbits \emph{partition} $X$: every point is in exactly one orbit, because the re
 \begin{example}[Orbits of the shift on $\R^4$]
 \label{ex:orbits4}
 Under $\Z_4$ acting by shifts on $\R^4$: the orbit of $(1,0,0,0)$ is the four cyclic
-shifts $\{(1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1)\}$ --- the four standard basis
+shifts $\{(1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1)\}$, the four standard basis
 vectors. The orbit of the constant vector $(1,1,1,1)$ is just itself: shifting it
 changes nothing, so it is a \emph{fixed point}. Already you can feel the
 shift-invariance theme: a function that should not care about position must give the
@@ -633,8 +633,8 @@ codomain is trivial \citep{wiki_equivariant}.
 \begin{example}[The textbook pictures]
 \label{ex:areacentroid}
 For triangles under the rigid motions of the plane (translations, rotations,
-reflections): the \emph{area} is invariant --- moving a triangle does not change its
-area. The \emph{centroid} is equivariant --- move the triangle and its centroid moves
+reflections): the \emph{area} is invariant: moving a triangle does not change its
+area. The \emph{centroid} is equivariant: move the triangle and its centroid moves
 to exactly the image of the old centroid \citep{wiki_equivariant}. In statistics, the
 sample \emph{mean} is equivariant under rescaling of the data (change units, the mean
 changes units the same way), while the \emph{median} is equivariant under \emph{any}
@@ -686,7 +686,7 @@ Let $G$ be finite and act linearly. Then:
   \item If every $\rho(g)$ is \emph{orthogonal} (or unitary), $\rho(g)^\ast =
         \rho(g)^{-1}$, then $R$ is also self-adjoint, hence by
         Theorem~\ref{thm:orthoproj} the \emph{orthogonal} projection onto
-        $V_{\mathrm{inv}}$ --- the closest invariant vector to any given $v$.
+        $V_{\mathrm{inv}}$, the closest invariant vector to any given $v$.
 \end{enumerate}
 \end{theorem}
 
@@ -747,11 +747,11 @@ $\rho(u) = S^u$. The group average is
 \]
 the constant vector all of whose entries equal the average of $x$. Each $S^u$ is a
 permutation matrix, hence orthogonal, so by part~(iii) this $R$ is the orthogonal
-projection onto the one-dimensional invariant subspace spanned by $(1,1,\dots,1)$ ---
+projection onto the one-dimensional invariant subspace spanned by $(1,1,\dots,1)$,
 which is exactly the orbit of fixed points from Example~\ref{ex:orbits4}. Connecting to
 Section~\ref{sec:dft}: $R = \tfrac1N\sum_u S^u$ is a circulant, and by
 Theorem~\ref{thm:circdiag} its eigenvalues are the DFT of its first column
-$\tfrac1N(1,1,\dots,1)$, which is $(1,0,0,\dots,0)$ --- it keeps only the ``zero
+$\tfrac1N(1,1,\dots,1)$, which is $(1,0,0,\dots,0)$: it keeps only the ``zero
 frequency'' (the mean) and kills everything else.
 \end{example}
 
@@ -760,8 +760,8 @@ linear shift-invariant feature of a signal is its mean (any other shift-invarian
 functional must be a multiple of the sum, by the same averaging argument). Bronstein et
 al.\ make the same point vividly: for images under translation, a linear invariant can
 see nothing but the \emph{average colour} \citep{groups_bronstein}. To get richer
-invariants --- ones that can actually tell two signals apart while ignoring their
-position --- we must go \emph{nonlinear}. That is precisely what the power spectrum and
+invariants (ones that can actually tell two signals apart while ignoring their
+position) we must go \emph{nonlinear}. That is precisely what the power spectrum and
 bispectrum do.
 
 \begin{problem}
@@ -781,7 +781,7 @@ nonlinear.
 
 We now build the two nonlinear shift-invariants that the project actually uses. Both
 are computed from the DFT, both throw away absolute position, and the difference between
-them --- one discards phase, the other keeps relative phase --- is the punchline. The
+them (one discards phase, the other keeps relative phase) is the punchline. The
 sources are the MIT~6.011 notes on power spectral density \citep{invariants_mit6011},
 de~Buyl's Wiener--Khinchin derivation \citep{invariants_wienerkhinchin}, Kakarala's
 introduction to bispectral invariants \citep{invariants_kakarala}, and Chen, Zehni and
@@ -880,7 +880,7 @@ spectrum. The discrete version replaces the integrals by the length-$N$ DFT; the
 \end{proof}
 
 Why does this matter? Because it shows the power spectrum is a \emph{complete summary of
-the second-order structure} of a signal --- but \emph{only} the second order. By
+the second-order structure} of a signal, but \emph{only} the second order. By
 discarding all phase it cannot tell apart two signals whose Fourier magnitudes agree;
 Kakarala's Figure~1 shows two genuinely different shapes with identical power spectra,
 the power spectrum ``fooled'' \citep{invariants_kakarala}. To recover the lost
@@ -934,7 +934,7 @@ multiplies by $\overline{\zeta^{\,k_1+k_2}} = \zeta^{-(k_1+k_2)}$:
         \;=\; B^{(x)}_{k_1,k_2} .
 \end{align*}
 The three shift-phases cancel exactly: $k_1 + k_2 - (k_1+k_2) = 0$, so $\zeta^0 = 1$.
-That cancellation is the whole point --- it is why the bispectrum is shift-invariant
+That cancellation is the whole point: it is why the bispectrum is shift-invariant
 \citep{invariants_kakarala,invariants_chen}. Unlike the power spectrum, though, the
 bispectrum did \emph{not} have to take an absolute value to achieve invariance: it kept
 the \emph{relative} phase among the three coefficients (the part of the phase that a
@@ -948,7 +948,7 @@ that lets it separate signals the power spectrum confuses.
 \label{ex:psn4}
 Take $x = (1,0,0,0)$. Then $\widehat x = F_4 x = (1,1,1,1)$, so $P = (1,1,1,1)$. Now
 shift to $x' = (0,1,0,0)$: $\widehat{x'} = (1,-i,-1,i)$, and $|\widehat{x'}|^2 =
-(1,1,1,1)$ again --- identical power spectrum, even though every phase changed.
+(1,1,1,1)$ again, identical power spectrum, even though every phase changed.
 \end{example}
 
 \begin{example}[Discrete Wiener--Khinchin by hand]
@@ -960,7 +960,7 @@ $|\widehat x|^2 = (16,4,0,4)$. The two agree: $\widehat r = |\widehat x|^2$, exa
 Theorem~\ref{thm:wk}.
 \end{example}
 
-\begin{example}[Same power spectrum, different bispectrum --- the disambiguation]
+\begin{example}[Same power spectrum, different bispectrum: the disambiguation]
 \label{ex:bispecn4}
 Build two real length-$4$ signals
 \[
@@ -992,7 +992,7 @@ For $x = (2,1,0,1)$: (a) verify the discrete Wiener--Khinchin identity $\widehat
 |\widehat x|^2$ as in Example~\ref{ex:wkn4}; (b) shift $x$ by $2$ and confirm
 $|\widehat x|^2$ is unchanged while the individual phases rotate; (c) construct a second
 signal with the same $|\widehat x|$ but a flipped phase on one coefficient, and show
-that some bispectrum entry $B_{k_1,k_2}$ differs --- so the bispectrum distinguishes
+that some bispectrum entry $B_{k_1,k_2}$ differs, so the bispectrum distinguishes
 what the power spectrum cannot, even up to shift.
 \end{problem}
 
