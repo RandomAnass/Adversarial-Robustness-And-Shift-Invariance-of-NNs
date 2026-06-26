@@ -1,0 +1,703 @@
+% =====================================================================
+%  PRIMER PART 1 — ROBUSTNESS CLUSTER
+%  Three background sections, taught from scratch for a strong
+%  undergraduate (linear algebra, real analysis, calculus, probability;
+%  NO deep learning). Grounded in literature/pedagogy/ sources.
+%
+%  This is a FRAGMENT: no \documentclass, no \begin{document}.
+%  The assembler (primer.tex) supplies the preamble, which already
+%  defines: definition, theorem, lemma, proposition, corollary,
+%  example (printed as "Worked example"), remark, and the macros
+%  \R \Z \E \sign \Lip \one \conv \dist etc.  Exercises use
+%  \paragraph{Exercise.}  (no custom environment needed).
+%
+%  Citation keys used appear in the comment block at the END of file.
+% =====================================================================
+
+\section{Adversarial robustness from scratch}
+\label{sec:adv-from-scratch}
+
+This section answers one question: \emph{what does it mean for a classifier to be robust, and why is the obvious thing — high test accuracy — not enough?} We follow the order that worked for the three undergraduates who got lost in the previous draft: first a surprising concrete demonstration, then just enough notation to talk about it, and only at the end the formal optimization picture. This is the order of the Kolter--Madry tutorial \citep{kolter2018adversarial}, which is the spine of this whole section.
+
+\subsection{Demo first: a pig that the classifier thinks is a wombat}
+\label{sub:demo}
+
+Imagine you have a state-of-the-art image classifier — a fixed function that takes an image and outputs a label. You feed it a clear photo of a pig. It says ``pig'' with $99.6\%$ confidence. Good. Now you add to that photo a tiny amount of carefully chosen noise: so tiny that, pixel by pixel, no human eye can tell the new image apart from the old one. You feed in the new image. The same classifier now says ``wombat'' with $99.98\%$ confidence \citep{kolter2018adversarial}. With slightly different noise it says ``airliner.'' The pictures look identical to you; the classifier's answer flipped completely.
+
+This is not a bug in one model or one photo. It happens to essentially every modern image classifier, on essentially every image, and the noise needed is astonishingly small. The phenomenon was discovered by \citet{szegedy2014intriguing}, who called these crafted inputs \emph{adversarial examples}. The rest of this section builds the language to say precisely what just happened and how we measure it.
+
+\paragraph{Why should you care?} Two reasons, both from \citet{kolter2018adversarial}. First, the obvious security reason: if a system is deployed where someone has an incentive to fool it (spam filters, malware detectors, a camera that reads stop signs for a self-driving car), then ``works most of the time'' is not the right standard; we want ``works even against someone deliberately trying to break it.'' Second, the deeper reason: a model that can be flipped from ``pig'' to ``airliner'' by invisible noise clearly has \emph{not} learned the concept ``pig'' the way a human has. Adversarial examples expose that high test accuracy can hide a brittle, shallow understanding of the data.
+
+\subsection{The minimum notation we need}
+\label{sub:notation}
+
+\begin{definition}[Model / hypothesis]
+A \emph{model} (or \emph{hypothesis}) is a function $h_\theta : \mathcal X \to \R^k$. It takes an input $x$ from the input space $\mathcal X$ (for images, a long vector of pixel intensities) and outputs a vector of $k$ real numbers, one per class. The subscript $\theta$ collects all the model's tunable numbers, called \emph{parameters} (for a neural network these are all its weight matrices and biases). We \emph{train} a model by choosing $\theta$; once trained, $\theta$ is frozen and we study $x$.
+\end{definition}
+
+The $k$ output numbers are called \emph{logits}.
+
+\begin{definition}[Logit, softmax, predicted class]
+The components $h_\theta(x)_1,\dots,h_\theta(x)_k$ are the \emph{logits}: real numbers, possibly negative, one per class. The predicted class is the index of the largest logit, $\arg\max_i h_\theta(x)_i$. To turn logits into probabilities one applies the \emph{softmax} map $\sigma:\R^k\to\R^k$,
+\[
+  \sigma(z)_j \;=\; \frac{e^{z_j}}{\sum_{i=1}^{k} e^{z_i}},
+\]
+which is positive and sums to $1$. Bigger logit $\Rightarrow$ bigger probability; the $\arg\max$ is unchanged by softmax, so for deciding the label we can work with the raw logits and ignore softmax.
+\end{definition}
+
+\begin{definition}[Loss]
+A \emph{loss function} $\ell(h_\theta(x),y)$ takes the model's logit vector and the true class index $y\in\{1,\dots,k\}$ and returns a single nonnegative number measuring how wrong the prediction is: small loss means the model put high probability on the true class. The standard choice is the \emph{cross-entropy} (or \emph{softmax}) loss
+\[
+  \ell(h_\theta(x),y) \;=\; -\log \sigma\!\big(h_\theta(x)\big)_y
+  \;=\; -\,h_\theta(x)_y + \log\!\sum_{i=1}^k e^{h_\theta(x)_i},
+\]
+i.e.\ the negative log-probability assigned to the true class. In the pig example the loss of the correct ``pig'' label was about $0.0039$, which corresponds to probability $e^{-0.0039}\approx 0.996$ \citep{kolter2018adversarial}.
+\end{definition}
+
+\paragraph{Gradient with respect to the input.} The single technical tool that makes adversarial examples possible is the \emph{gradient of the loss with respect to the input}, written $\nabla_x \ell(h_\theta(x),y)$. Recall from calculus that for a scalar function $\ell$ of a vector $x\in\R^n$, the gradient $\nabla_x \ell$ is the vector of partial derivatives $\big(\partial \ell/\partial x_1,\dots,\partial \ell/\partial x_n\big)$; it points in the direction in input space along which the loss increases fastest, and its $i$-th entry tells you how much the loss changes if you nudge pixel $i$. Crucially, \emph{normal} training computes the gradient with respect to the parameters $\theta$ (to improve the model); here we keep $\theta$ fixed and differentiate with respect to the \emph{input} $x$ (to attack the model). Both are computed by the same mechanical procedure (backpropagation); for our purposes you may treat $\nabla_x \ell$ as a vector you can evaluate at any point.
+
+\subsection{An adversarial example is an inner maximization}
+\label{sub:inner-max}
+
+Training minimizes the loss over $\theta$. An attacker does the opposite: keep the model fixed and \emph{change the input to make the loss large}. In the words of \citet{kolter2018adversarial}: ``instead of adjusting the image to minimize the loss\dots we're going to adjust the image to maximize the loss.''
+
+We cannot let the attacker change the image arbitrarily — turning a pig into an actual photo of a wombat would not be impressive. So we restrict the change. Write the perturbation as $\delta$ and require it to lie in an allowed set $\Delta$:
+\begin{equation}
+  \label{eq:inner-max}
+  \max_{\delta \in \Delta}\; \ell\!\big(h_\theta(x+\delta),\, y\big).
+\end{equation}
+Equation~\eqref{eq:inner-max} is the heart of the whole field. In words: \emph{over all allowed perturbations $\delta$, what is the largest loss the attacker can force, and which $\delta$ achieves it?} A solution $\delta^\star$ is an adversarial perturbation, and $x+\delta^\star$ is an adversarial example. The notation $\max_{\delta\in\Delta}$ means the maximum is taken over the variable $\delta$ ranging in $\Delta$; the result is a number (the worst-case loss), and the maximizer is the worst-case perturbation.
+
+\subsection{Threat models: how big a change is ``allowed''?}
+\label{sub:threat}
+
+The set $\Delta$ is called the \emph{threat model}: it formalizes the attacker's power. The most common choice is a \emph{norm ball}: all perturbations whose size, measured by some norm $\|\cdot\|$, is at most a budget $\epsilon$. We fix conventions once: $\delta$ is the perturbation, $\epsilon$ is the radius, and
+\[
+  \Delta \;=\; \{\,\delta : \|\delta\| \le \epsilon\,\}.
+\]
+Two norms dominate the literature; both are worth defining carefully because students confuse them.
+
+\begin{definition}[$\ell_\infty$ norm]
+For a vector $z=(z_1,\dots,z_n)\in\R^n$,
+\[
+  \|z\|_\infty \;=\; \max_{1\le i\le n} |z_i| .
+\]
+It is the largest single coordinate in absolute value. The constraint $\|\delta\|_\infty\le\epsilon$ says \emph{every} pixel may move by at most $\epsilon$, independently. Example: if $\epsilon=0.1$ and an image has $784$ pixels, an $\ell_\infty$ attack may shift each of the $784$ pixels by up to $0.1$ at once.
+\end{definition}
+
+\begin{definition}[$\ell_2$ norm]
+For $z\in\R^n$,
+\[
+  \|z\|_2 \;=\; \sqrt{\,z_1^2 + z_2^2 + \dots + z_n^2\,}\,,
+\]
+the ordinary Euclidean length. The constraint $\|\delta\|_2\le\epsilon$ caps the \emph{total} energy of the perturbation, so the attacker can spend a big change on a few pixels if it spends little elsewhere. Example: $\delta=(0.3,0,\dots,0)$ and $\delta'=(0.1,0.1,0.1,0,\dots)$ have very different ``shapes'' but the first has $\|\delta\|_2=0.3$ while the second has $\|\delta'\|_2=\sqrt{0.03}\approx0.173$.
+\end{definition}
+
+\paragraph{Why $\ell_\infty$ is the workhorse.} \citet{kolter2018adversarial} explain its appeal: for small $\epsilon$ an $\ell_\infty$ perturbation ``add[s] such a small component to each pixel\dots that they are visually indistinguishable from the original image.'' It is a clean, if crude, stand-in for ``looks the same to a human.'' The two norms are also numerically different in scale: the $\ell_2$ budget that matches an $\ell_\infty$ budget of $\epsilon=0.1$ on a $784$-pixel image is about $\tfrac{\sqrt{2\cdot784}}{\sqrt{\pi e}}\cdot 0.1 \approx 1.35$, i.e.\ much larger numerically, because in high dimensions a per-coordinate cap of $0.1$ over $784$ coordinates buys a lot of Euclidean length \citep{kolter2018adversarial}. This is the first hint that \emph{high dimension is the attacker's friend} — a theme we return to with FGSM in Section~\ref{sec:attacks}.
+
+\subsection{Ordinary risk versus adversarial risk}
+\label{sub:risk}
+
+So far we attacked one input. To talk about a model's overall robustness we average over the data distribution $\mathcal D$ (the unknown distribution from which real inputs are drawn).
+
+\begin{definition}[Risk and adversarial risk]
+The ordinary \emph{risk} of a model is its expected loss,
+\[
+  R(h_\theta) \;=\; \E_{(x,y)\sim\mathcal D}\big[\ell(h_\theta(x),y)\big].
+\]
+The \emph{adversarial} (or \emph{robust}) \emph{risk} replaces each point's loss by the worst-case loss in its threat set:
+\[
+  R_{\mathrm{adv}}(h_\theta) \;=\; \E_{(x,y)\sim\mathcal D}\Big[\;\max_{\delta\in\Delta(x)} \ell\!\big(h_\theta(x+\delta),y\big)\Big].
+\]
+Here $\Delta(x)$ is allowed to depend on $x$ (e.g.\ so that $x+\delta$ stays a valid image in $[0,1]^n$). In practice $\mathcal D$ is unknown, so we estimate both by averaging over a finite held-out test set.
+\end{definition}
+
+Ordinary risk asks ``how often is the model right on typical inputs?''; adversarial risk asks ``how often is the model right \emph{even when each input is nudged adversarially within budget $\epsilon$}?'' A model can have tiny ordinary risk and huge adversarial risk — exactly the pig situation.
+
+\subsection{Two ways to report robustness: accuracy at a radius vs.\ robust radius}
+\label{sub:robacc-vs-radius}
+
+There are two natural numbers to report, and keeping them apart is essential.
+
+\begin{definition}[Robust accuracy at radius $\epsilon$]
+Fix a radius $\epsilon$. A test point $x$ (true label $y$) is \emph{robustly correct at radius $\epsilon$} if the model classifies $x+\delta$ correctly for \emph{every} $\delta$ with $\|\delta\|\le\epsilon$. The \emph{robust accuracy at radius $\epsilon$} is the fraction of test points that are robustly correct:
+\[
+  \mathrm{RobAcc}(\epsilon)
+  \;=\; \frac1N \sum_{x} \one\big[\text{$x$ is classified correctly for all $\|\delta\|\le\epsilon$}\big],
+\]
+where $N$ is the number of test points and $\one[\cdot]$ is $1$ when the bracket is true and $0$ otherwise. ``Robust error at radius $\epsilon$'' is one minus this. Read it as: \emph{the fraction of points that survive every attack of size up to $\epsilon$.}
+\end{definition}
+
+\begin{definition}[Robust radius]
+The \emph{robust radius} of a point $x$ is the size of the \emph{smallest} perturbation that changes the model's prediction,
+\[
+  r(x) \;=\; \min\{\,\|\delta\| : h_\theta(x+\delta)\ \text{is misclassified}\,\}.
+\]
+It is the distance from $x$ to the nearest decision boundary, measured in the chosen norm. A large $r(x)$ means $x$ sits comfortably inside its class; $r(x)=0$ would mean $x$ is already on the boundary.
+\end{definition}
+
+These two are duals of each other. A point $x$ survives radius $\epsilon$ exactly when its robust radius exceeds $\epsilon$, so
+\begin{equation}
+  \label{eq:duality}
+  \mathrm{RobAcc}(\epsilon) \;=\; \frac1N\sum_x \one\big[\,r(x) > \epsilon\,\big],
+\end{equation}
+i.e.\ \emph{the fraction of points whose robust radius is bigger than $\epsilon$}. Fixing $\epsilon$ and reading off the fraction is a single vertical slice through the function $\epsilon\mapsto\mathrm{RobAcc}(\epsilon)$; measuring $r(x)$ for every point recovers the whole curve. We will see in Section~\ref{sec:attacks} that the two families of attacks correspond exactly to these two views.
+
+\subsection{Certificate (lower bound) versus attack (upper bound)}
+\label{sub:cert-vs-attack}
+
+We can never enumerate all $\delta$, so for any single point we work with bounds on $r(x)$, and there are two opposite kinds.
+
+\begin{definition}[Attack and certificate]
+An \emph{attack} exhibits a concrete adversarial perturbation $\delta$ with $\|\delta\|\le\epsilon$ that flips the label. It \emph{proves the model is not robust at radius $\|\delta\|$}, hence gives an \emph{upper bound} on the robust radius: $r(x)\le\|\delta\|$. A \emph{certificate} is a mathematical \emph{guarantee} that \emph{no} perturbation of size $\le\rho$ can flip the label; it gives a \emph{lower bound} $r(x)\ge\rho$, i.e.\ the model is provably safe out to radius $\rho$.
+\end{definition}
+
+The two bound $r(x)$ from opposite sides:
+\[
+  \underbrace{\rho}_{\text{certificate, lower bound}} \;\le\; r(x) \;\le\; \underbrace{\|\delta\|}_{\text{attack, upper bound}}.
+\]
+An attack can only ever say ``robustness is at most this''; a certificate can only ever say ``robustness is at least this.'' Beating one does not give the other. Sections~\ref{sec:attacks} and~\ref{sec:lipschitz} are precisely the two sides: attacks (upper bounds) and Lipschitz certificates (lower bounds).
+
+\subsection{Worked example: the linear MNIST 0-vs-1 robustness story}
+\label{sub:mnist01}
+
+We now make the accuracy--robustness gap concrete and hand-checkable, following the linear-model chapter of \citet{kolter2018adversarial}. Consider a \emph{binary} linear classifier on the MNIST handwritten digits, restricted to the two classes ``0'' and ``1.'' Each image is a vector $x\in\R^{784}$ (a $28\times28$ grid flattened). The model is
+\[
+  h_{w,b}(x) \;=\; w^\top x + b, \qquad w\in\R^{784},\ b\in\R,
+\]
+predicting class $+1$ when $w^\top x + b > 0$ and class $-1$ otherwise (we use labels $y\in\{+1,-1\}$ here). The binary cross-entropy (logistic) loss is $\ell = L\big(y\,(w^\top x+b)\big)$ with $L(z)=\log(1+e^{-z})$, which is decreasing in $z$.
+
+\begin{example}[The 0-vs-1 numbers]
+\citet{kolter2018adversarial} train this model and report:
+\begin{itemize}[nosep]
+  \item \textbf{Clean.} Test error about $0.04\%$ — the model gets all but one test digit right. Easy problem.
+  \item \textbf{Attacked at $\epsilon=0.2$ ($\ell_\infty$).} Allowing each pixel to move by up to $0.2$, the test error jumps to $\mathbf{84.5\%}$. The same model that was essentially perfect is now wrong on five out of six images, under perturbations that do not fool a human.
+  \item \textbf{Robustly trained, then attacked at $\epsilon=0.2$.} Retraining the model to optimize the \emph{adversarial} risk (Section~\ref{sub:risk}) drops the worst-case error to $\mathbf{2.5\%}$ robust error, at the cost of clean error rising from $0.04\%$ to about $0.3\%$.
+\end{itemize}
+Two lessons. (1) Standard training, even of a simple linear model on a trivial task, is wildly non-robust. (2) Robustness is buyable but not free: the $0.04\%\to0.3\%$ rise in clean error is a small instance of the \emph{accuracy--robustness trade-off} that recurs throughout the field \citep{kolter2018adversarial}.
+\end{example}
+
+Why is the linear case special and worth memorizing? Because for it the inner maximization~\eqref{eq:inner-max} can be solved \emph{exactly} in closed form, which the next subsection's exercise asks you to do. (For deep networks it cannot, which is why we need iterative attacks in Section~\ref{sec:attacks}.)
+
+\subsection{Exercise: the worst-case $\ell_\infty$ perturbation of a linear model}
+\label{sub:exercise-linear}
+
+\paragraph{Exercise.} Let $h_{w,b}(x)=w^\top x + b$ be a two-class linear model that currently classifies a point $x$ correctly as class $+1$, so its \emph{score} $s(x)=w^\top x+b$ is positive. An attacker may add any $\delta$ with $\|\delta\|_\infty\le\epsilon$ and wants to \emph{lower} the score (toward the wrong side of the boundary). Show that the worst-case perturbation is
+\[
+  \delta^\star \;=\; -\,\epsilon\,\sign(w),
+\]
+where $\sign(w)$ is the vector of signs of the entries of $w$ ($+1,-1,0$ entrywise), and that the resulting score drop is exactly
+\[
+  s(x) - s(x+\delta^\star) \;=\; \epsilon\,\|w\|_1, \qquad \|w\|_1 = \sum_{i=1}^n |w_i|.
+\]
+
+\begin{solution}
+The new score is $s(x+\delta) = w^\top(x+\delta)+b = (w^\top x + b) + w^\top\delta = s(x) + w^\top\delta$, so lowering the score means making $w^\top\delta$ as \emph{negative} as possible, subject to $\|\delta\|_\infty\le\epsilon$. Write the dot product coordinatewise:
+\[
+  w^\top\delta \;=\; \sum_{i=1}^n w_i\,\delta_i .
+\]
+Each term $w_i\delta_i$ is minimized independently because the constraint $|\delta_i|\le\epsilon$ couples nothing across coordinates. For a fixed $w_i$, the most negative value of $w_i\delta_i$ over $|\delta_i|\le\epsilon$ is $-\epsilon|w_i|$, attained by choosing $\delta_i=-\epsilon$ when $w_i>0$ and $\delta_i=+\epsilon$ when $w_i<0$, i.e.\ $\delta_i = -\epsilon\,\sign(w_i)$. Summing the per-coordinate minima,
+\[
+  \min_{\|\delta\|_\infty\le\epsilon} w^\top\delta \;=\; \sum_{i=1}^n \big(-\epsilon|w_i|\big) \;=\; -\epsilon\sum_{i=1}^n|w_i| \;=\; -\epsilon\,\|w\|_1 ,
+\]
+achieved at $\delta^\star=-\epsilon\,\sign(w)$. Therefore the score drops by exactly $\epsilon\,\|w\|_1$, as claimed.
+\end{solution}
+
+Three things to take away. (i) The optimal $\delta^\star$ does not depend on $x$ at all — the same perturbation attacks every input, which is why the MNIST attack was so cheap. (ii) The drop $\epsilon\|w\|_1$ grows with $\|w\|_1$, foreshadowing why \emph{controlling the norm of the weights} (Sections~\ref{sec:lipschitz}, and the margin theory in later parts) controls robustness. (iii) The quantity $\|w\|_1$ is the \emph{dual norm} of the $\ell_\infty$ ball: maximizing a linear function $w^\top\delta$ over $\|\delta\|_\infty\le\epsilon$ gives $\epsilon\|w\|_1$. The general fact is $\max_{\|\delta\|_p\le\epsilon} w^\top\delta = \epsilon\|w\|_q$ with $\tfrac1p+\tfrac1q=1$ \citep{kolter2018adversarial}; the $\ell_\infty$/$\ell_1$ pair is the case $p=\infty,q=1$, and we meet it again as FGSM's optimality and as Hein's certificate.
+
+\subsection{Robust optimization and Danskin's theorem}
+\label{sub:danskin}
+
+Putting attacker and defender together gives the \emph{saddle-point} (min--max, or \emph{robust optimization}) problem of \citet{madry2018towards}, the single organizing equation of robust training:
+\begin{equation}
+  \label{eq:saddle}
+  \min_{\theta}\; \E_{(x,y)\sim\mathcal D}\Big[\;\max_{\delta\in\Delta}\, \ell\!\big(h_\theta(x+\delta),y\big)\Big].
+\end{equation}
+The \emph{inner} maximization is the attacker (find the worst $\delta$); the \emph{outer} minimization is the defender (choose $\theta$ to make even the worst-case loss small). \citet{kolter2018adversarial} state the unifying slogan plainly: \emph{every adversarial attack and defense is a method for approximately solving the inner maximization and/or the outer minimization}; the right way to describe an attack is by its norm ball plus its optimization method, not by a brand name.
+
+To train by gradient descent on~\eqref{eq:saddle} we must differentiate, with respect to $\theta$, a quantity that itself contains a maximization over $\delta$. The justification is Danskin's theorem; we state it and, as instructed, do not prove it.
+
+\begin{theorem}[Danskin, stated without proof]
+\label{thm:danskin}
+Suppose the inner maximization in~\eqref{eq:saddle} is solved \emph{exactly}, with maximizer $\delta^\star=\delta^\star(\theta)$. Then the gradient with respect to $\theta$ of the value $\max_{\delta\in\Delta}\ell(h_\theta(x+\delta),y)$ equals the gradient of $\ell(h_\theta(x+\delta),y)$ evaluated at the fixed point $\delta=\delta^\star$:
+\[
+  \nabla_\theta\!\left[\max_{\delta\in\Delta}\ell\big(h_\theta(x+\delta),y\big)\right]
+  \;=\; \nabla_\theta\,\ell\big(h_\theta(x+\delta^\star),y\big)\Big|_{\delta^\star\ \text{held fixed}} .
+\]
+\end{theorem}
+
+In words: to take the gradient of the worst-case loss, first find the worst $\delta^\star$, then differentiate as if $\delta^\star$ were a constant. This is what licenses ``adversarial training'': repeatedly attack each batch, then take a normal gradient step on the attacked inputs. \citet{kolter2018adversarial} stress the catch — Danskin requires the inner max to be solved \emph{exactly}, which for deep networks it never is. In practice one solves it ``well enough'' (a strong attack such as PGD, Section~\ref{sec:attacks}) and accepts that the theorem holds only approximately; if the inner attack is weak, a stronger attack can later defeat the supposedly robust model.
+
+% =====================================================================
+\section{Lipschitz constants and robustness certificates}
+\label{sec:lipschitz}
+
+Section~\ref{sec:adv-from-scratch} promised certificates: \emph{provable lower bounds} on the robust radius, the guarantee that no attack within radius $\rho$ can change the label. This section delivers the most important one. The single idea is: \emph{if the model's output cannot change quickly as the input moves, and the input currently sits well inside its class, then a small input change cannot flip the decision.} ``Cannot change quickly'' is made precise by the Lipschitz constant; ``well inside its class'' by the margin. We build both from scratch — this material confused even the professor in the last draft, so we go slowly and keep the jargon minimal.
+
+\subsection{Lipschitz continuity and the Lipschitz constant}
+\label{sub:lip-def}
+
+\begin{definition}[Lipschitz continuity]
+A function $f:\R^n\to\R^m$ is \emph{Lipschitz continuous} if there is a constant $L\ge0$ such that
+\[
+  \|f(x)-f(y)\| \;\le\; L\,\|x-y\| \qquad \text{for all } x,y .
+\]
+The smallest such $L$ is the \emph{Lipschitz constant} of $f$, written $\Lip(f)$ \citep{scaman2018lipschitz}. (Until Section~\ref{sub:margin-cert} take both norms to be $\ell_2$.)
+\end{definition}
+
+The plain-English reading from the Wikipedia article \citep{wiki_lipschitz} is the cleanest: \emph{the absolute value of the slope of the line joining any two points on the graph is at most $L$.} The output can change by at most $L$ times the input change — $L$ is a speed limit on the function. Three examples fix the idea.
+
+\begin{example}[Three one-dimensional functions]\leavevmode
+\begin{itemize}[nosep]
+  \item $f(x)=|x|$ is $1$-Lipschitz: by the reverse triangle inequality $\big||x|-|y|\big|\le|x-y|$, so $L=1$ works, and taking $y=0$ shows no smaller $L$ works. Note $f$ is not differentiable at $0$ — Lipschitz does not require differentiability.
+  \item $f(x)=cx$ (a line of slope $c$) has $\Lip(f)=|c|$: $|cx-cy|=|c|\,|x-y|$ with equality always.
+  \item $f(x)=x^2$ is \emph{not} Lipschitz on all of $\R$: $|x^2-y^2|=|x+y|\,|x-y|$, and the factor $|x+y|$ is unbounded, so no single finite $L$ caps the slope everywhere \citep{wiki_lipschitz}. (It \emph{is} Lipschitz on any bounded interval — this is the difference between a global and a local constant, which matters below.)
+\end{itemize}
+\end{example}
+
+For differentiable functions the constant is the supremum of the gradient norm. This is Rademacher's theorem applied to Lipschitz functions; we use it as a computational rule.
+
+\begin{theorem}[Lipschitz constant via the gradient \citep{scaman2018lipschitz}]
+\label{thm:lip-grad}
+If $f:\R^n\to\R$ is (locally) Lipschitz, then it is differentiable almost everywhere and
+\[
+  \Lip(f) \;=\; \sup_{x} \|\nabla f(x)\| .
+\]
+For vector-valued $f:\R^n\to\R^m$ the same holds with $\|\nabla f(x)\|$ replaced by the operator norm $\|D_x f\|$ of the Jacobian (defined next).
+\end{theorem}
+
+This already connects to robustness: a small Lipschitz constant means the output cannot move far when the input is nudged, which is exactly the kind of stability an adversarial example tries to violate \citep{tsuzuku2018lipschitz}.
+
+\subsection{The spectral norm: the Lipschitz constant of a linear map}
+\label{sub:spectral}
+
+The most important Lipschitz constant is for the simplest function, a linear map $f(x)=Wx$.
+
+\begin{definition}[Operator / spectral norm]
+For a matrix $W\in\R^{m\times n}$, the \emph{operator norm} (also \emph{spectral norm}) is the largest factor by which $W$ can stretch a unit vector:
+\[
+  \|W\|_2 \;=\; \sup_{\|z\|_2 = 1} \|Wz\|_2 .
+\]
+\end{definition}
+
+\begin{theorem}[Spectral norm $=$ Lipschitz constant of $x\mapsto Wx$]
+\label{thm:spectral-lip}
+For $f(x)=Wx$, $\ \Lip(f)=\|W\|_2=\sigma_{\max}(W)=\sqrt{\lambda_{\max}(W^\top W)}$, where $\sigma_{\max}$ is the largest singular value of $W$ and $\lambda_{\max}$ the largest eigenvalue.
+\end{theorem}
+
+\begin{proof}
+We compute $\sup_{\|z\|=1}\|Wz\|$ and identify it with the largest singular value via the Rayleigh quotient. Each step on its own line.
+\begin{enumerate}[label=(\arabic*),nosep]
+  \item For any $x,y$, linearity gives $f(x)-f(y)=Wx-Wy=W(x-y)$.
+  \item Hence $\|f(x)-f(y)\| = \|W(x-y)\|$, and setting $z=x-y$ the Lipschitz constant is $\Lip(f)=\sup_{z\neq0}\|Wz\|/\|z\| = \sup_{\|z\|=1}\|Wz\|=\|W\|_2$. So the Lipschitz constant \emph{is} the operator norm; it remains to evaluate it.
+  \item Squaring is monotone on nonnegatives, so $\sup_{\|z\|=1}\|Wz\|$ is the square root of $\sup_{\|z\|=1}\|Wz\|^2$.
+  \item Expand the squared norm using the definition of the inner product: $\|Wz\|^2 = (Wz)^\top(Wz) = z^\top W^\top W z$.
+  \item The matrix $A:=W^\top W$ is symmetric ($A^\top=(W^\top W)^\top = W^\top W = A$) and positive semidefinite ($z^\top A z = \|Wz\|^2\ge0$). By the spectral theorem it has an orthonormal eigenbasis $v_1,\dots,v_n$ with real eigenvalues $\lambda_1\ge\dots\ge\lambda_n\ge0$.
+  \item Write a unit vector $z=\sum_i c_i v_i$ with $\sum_i c_i^2=1$. Then $z^\top A z = \sum_i \lambda_i c_i^2$, a weighted average of the $\lambda_i$ with weights $c_i^2$ summing to $1$.
+  \item A weighted average is maximized by putting all weight on the largest value: $\sum_i \lambda_i c_i^2 \le \lambda_1$, with equality when $c_1=1$ (i.e.\ $z=v_1$). Hence $\sup_{\|z\|=1} z^\top A z = \lambda_1 = \lambda_{\max}(W^\top W)$.
+  \item Taking the square root from step (3): $\|W\|_2 = \sqrt{\lambda_{\max}(W^\top W)} = \sigma_{\max}(W)$, since singular values of $W$ are square roots of eigenvalues of $W^\top W$ by definition.
+\end{enumerate}
+\end{proof}
+
+\begin{example}[Spectral norms by hand]\leavevmode
+\begin{itemize}[nosep]
+  \item $W=\begin{psmallmatrix}3&0\\0&1\end{psmallmatrix}$. Then $W^\top W=\begin{psmallmatrix}9&0\\0&1\end{psmallmatrix}$, eigenvalues $9$ and $1$, so $\|W\|_2=\sqrt9=3$. (For a diagonal matrix the spectral norm is just the largest $|$entry$|$.)
+  \item $W=\begin{psmallmatrix}1&1\\0&1\end{psmallmatrix}$. Then $W^\top W=\begin{psmallmatrix}1&1\\1&2\end{psmallmatrix}$, with eigenvalues solving $\lambda^2-3\lambda+1=0$, i.e.\ $\lambda=\tfrac{3\pm\sqrt5}{2}$. The spectral norm is $\sqrt{\tfrac{3+\sqrt5}{2}}\approx1.618$ (the golden ratio). Notice the entries are all $0$ or $1$ yet the stretch exceeds $1$: off-diagonal coupling matters.
+\end{itemize}
+\end{example}
+
+\subsection{Activations are 1-Lipschitz, and constants multiply across layers}
+\label{sub:composition}
+
+A neural network alternates linear maps with simple nonlinear functions called \emph{activations}, applied entrywise. The most common is the ReLU (rectified linear unit) $\mathrm{ReLU}(z)=\max\{0,z\}$. We need two facts.
+
+\begin{lemma}[ReLU is $1$-Lipschitz]
+\label{lem:relu}
+$|\mathrm{ReLU}(a)-\mathrm{ReLU}(b)|\le|a-b|$ for all real $a,b$, so $\Lip(\mathrm{ReLU})=1$. Applied entrywise to a vector, the map is still $1$-Lipschitz in $\ell_2$.
+\end{lemma}
+
+\begin{proof}
+Check the four sign cases for $a,b$ (each line is one case).
+\begin{itemize}[nosep]
+  \item $a\ge0,\ b\ge0$: $|\mathrm{ReLU}(a)-\mathrm{ReLU}(b)|=|a-b|$.
+  \item $a\le0,\ b\le0$: both map to $0$, difference $0\le|a-b|$.
+  \item $a\ge0,\ b\le0$: $|\mathrm{ReLU}(a)-\mathrm{ReLU}(b)|=|a-0|=a\le a-b=|a-b|$ (since $b\le0$).
+  \item $a\le0,\ b\ge0$: symmetric to the previous case, gives $b\le|a-b|$.
+\end{itemize}
+In every case the inequality holds, and equality occurs (e.g.\ both positive), so the constant $1$ is tight. Applied entrywise, $\|\mathrm{ReLU}(u)-\mathrm{ReLU}(v)\|_2^2=\sum_i(\mathrm{ReLU}(u_i)-\mathrm{ReLU}(v_i))^2\le\sum_i(u_i-v_i)^2=\|u-v\|_2^2$.
+\end{proof}
+
+Other activations have known constants too: the sigmoid is $\tfrac14$-Lipschitz and $\tanh$ is $1$-Lipschitz \citep{tsuzuku2018lipschitz}. Now the composition rule, which lets us bound a whole network.
+
+\begin{theorem}[Composition / product over layers \citep{szegedy2014intriguing,tsuzuku2018lipschitz}]
+\label{thm:composition}
+If $g$ has Lipschitz constant $L_g$ and $f$ has Lipschitz constant $L_f$, then their composition $f\circ g$ (apply $g$, then $f$) satisfies $\Lip(f\circ g)\le L_f\,L_g$. Consequently, for a $d$-layer network $F=f_d\circ\cdots\circ f_1$,
+\[
+  \Lip(F) \;\le\; \prod_{k=1}^{d} \Lip(f_k).
+\]
+\end{theorem}
+
+\begin{proof}
+Apply the two Lipschitz bounds in turn, inner first. For any $x_1,x_2$:
+\begin{align*}
+  \|f(g(x_1))-f(g(x_2))\|
+   &\le L_f\,\|g(x_1)-g(x_2)\| &&\text{(}f\text{ is }L_f\text{-Lipschitz, on inputs }g(x_1),g(x_2)\text{)}\\
+   &\le L_f\,\big(L_g\,\|x_1-x_2\|\big) &&\text{(}g\text{ is }L_g\text{-Lipschitz)}\\
+   &= (L_f L_g)\,\|x_1-x_2\| .
+\end{align*}
+So $L_fL_g$ is a valid Lipschitz constant for $f\circ g$, hence $\Lip(f\circ g)\le L_fL_g$. Iterating over the $d$ layers gives the product. The bound is an \emph{inequality}, not equality, because the worst-stretch direction of one layer need not align with that of the next; this looseness is the subject of Section~\ref{sub:honest}.
+\end{proof}
+
+For a standard network, each linear layer $f_k(z)=W_kz+b_k$ has $\Lip(f_k)=\|W_k\|_2$ (the bias $b_k$ shifts the output but does not change the constant, since it cancels in $f_k(x_1)-f_k(x_2)$), and each ReLU layer has constant $1$. So
+\[
+  \Lip(F) \;\le\; \prod_{k} \|W_k\|_2 ,
+\]
+the product of the spectral norms of the weight matrices — the original bound of \citet{szegedy2014intriguing}.
+
+\subsection{The prediction margin}
+\label{sub:margin}
+
+The Lipschitz constant says how fast the logits can move. To turn that into a guarantee we also need to know how much room the current prediction has before the top logit loses to a runner-up.
+
+\begin{definition}[Prediction margin \citep{tsuzuku2018lipschitz}]
+Let $F(x)\in\R^k$ be the logit vector and let $t$ be the predicted (top) class at $x$. The \emph{prediction margin} is
+\[
+  M_{F,x} \;=\; F(x)_t \;-\; \max_{i\neq t} F(x)_i ,
+\]
+the gap between the winning logit and the best competitor. It is positive exactly when $x$ is classified as $t$, and a larger margin means the decision is more decisive.
+\end{definition}
+
+\subsection{The Lipschitz--margin certificate}
+\label{sub:margin-cert}
+
+Here is the payoff: a provable lower bound on the robust radius, due to \citet{tsuzuku2018lipschitz}. It is the certificate the paper builds on.
+
+\begin{proposition}[Lipschitz--margin certificate, Tsuzuku Prop.~1 \citep{tsuzuku2018lipschitz}]
+\label{prop:tsuzuku}
+Let $F:\R^n\to\R^k$ have $\ell_2$-Lipschitz constant $L$ (so $\|F(x)-F(x+\delta)\|_2\le L\|\delta\|_2$ for any perturbation $\delta$) and let $M_{F,x}$ be the prediction margin at $x$. If
+\[
+  M_{F,x} \;\ge\; \sqrt2\,L\,\|\delta\|_2 ,
+\]
+then the predicted class does not change at $x+\delta$. Equivalently, the certified $\ell_2$ robust radius is
+\[
+  r(x) \;\ge\; \frac{M_{F,x}}{\sqrt2\,L} .
+\]
+\end{proposition}
+
+We prove it in full, slowly. The one nonobvious step — where the $\sqrt2$ comes from — is a Cauchy--Schwarz inequality on two coordinates, so we first record a small lemma.
+
+\begin{lemma}[The ``max of the rest'' is $1$-Lipschitz \citep{tsuzuku2018lipschitz}]
+\label{lem:maxrest}
+For real vectors $a$ and $b$, $\ \big|\max_{i\neq t} a_i - \max_{i\neq t} b_i\big| \le \max_{i\neq t}|a_i-b_i|.$
+\end{lemma}
+
+\begin{proof}
+Without loss of generality assume $\max_{i\neq t} a_i \ge \max_{i\neq t} b_i$ (otherwise swap $a,b$). Let $j=\arg\max_{i\neq t} a_i$. Then
+\begin{align*}
+  \Big|\max_{i\neq t} a_i - \max_{i\neq t} b_i\Big|
+   &= \max_{i\neq t} a_i - \max_{i\neq t} b_i &&\text{(the quantity is nonnegative by assumption)}\\
+   &= a_j - \max_{i\neq t} b_i &&\text{(}j\text{ attains the max for }a\text{)}\\
+   &\le a_j - b_j &&\text{(}\max_{i\neq t} b_i \ge b_j\text{, so subtracting it is }\le\text{ subtracting }b_j\text{)}\\
+   &\le \max_{i\neq t}|a_i-b_i| . &&\text{(}a_j-b_j\le|a_j-b_j|\le\text{ the max)}
+\end{align*}
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:tsuzuku}]
+It suffices to show the margin at the perturbed point stays nonnegative; in fact we show it drops by at most $\sqrt2\,L\|\delta\|_2$:
+\begin{equation}
+  \label{eq:cert-target}
+  M_{F,x+\delta} \;=\; F(x+\delta)_t - \max_{i\neq t}F(x+\delta)_i
+  \;\ge\; M_{F,x} - \sqrt2\,L\,\|\delta\|_2 .
+\end{equation}
+Granting~\eqref{eq:cert-target}, if $M_{F,x}\ge\sqrt2 L\|\delta\|_2$ then $M_{F,x+\delta}\ge0$, so class $t$ still wins. Now prove~\eqref{eq:cert-target}. Add and subtract the unperturbed logits:
+\begin{align*}
+  M_{F,x+\delta}
+   &= F(x+\delta)_t - \max_{i\neq t}F(x+\delta)_i \\
+   &= \underbrace{\big(F(x)_t - \max_{i\neq t}F(x)_i\big)}_{=\,M_{F,x}}
+      + \underbrace{\big(F(x+\delta)_t - F(x)_t\big)}_{=:a_1}
+      - \underbrace{\big(\max_{i\neq t}F(x+\delta)_i - \max_{i\neq t}F(x)_i\big)}_{=:a_2'} .
+\end{align*}
+Bound the two change terms from below by their negative absolute values:
+\[
+  M_{F,x+\delta} \;\ge\; M_{F,x} - |a_1| - |a_2'| .
+\]
+For $a_1$, $\ |a_1| = |F(x+\delta)_t - F(x)_t|$ is the change in a single coordinate of the logit vector. For $a_2'$, Lemma~\ref{lem:maxrest} (with $a=F(x+\delta)$, $b=F(x)$) gives $|a_2'|\le\max_{i\neq t}|F(x+\delta)_i - F(x)_i|$, again the absolute change of a \emph{single} (other) coordinate. Call the change of the top logit $\Delta_t$ and the change of the worst competitor $\Delta_j$; both are entries of the vector $F(x+\delta)-F(x)$, so
+\[
+  \sqrt{\Delta_t^2 + \Delta_j^2} \;\le\; \big\|F(x+\delta)-F(x)\big\|_2 \;\le\; L\,\|\delta\|_2 ,
+\]
+the last step being the definition of the Lipschitz constant $L$. We must bound $|a_1|+|a_2'| = |\Delta_t|+|\Delta_j|$, the sum of two absolute values, by something times $\sqrt{\Delta_t^2+\Delta_j^2}$. This is where $\sqrt2$ enters, by Cauchy--Schwarz on the two-vector $(|\Delta_t|,|\Delta_j|)$ against $(1,1)$:
+\[
+  |\Delta_t| + |\Delta_j|
+  \;=\; (1,1)\cdot(|\Delta_t|,|\Delta_j|)
+  \;\le\; \big\|(1,1)\big\|_2\,\big\|(\Delta_t,\Delta_j)\big\|_2
+  \;=\; \sqrt2\,\sqrt{\Delta_t^2+\Delta_j^2}\,.
+\]
+Chaining the bounds:
+\[
+  |a_1|+|a_2'| \;\le\; \sqrt2\,\sqrt{\Delta_t^2+\Delta_j^2} \;\le\; \sqrt2\,L\,\|\delta\|_2 .
+\]
+Substituting into $M_{F,x+\delta}\ge M_{F,x}-|a_1|-|a_2'|$ gives~\eqref{eq:cert-target}, completing the proof.
+\end{proof}
+
+\paragraph{Reading the certificate.} The radius $r(x)\ge M_{F,x}/(\sqrt2\,L)$ says exactly what robustness should: \emph{decisive predictions (big margin) and gentle models (small $L$) are certifiably safe over a large ball.} Both knobs appear, and the certificate is the lower-bound (defender's) counterpart to the upper-bound attacks of Section~\ref{sec:attacks}.
+
+\subsection{Worked examples: one-layer certificates}
+\label{sub:cert-examples}
+
+\begin{example}[The exact two-class radius \citep{hein2017formal}]
+For a \emph{linear} two-class model the $\sqrt2$ disappears and the certificate becomes exact, which makes a clean sanity check. Let the two class weight vectors differ by $w_c-w_j=(2,0)$, evaluated at $x=(2,5)$. The decision is governed by the scalar $g(x)=\langle w_c-w_j,\,x\rangle = 2\cdot2 + 0\cdot5 = 4$ (the margin), and $\|w_c-w_j\|_2 = 2$. Because here the margin is a single scalar linear function (not a max over many classes), the certified $\ell_2$ radius is exactly $\dfrac{4}{2}=2$. The general exact formula of \citet{hein2017formal} for a linear classifier is
+\[
+  r(x) \;=\; \min_{j\neq c}\frac{\langle w_c-w_j,\,x\rangle}{\|w_c-w_j\|_2}\,,
+\]
+the smallest distance to any pairwise boundary — itself a clean instance of the dual-norm computation from Section~\ref{sub:exercise-linear}.
+\end{example}
+
+\begin{example}[One-hidden-layer network]
+Take $F(x)=W_2\,\mathrm{ReLU}(W_1 x)$ with $\|W_1\|_2=3$ and $\|W_2\|_2=2$. By Theorem~\ref{thm:composition} and Lemma~\ref{lem:relu}, the global Lipschitz constant is bounded by $L\le 3\cdot1\cdot2 = 6$. If the prediction margin at some $x$ is $M_{F,x}=12$, the Tsuzuku certificate gives
+\[
+  r(x) \;\ge\; \frac{M_{F,x}}{\sqrt2\,L} \;=\; \frac{12}{\sqrt2\cdot6} \;=\; \frac{12}{6\sqrt2} \;=\; \sqrt2 \;\approx\; 1.414 .
+\]
+So we have \emph{proved} that no $\ell_2$ perturbation of size up to $1.414$ can change this prediction — no attack, however clever, can do better at this point.
+\end{example}
+
+\subsection{Honest caveat: the bound is loose, and the exact constant is NP-hard}
+\label{sub:honest}
+
+A certificate is only useful if you are honest about its slack. Two points, both from the sources.
+
+First, the product bound $\Lip(F)\le\prod_k\|W_k\|_2$ is an \emph{over-estimate} of the true Lipschitz constant, often badly so. The reason was already visible in the proof of Theorem~\ref{thm:composition}: it assumes every layer is stretched maximally in the same direction, which never happens. A larger $L$ than the truth makes the certified radius $M/(\sqrt2 L)$ \emph{smaller} than it could be, so the guarantee is conservative — safe, but weak. \citet{hein2017formal} report that \emph{local} Lipschitz estimates (valid in a neighborhood of $x$) can be up to about $8\times$ smaller than the global product bound, yielding correspondingly stronger certificates.
+
+Second, you might hope to just compute the exact $\Lip(F)$ and avoid the slack. You cannot, in general.
+
+\begin{theorem}[Exact Lipschitz computation is NP-hard \citep{scaman2018lipschitz}]
+\label{thm:nphard}
+Computing the exact Lipschitz constant of even a two-layer ReLU network is NP-hard. Hence every practical certificate uses an \emph{upper bound} on $L$ (such as the product of spectral norms), and the resulting robust radius is a \emph{lower} bound on the true robust radius.
+\end{theorem}
+
+This is the right mental model: \citet{szegedy2014intriguing} put it as ``small Lipschitz bounds forbid attacks, but large bounds do not imply attacks exist.'' A small certified $L$ guarantees safety; a large $L$ (or a loose bound) simply means we failed to prove safety, not that the model is necessarily fragile.
+
+\subsection{Exercise: a full two-layer certificate}
+\label{sub:cert-exercise}
+
+\paragraph{Exercise.} Let $F(x)=W_2\,\mathrm{ReLU}(W_1 x)$ with
+\[
+  W_1=\begin{psmallmatrix}2&0\\0&1\end{psmallmatrix},\qquad
+  W_2=\begin{psmallmatrix}1&1\\-1&1\end{psmallmatrix}.
+\]
+(a) Compute $\|W_1\|_2$ and $\|W_2\|_2$ (eigenvalues of $W^\top W$). (b) Give the global Lipschitz bound $L$ for $F$. (c) At $x=(1,1)$, compute $F(x)$, the predicted class, and the prediction margin $M_{F,x}$. (d) State the Tsuzuku certified radius $M_{F,x}/(\sqrt2\,L)$, and explain in one sentence why it is a conservative \emph{lower} bound on the true robust radius.
+
+\begin{solution}
+(a) $W_1$ is diagonal, so $\|W_1\|_2 = \max\{2,1\}=2$. For $W_2$, $W_2^\top W_2=\begin{psmallmatrix}2&0\\0&2\end{psmallmatrix}=2I$, so both eigenvalues are $2$ and $\|W_2\|_2=\sqrt2$. (Indeed $W_2/\sqrt2$ is a rotation; $W_2$ scales every direction by $\sqrt2$.)
+
+(b) By Theorem~\ref{thm:composition} and ReLU being $1$-Lipschitz, $L \le \|W_1\|_2\cdot1\cdot\|W_2\|_2 = 2\cdot\sqrt2 = 2\sqrt2 \approx 2.828$.
+
+(c) $W_1 x = (2,1)$, both positive, so $\mathrm{ReLU}(W_1x)=(2,1)$. Then
+$F(x)=W_2(2,1)^\top = (2+1,\ -2+1) = (3,-1)$.
+The top logit is the first ($3$), so the predicted class is $1$, and $M_{F,x}=3-(-1)=4$.
+
+(d) Certified radius $= \dfrac{M_{F,x}}{\sqrt2\,L} = \dfrac{4}{\sqrt2\cdot 2\sqrt2} = \dfrac{4}{4} = 1.$ It is a \emph{lower} bound because $L=2\sqrt2$ is itself an over-estimate of the true Lipschitz constant (the product bound assumes both layers stretch in the same direction, Theorem~\ref{thm:composition}; and computing the exact constant is NP-hard, Theorem~\ref{thm:nphard}), so the real safe radius is at least $1$ and likely larger.
+\end{solution}
+
+% =====================================================================
+\section{Attacks in detail, and how robustness is measured}
+\label{sec:attacks}
+
+We can now make Section~\ref{sec:adv-from-scratch}'s ``attack = upper bound'' concrete. This section gives the standard attacks, each with: definition, intuition, the algorithm, a hand-computable example, and a short exercise. We follow the unifying taxonomy of \citet{kolter2018adversarial,madry2018towards}.
+
+\subsection{The organizing idea: norm ball $+$ optimizer}
+\label{sub:taxonomy}
+
+\citet{kolter2018adversarial} insist on one classification: \emph{every attack is (1) a norm ball plus (2) a method for optimizing over it.} This splits attacks into two families, which match the two robustness numbers of Section~\ref{sub:robacc-vs-radius}.
+\begin{itemize}[nosep]
+  \item \textbf{Fixed-$\epsilon$ (norm-bounded).} Solve $\max_{\|\delta\|\le\epsilon}\ell(h(x+\delta),y)$: ``can this point be broken within budget $\epsilon$?'' Answering it for many points gives $\mathrm{RobAcc}(\epsilon)$ — one vertical slice of the robustness curve. Members: FGSM, PGD, AutoAttack.
+  \item \textbf{Minimum-norm.} Solve $\min\|\delta\|$ such that $x+\delta$ is misclassified: ``how far is the boundary?'' Answering it gives the robust radius $r(x)$ — the whole curve. Members: C\&W, DDN.
+\end{itemize}
+They are duals via Equation~\eqref{eq:duality}: $\mathrm{RobAcc}(\epsilon)=\tfrac1N\sum_x\one[r(x)>\epsilon]$. A fixed-$\epsilon$ attack reads the curve at one $\epsilon$; a minimum-norm attack measures $r(x)$ directly.
+
+\subsection{FGSM: the Fast Gradient Sign Method}
+\label{sub:fgsm}
+
+\paragraph{Definition.} The \emph{Fast Gradient Sign Method} of \citet{goodfellow2015explaining} takes one step from $x$ in the direction that, to first order, increases the loss the most under an $\ell_\infty$ budget:
+\begin{equation}
+  \label{eq:fgsm}
+  x' \;=\; x + \epsilon\,\sign\!\big(\nabla_x \ell(h_\theta(x),y)\big).
+\end{equation}
+One gradient evaluation, one step. The $\sign$ is applied entrywise.
+
+\paragraph{Intuition: the linearity hypothesis.} Why $\sign$ of the gradient, and why $\ell_\infty$? \citet{goodfellow2015explaining} argue that adversarial examples come from models being \emph{too linear in high dimension}, not too nonlinear. Linearize the model near $x$: a linear unit responds to $x' = x+\delta$ as $w^\top x' = w^\top x + w^\top\delta$. By the exercise of Section~\ref{sub:exercise-linear}, maximizing the perturbation term $w^\top\delta$ over $\|\delta\|_\infty\le\epsilon$ gives $\delta=\epsilon\,\sign(w)$ and value $\epsilon\|w\|_1$. Now the punchline: if $w$ has $n$ entries of average magnitude $m$, then $\|w\|_1\approx mn$, so the change to the output grows \emph{linearly with the dimension $n$}, while the per-pixel change $\|\delta\|_\infty$ stays fixed at $\epsilon$ \citep{goodfellow2015explaining}. In high dimension many imperceptible per-pixel nudges, all aligned with the sign of the weights, add up to a large swing in the output. The famous demonstration: panda $+\ 0.007\cdot\sign(\nabla)$ classified as ``gibbon'' with $99.3\%$ confidence \citep{goodfellow2015explaining}.
+
+\paragraph{Exactness for logistic regression.} For a two-class logistic model FGSM is not an approximation — it is the \emph{exact} worst case. The reason is the identity $w^\top\sign(w)=\|w\|_1$ used in Section~\ref{sub:exercise-linear}: the sign step realizes the dual-norm optimum exactly when the model is linear \citep{goodfellow2015explaining,kolter2018adversarial}.
+
+\paragraph{Algorithm.}
+\begin{enumerate}[label=\textbf{\arabic*.},nosep]
+  \item Compute the gradient $g = \nabla_x \ell(h_\theta(x),y)$ by backpropagation.
+  \item Form the signed step $\delta = \epsilon\,\sign(g)$.
+  \item Return $x' = x+\delta$ (clip to the valid input range if needed).
+\end{enumerate}
+
+\begin{example}[FGSM on a 2D logistic model]
+Let $w=(2,-1)$, $b=0$, true label $y=+1$, and a point $x$ with positive score $s(x)=w^\top x$. The gradient of the logistic loss with respect to $x$ points along $-yw=-w$ (loss decreases as the score $y\,w^\top x$ grows), so the loss-increasing sign direction is $-\sign(w)=(-1,+1)$, giving the attack $\delta^\star = -\epsilon\,\sign(w) = (-\epsilon,\,+\epsilon)$. The score change is
+\[
+  w^\top\delta^\star = (2)(-\epsilon) + (-1)(+\epsilon) = -3\epsilon = -\epsilon\,\|w\|_1, \qquad \|w\|_1=|2|+|-1|=3.
+\]
+The margin drops by $\epsilon\|w\|_1=3\epsilon$, matching Section~\ref{sub:exercise-linear} exactly. Generalize to $w\in\R^n$ with average $|w_i|=m$: the drop is $\epsilon\|w\|_1\approx \epsilon m n$, which grows with $n$ — the high-dimension punchline, derived by hand.
+\end{example}
+
+\paragraph{Exercise.} For $w=(1,1,1,1)$, $b=0$, $\epsilon=0.1$, true label $+1$: write the FGSM perturbation $\delta^\star$, compute the margin drop $\epsilon\|w\|_1$, and compare to the same computation for $w=(1,1,\dots,1)\in\R^{100}$. \emph{(Answer: $\delta^\star=(-0.1,-0.1,-0.1,-0.1)$, drop $0.4$; in $\R^{100}$ the drop is $0.1\cdot100=10$, with the same per-pixel size $0.1$ — illustrating linear growth in dimension.)}
+
+\subsection{PGD: Projected Gradient Descent}
+\label{sub:pgd}
+
+\paragraph{Definition.} FGSM takes one big step and trusts the linear approximation over the whole ball. \emph{Projected Gradient Descent} \citep{madry2018towards} takes many small steps, projecting back into the $\epsilon$-ball after each, and starting from a random point inside the ball. It is the empirical ``ultimate first-order adversary.''
+
+\paragraph{The saddle point.} PGD is the inner solver for the robust-optimization problem~\eqref{eq:saddle},
+\[
+  \min_\theta\ \E\Big[\max_{\delta\in\Delta}\ \ell(\theta,x+\delta,y)\Big],
+  \qquad \Delta=\{\delta:\|\delta\|_\infty\le\epsilon\}:
+\]
+the inner $\max$ is the attack, the outer $\min$ the defense \citep{madry2018towards}.
+
+\paragraph{Iteration.} Starting from a \emph{uniformly random} $x^0$ in the $\epsilon$-ball around $x$, repeat
+\begin{equation}
+  \label{eq:pgd}
+  x^{t+1} \;=\; \mathrm{Proj}_{x+\Delta}\Big(\,x^t + \alpha\,\sign\!\big(\nabla_x \ell(h_\theta(x^t),y)\big)\Big),
+\end{equation}
+where $\alpha>0$ is the step size and $\mathrm{Proj}_{x+\Delta}$ projects back into the threat set. For the $\ell_\infty$ ball the projection is just \emph{clipping}: any coordinate of $\delta=x^{t+1}-x$ that exceeds $\epsilon$ in absolute value is set to $\pm\epsilon$ \citep{kolter2018adversarial}.
+
+\paragraph{Step-then-project, and why a random start.} Each iteration first takes a signed-gradient step (like a mini-FGSM), which may leave the box, then clips back to the nearest face or corner of the box — the ``step then project'' picture. FGSM is exactly one such step with no random start and $\alpha=\epsilon$. The random start matters because PGD can get stuck at local maxima of the (non-concave) inner loss; restarting from different random points inside the ball and keeping the worst found is a cheap way to escape some of them \citep{kolter2018adversarial}. \citet{madry2018towards} observe empirically that the loss values at many random-restart local maxima are \emph{well concentrated}, which is the evidence behind calling PGD the ``ultimate first-order adversary.''
+
+\paragraph{Normalized steepest descent and the step-size rule.} Why $\sign(\nabla)$ rather than $\nabla$ itself? At $\delta=0$ the raw gradient is tiny (about $10^{-6}$ per pixel in the tutorial's CNN), so plain gradient ascent would need an absurd step size ($\sim10^4$) and then overshoot \citep{kolter2018adversarial}. The fix is \emph{normalized steepest descent} under the chosen norm: choose the update direction $v$ maximizing $v^\top\nabla$ subject to a norm cap on $v$. For $\ell_\infty$ this gives $v=\sign(\nabla)$ (the sign step); for $\ell_2$ it gives $v=\nabla/\|\nabla\|_2$ (the normalized gradient) \citep{kolter2018adversarial}. Practical rule of thumb \citep{kolter2018adversarial}: take $\alpha$ a small fraction of $\epsilon$, and the number of iterations a small multiple of $\epsilon/\alpha$.
+
+\paragraph{Algorithm.}
+\begin{enumerate}[label=\textbf{\arabic*.},nosep]
+  \item Initialize $\delta$ uniformly at random in $\{\delta:\|\delta\|_\infty\le\epsilon\}$.
+  \item For $t=1,\dots,T$: compute $g=\nabla_x\ell(h_\theta(x+\delta),y)$; update $\delta \leftarrow \delta + \alpha\,\sign(g)$; clip each coordinate of $\delta$ to $[-\epsilon,\epsilon]$.
+  \item (Optional) repeat from random restarts; keep the $\delta$ of highest loss.
+\end{enumerate}
+
+\begin{example}[Step-then-project by hand]
+Let the model be the 2D linear $s(x)=w^\top x$, $w=(2,-1)$, $y=+1$, $\epsilon=1$, $\alpha=2$, starting from $\delta^0=(0,0)$. The loss-increasing direction is $-\sign(w)=(-1,+1)$. \textbf{Step:} $\delta = (0,0) + 2\cdot(-1,+1) = (-2,+2)$. \textbf{Project} onto $\|\delta\|_\infty\le1$: clip each coordinate to $[-1,1]$, giving $\delta=(-1,+1)$ — a corner of the box, which is exactly the FGSM solution $-\epsilon\,\sign(w)$. So for a linear model PGD reaches the FGSM corner in one step-and-clip; the value of many small steps shows up only for genuinely nonlinear models, where the gradient direction changes as you move.
+\end{example}
+
+\paragraph{Exercise.} Explain, in two sentences, where FGSM and PGD each sit on the accuracy-vs-radius curve of Section~\ref{sub:robacc-vs-radius}, and why PGD at a fixed $\epsilon$ never reports \emph{higher} robust accuracy than the true value. \emph{(Answer: both are fixed-$\epsilon$ attacks, so each estimates a single point $\mathrm{RobAcc}(\epsilon)$; since any successful $\delta$ they find with $\|\delta\|\le\epsilon$ proves $r(x)\le\epsilon$, an attack can only \emph{lower} the reported robust accuracy toward the truth, i.e.\ it is an upper bound on robustness — Section~\ref{sub:cert-vs-attack}.)}
+
+\subsection{C\&W: a minimum-norm attack}
+\label{sub:cw}
+
+\paragraph{Definition and intuition.} The Carlini--Wagner attack \citep{carlini2017towards} switches families: instead of fixing $\epsilon$, it asks for the \emph{smallest} perturbation that misclassifies, decoupling ``be small'' from ``be misclassified.'' It minimizes
+\begin{equation}
+  \label{eq:cw}
+  \min_{\delta}\; \|\delta\|_p \;+\; c\cdot f(x+\delta)
+  \qquad\text{subject to } x+\delta\in[0,1]^n,
+\end{equation}
+where $f$ is a surrogate that is $\le0$ exactly when the example is misclassified, and the trade-off constant $c>0$ is found by \emph{binary search}: small $c$ favors a tiny but possibly non-adversarial $\delta$; large $c$ forces misclassification at the cost of a larger $\delta$. \citet{carlini2017towards} pick the smallest $c$ for which the attack still succeeds.
+
+\paragraph{The surrogate $f$ (the ``$f_6$'' margin objective).} Among seven candidates they measured, the best is the logit-difference margin
+\[
+  f(x') \;=\; \max\Big(\max_{i\neq t} Z(x')_i - Z(x')_t,\; -\kappa\Big),
+\]
+where $Z(\cdot)$ are the \emph{logits} (not softmax probabilities), $t$ the target class, and $\kappa\ge0$ a confidence parameter. This $f$ is $\le0$ exactly when the target logit beats all others, so ``$f\le0$ $\Leftrightarrow$ misclassified.'' Using logits rather than softmax avoids vanishing gradients — the bug that broke an earlier defense (defensive distillation) — and \citet{carlini2017towards} found cross-entropy the \emph{worst} surrogate and this logit-difference the best, because it keeps the ``be small'' and ``be misclassified'' terms balanced across values of $c$.
+
+\paragraph{The change-of-variables (box) trick.} The constraint $x+\delta\in[0,1]^n$ is awkward. C\&W eliminate it by writing each coordinate as
+\[
+  \delta_i \;=\; \tfrac12\big(\tanh(w_i)+1\big) - x_i ,
+\]
+and optimizing freely over the new variable $w$. Since $\tanh\in(-1,1)$, the value $x_i+\delta_i=\tfrac12(\tanh(w_i)+1)$ is automatically in $(0,1)$, so any $w$ gives a valid image and a smooth, unconstrained problem solvable by a standard optimizer (Adam).
+
+\paragraph{Algorithm.}
+\begin{enumerate}[label=\textbf{\arabic*.},nosep]
+  \item Choose a value of $c$ (binary search over a log-spaced range).
+  \item Optimize Eq.~\eqref{eq:cw} over $w$ (with the $\tanh$ substitution) to convergence, recording the best adversarial $\delta$.
+  \item Update $c$: increase if no adversarial example was found, decrease if one was; repeat.
+  \item Return the smallest-norm adversarial $\delta$ over all $c$.
+\end{enumerate}
+
+\begin{example}[Reading $\|\delta\|^2 + c\,f$ for small vs.\ large $c$]
+Take a 1D two-class model where the runner-up-minus-target logit gap, as a function of the scalar perturbation $\delta$, is $\,g(\delta)=1-\delta\,$ (so $f_6=\max(1-\delta,-\kappa)$ with $\kappa=0$ flips to ``misclassified'' once $\delta\ge1$). The objective is $J(\delta)=\delta^2 + c\,\max(1-\delta,0)$. For very small $c$ (say $c=0.1$): on $\delta<1$, $J=\delta^2+0.1(1-\delta)$ is minimized near $\delta\approx0.05$, which is \emph{not} adversarial ($\delta<1$) — too small a $c$ buys a tiny but useless $\delta$. For large $c$ (say $c=10$): the penalty dominates until $\delta\ge1$, pushing the minimizer to $\delta=1$, the smallest adversarial value. Sweeping $c$ traces from ``too small to flip'' to ``flips with minimal norm,'' which is exactly what the binary search automates; \citet{carlini2017towards} show this as their Figure~2, where the attack rarely succeeds for $c<0.1$ and always succeeds for $c>1$.
+\end{example}
+
+\paragraph{Exercise.} With $J(\delta)=\delta^2+c\max(1-\delta,0)$ as above, find the threshold value of $c$ at which the unconstrained minimizer first becomes adversarial ($\delta^\star\ge1$). \emph{(Hint: on $\delta<1$ the derivative is $2\delta-c$; the interior minimizer is $\delta=c/2$, which reaches $1$ when $c=2$. For $c\ge2$ the minimizer sits at the kink $\delta=1$.)}
+
+\subsection{DDN: Decoupled Direction and Norm}
+\label{sub:ddn}
+
+\paragraph{Definition and intuition.} C\&W is slow: a binary search over $c$, each with thousands of iterations. The Decoupled Direction and Norm attack \citep{rony2019decoupling} reaches the same minimum-norm goal in about $100$ iterations — cheap enough to run \emph{inside} adversarial training. The idea in the name: decouple the \emph{direction} of the perturbation (the unit-normalized gradient) from its \emph{norm} (a simple up/down rule plus a projection onto an $\epsilon$-sphere). There is no penalty constant $c$ at all.
+
+\paragraph{The norm update.} At each step DDN checks whether the current point is already adversarial. If it is, the example is ``too easy,'' so \emph{shrink} the radius: $\epsilon\leftarrow(1-\gamma)\epsilon$. If it is not adversarial, \emph{grow} the radius: $\epsilon\leftarrow(1+\gamma)\epsilon$. The candidate is then placed on the sphere of the current radius, $\tilde x = x + \epsilon\,\delta/\|\delta\|_2$. The radius oscillates around the true boundary distance and converges to the minimum norm $r(x)$ \citep{rony2019decoupling}.
+
+\paragraph{Algorithm \citep{rony2019decoupling}.}
+\begin{enumerate}[label=\textbf{\arabic*.},nosep]
+  \item Initialize $\delta=0$, $\tilde x = x$, $\epsilon=\epsilon_0$.
+  \item For $k=1,\dots,K$: compute the gradient $g$ of the loss; take a normalized step $g\leftarrow\alpha\,g/\|g\|_2$ and update $\delta\leftarrow\delta+g$.
+  \item If $\tilde x$ is adversarial, set $\epsilon\leftarrow(1-\gamma)\epsilon$; else $\epsilon\leftarrow(1+\gamma)\epsilon$.
+  \item Project: $\tilde x \leftarrow x + \epsilon\,\delta/\|\delta\|_2$, then clip to the valid range.
+  \item Return the lowest-norm $\tilde x$ found that is adversarial.
+\end{enumerate}
+
+\begin{example}[Oscillating radius by hand]
+Take a classifier whose boundary is the vertical line at distance $1$ from $x$ along the attack direction, and set $\epsilon_0=1$, $\gamma=0.2$, with the step always pointing straight at the boundary. Iterate the radius rule, checking ``adversarial?'' $=$ ``radius $\ge1$?'':
+\begin{itemize}[nosep]
+  \item Start $\epsilon=1.0$: on the boundary, treat as adversarial $\to$ shrink to $1.0\cdot0.8 = 0.8$.
+  \item $\epsilon=0.8$: not adversarial ($0.8<1$) $\to$ grow to $0.8\cdot1.2 = 0.96$.
+  \item $\epsilon=0.96$: not adversarial $\to$ grow to $0.96\cdot1.2 = 1.152$.
+  \item $\epsilon=1.152$: adversarial $\to$ shrink to $1.152\cdot0.8 = 0.9216$.
+\end{itemize}
+The radius bounces $1.0,0.8,0.96,1.152,0.9216,\dots$ around the true distance $1$, the swings narrowing as $\gamma$ effectively shrinks the relative gap; the converged value is the robust radius $r(x)=1$. Contrast with C\&W, which would binary-search a penalty constant $c$ to find the same number much more slowly \citep{rony2019decoupling}.
+\end{example}
+
+\paragraph{Exercise.} With the same setup but $\gamma=0.1$ and $\epsilon_0=1.5$, write the first four radii and state the limit. \emph{(Answer: $1.5\to1.35\to1.215\to1.0935\to\dots$, all $>1$ so all shrink, converging down to $r(x)=1$.)}
+
+\subsection{AutoAttack: a standardized ensemble}
+\label{sub:autoattack}
+
+\paragraph{What it is.} A recurring failure in the field is reporting robustness using a weak attack: the model looks robust only because the attack was bad (a problem called \emph{gradient masking}). AutoAttack \citep{croce2020reliable} is the community's response: a \emph{parameter-free} ensemble of four diverse attacks, run together as a single standardized robustness test, so that no hand-tuning can inflate the result.
+
+\paragraph{The four components.} We describe the ensemble at the level of its four members \citep{croce2020reliable}:
+\begin{enumerate}[label=\textbf{\arabic*.},nosep]
+  \item \textbf{APGD-CE} — Auto-PGD with the cross-entropy loss. Auto-PGD is PGD with an \emph{adaptive} step size (no step-size tuning) and a momentum term; it spends a budget of iterations exploring then exploiting, halving the step when progress stalls.
+  \item \textbf{APGD-DLR} (also a targeted variant, APGD-T) — Auto-PGD with the \emph{Difference-of-Logits-Ratio} loss. The DLR loss is used because cross-entropy is sensitive to a mere rescaling of the logits (which can cause gradient masking), whereas DLR is scale-invariant.
+  \item \textbf{FAB} — a minimum-norm attack (the Fast Adaptive Boundary attack).
+  \item \textbf{Square} — a \emph{black-box}, gradient-free attack (random search over square-shaped perturbations), included so that the ensemble still works even when gradients are uninformative.
+\end{enumerate}
+A point counts as robust under AutoAttack only if it survives \emph{all four}. The finer internals of FAB and Square are beyond what a primer needs; the four-member structure is the part that matters for understanding why the ensemble is hard to fool.
+
+\paragraph{Why this is the right way to measure.} AutoAttack ties the section together: it is a fixed-$\epsilon$ \emph{evaluation} that combines white-box first-order attacks (the APGD pair), a minimum-norm attack (FAB), and a gradient-free attack (Square), precisely so that the reported $\mathrm{RobAcc}(\epsilon)$ is a trustworthy \emph{upper bound} on the model's true robustness (Section~\ref{sub:cert-vs-attack}) rather than an artifact of a weak optimizer.
+
+\paragraph{Exercise.} A paper reports $90\%$ robust accuracy using only FGSM. Using the taxonomy of Section~\ref{sub:taxonomy} and the certificate/attack duality of Section~\ref{sub:cert-vs-attack}, explain why an AutoAttack re-evaluation can only \emph{lower} this number, never raise it, and why that makes AutoAttack a more honest measurement. \emph{(Answer: every attack gives an upper bound on robustness; a stronger or more diverse attack can find perturbations FGSM missed, decreasing the surviving fraction toward the truth, but it can never make a broken point survive, so the number can only fall.)}
+
+% =====================================================================
+%  CITATION KEYS USED (for the bibliography assembler)
+% =====================================================================
+% Keys that ALREADY EXIST in paper/report/references.bib:
+%   goodfellow2015explaining   (FGSM — Goodfellow, Shlens, Szegedy 2015)
+%   madry2018towards           (PGD / saddle point — Madry et al. 2018)
+%   rony2019decoupling         (DDN — Rony et al. 2019)
+%   croce2020reliable          (AutoAttack — Croce & Hein 2020)
+%   hein2017formal             (Cross-Lipschitz / exact linear radius — Hein & Andriushchenko 2017)
+%   tsuzuku2018lipschitz       (Lipschitz-Margin certificate, Prop. 1 — Tsuzuku, Sato, Sugiyama 2018)
+%
+% Keys this fragment USES that are NOT YET in references.bib — PLEASE ADD:
+%   szegedy2014intriguing      (Szegedy et al., "Intriguing Properties of Neural Networks",
+%                               ICLR 2014; arXiv:1312.6199 — discovery of adversarial examples +
+%                               origin of the product-of-spectral-norms Lipschitz bound, Sec 4.3)
+%   carlini2017towards         (Carlini & Wagner, "Towards Evaluating the Robustness of Neural
+%                               Networks", IEEE S&P 2017; arXiv:1608.04644 — C&W attack)
+%   scaman2018lipschitz        (Scaman & Virmaux, "Lipschitz regularity of deep neural networks:
+%                               analysis and efficient estimation", NeurIPS 2018; arXiv:1805.10965
+%                               — L = sup gradient norm; NP-hardness; AutoLip)
+%   kolter2018adversarial      (Kolter & Madry, "Adversarial Robustness: Theory and Practice",
+%                               NeurIPS 2018 tutorial, https://adversarial-ml-tutorial.org —
+%                               demo-first arc, MNIST 0/1 numbers, norm-ball+optimizer taxonomy,
+%                               Danskin discussion, dual-norm linear-attack derivation)
+%   wiki_lipschitz             (Wikipedia, "Lipschitz continuity" — secant-slope picture,
+%                               |x| is 1-Lipschitz, x^2 is not. Replace with a textbook cite,
+%                               e.g. Rudin, if a Wikipedia citation is undesired.)
+%
+% Honesty notes for the assembler:
+%  - AutoAttack internals are stated ONLY at the four-component level, per the DIGEST caveat that
+%    the available PDF was read for the component list only (Sec 8 caveat).
+%  - Danskin's theorem is STATED, not proved, as instructed.
+%  - The Tsuzuku sqrt(2) proof and Lemma (max-of-rest 1-Lipschitz) are faithful to Tsuzuku 2018
+%    Appendix A (verified against the PDF). The Hein exact-linear radius is Hein-Andriushchenko
+%    2017 Thm 2.1 / the linear corollary (verified against the PDF).
+% =====================================================================

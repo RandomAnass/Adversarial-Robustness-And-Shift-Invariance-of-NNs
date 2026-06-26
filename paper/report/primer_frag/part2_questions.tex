@@ -1,0 +1,595 @@
+% =====================================================================
+%  PRIMER PART II -- FINDING THE QUESTIONS
+%  Comes AFTER Part I (background), BEFORE Part III (results/proofs).
+%  Purpose: take a reader who has the background and teach them to
+%  GENERATE and CHOOSE the project's research questions themselves,
+%  WITHOUT revealing the answers (those live in Part III).
+%
+%  This is a FRAGMENT: no \documentclass, no \begin{document}.
+%  The assembler supplies the preamble, which already defines:
+%  definition, theorem, lemma, proposition, corollary, example
+%  (printed as "Worked example"), remark, problem, and the macros
+%  \R \Z \E \sign \Lip \one \conv \dist \Orb \fdc \Vinv \Vac \Sep
+%  \Piinv etc.  "Find-the-question" prompts use the {problem}
+%  environment plus \paragraph.
+%
+%  Citation keys used appear in the comment block at the END of file.
+%  NEW keys (not yet in primer.bib) are flagged there.
+% =====================================================================
+
+% NOTE: the assembler (primer_v2.tex) already emits the \part* heading and its
+% table-of-contents line for Part II, so this fragment must NOT repeat them.
+
+Part~I handed you a toolbox: a way to measure how robust a classifier is, the Lipschitz--margin
+inequality (a margin divided by a Lipschitz constant lower-bounds the certified radius) that turns
+a smoothness budget and a margin into a certified radius,
+the Fourier/projector machinery that says what a symmetry preserves, and the implicit-bias and
+NTK lenses that say where gradient descent actually lands. This part does something different.
+It does \emph{not} give you results. It puts you in the chair of the person who had to decide
+\emph{which questions to ask in the first place}, hands you the same situation they faced, and asks
+you to form your own hypotheses before Part~III tells you what happened.
+
+That is a deliberate choice. The fastest way to misread a research paper is to learn its answers
+and then reverse-engineer questions that make those answers look inevitable. The answers almost
+never were inevitable. They were one defensible bet among several, taken at a fork where reasonable
+people would have gone different ways. If you can stand at that fork yourself and feel the pull of
+each branch, you will read Part~III as a sequence of decisions rather than a sequence of
+revelations, and you will be able to do the same thing on a problem nobody has solved yet.
+
+So: read this part with a pencil. Every research question below is presented as a genuine open
+problem with two to four candidate directions and their trade-offs. At each one you will be asked to
+commit, on paper, to the direction \emph{you} would take and why, before turning to Part~III. The
+goal is not to guess the ``right'' answer. It is to develop the instinct that lets you generate good
+questions and triage them.
+
+%======================================================================
+\section{The situation: a clean story that broke}
+\label{sec:p2-situation}
+
+Research questions do not come from the sky. They come from a concrete irritant: something a
+previous effort could measure but not explain. Here is the irritant, told as it actually unfolded,
+because the shape of the chain is itself a lesson in where questions live.
+
+\subsection{Act I --- a tidy hypothesis, reproduced}
+\label{sub:p2-act1}
+
+The starting point was a clean and quotable claim from the literature: \emph{shift invariance can
+reduce adversarial robustness} \citep{ge2021shift}. The mechanism, for the linear case, is exactly
+the kind of thing Part~I prepared you to read. A classifier that is invariant to all circular
+shifts of its input must give the same answer to a signal and to every shift of it; for a
+\emph{linear} classifier this forces the weight vector into the fixed subspace of the shift group,
+which (Part~I, the Fourier section) is spanned by the constant vector $\one$. The model can then see
+the data only through its mean, the DC (zero-frequency) component, and discards all the rest. On a
+synthetic ``one black pixel versus one white pixel'' problem this collapses the achievable max-margin
+from a constant down to $2/\sqrt{d}$ in the image dimension $d$ \citep{ge2021shift}. More invariance,
+smaller margin, less robustness. A satisfying monotone story.
+
+A team reproduced it. On small image families (MNIST, Fashion-MNIST) trained from a shared template,
+they measured a \emph{shift-consistency} score --- the fraction of inputs whose predicted label is
+unchanged when the input is shifted, an empirical stand-in for ``how invariant did this model turn
+out to be'' --- and they measured adversarial robustness with a projected-gradient (PGD) attack.
+Across the families the headline ordering held: \emph{higher consistency went with lower robustness},
+just as predicted.
+
+\subsection{Act II --- the deviations it could not name}
+\label{sub:p2-act2}
+
+Then the tidy story sprang leaks, and the leaks are the interesting part.
+
+First, the ordering was only \emph{mostly} right. Specific architectures sat in the wrong place:
+a couple of convolutional variants were more robust than their consistency score said they should
+be, or less. The reproduction could record the deviation but had no second axis to explain it.
+The hypothesis ``consistency orders robustness'' was being falsified at the margins by its own data,
+and nobody could say what the better axis was.
+
+Second, to turn the picture into something actionable --- ``give me a model that is \emph{both}
+shift-invariant and robust'' --- the team drew a two-dimensional scatter (consistency on one axis,
+robust accuracy on the other), split it into four quadrants using a fully-connected baseline as the
+origin, and aimed for the desirable corner. It was a useful screening picture. But it was a picture,
+not a principle: nothing in it said \emph{why} a given architecture lands in a given quadrant, or
+whether the quadrants would survive a stronger attack, or whether they would persist as models grow.
+The diagnostic worked and was unjustified at the same time, which is the most uncomfortable place a
+result can sit.
+
+Third, and most honestly, the write-up's own appendix for theory read, in effect, ``to do.''
+Everything was empirical, on tiny images, with a single attack family. There was no certificate, no
+worst-case attack, no measurement of the very margin whose collapse the base theory was about.
+
+\paragraph{The lesson of Act II.} Notice where the questions are being born. They are not born in the
+parts that worked. They are born at the \emph{deviations} (the models in the wrong quadrant), at the
+\emph{unjustified tool} (the quadrant diagram), and at the \emph{explicit hole} (the empty theory
+appendix). A reproduction that merely confirms a result generates no questions. A reproduction whose
+seams show generates all of them. Train yourself to read for the seams.
+
+\subsection{Act III --- the literature contradicts itself}
+\label{sub:p2-act3}
+
+If the base story were the whole story, the fix would just be ``measure more carefully.'' It is not,
+because the supervising literature does not agree with itself. Four papers, read precisely, point in
+different directions while using the same word, ``invariance.''
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Invariance hurts --- conditionally.} \citet{ge2021shift} is the base result above.
+        But read past the headline and Ge themselves add a crucial nuance: on a dataset whose
+        classes live in orthogonal frequencies, where shifting does \emph{not} inflate the effective
+        dimension, the convolutional network is \emph{more} robust than the fully-connected one. Their
+        own conclusion is that invariance hurts only when it shrinks the margin, and that
+        ``the linear margin predicts robustness better than the dimension of the data''
+        \citep{ge2021shift}. The base paper's own fine print already suspects the headline axis is
+        wrong.
+  \item \textbf{Invariance trades off --- provably.} \citet{kamath2020} show empirically that training
+        for invariance to larger rotations shrinks the average distance to the decision boundary and
+        hurts $\ell_\infty$ robustness; \citet{kamath2021} prove a trade-off on a synthetic
+        distribution built from a cyclic error-correcting code, and offer a curriculum that buys a
+        better Pareto point without beating the single-objective adversarial baseline. Their
+        ``rate of invariance'' $\Pr(f(TX)=f(X))$ is structurally the same quantity as the
+        consistency score from Act~I --- yet neither Kamath paper cites Ge. Two independent lines,
+        one seam between them.
+  \item \textbf{A specific architecture choice causes vulnerability.} \citet{galloway2019} argue that
+        batch normalization, by fixing each neuron's first two moments, destroys input-space
+        distances and drops PGD robustness by amounts (roughly $8$--$20\%$ across datasets)
+        comparable to the architecture effects Act~I reported. This is not a contradiction so much as
+        a warning: any cross-architecture robustness comparison is confoundable as a normalization
+        effect unless normalization is controlled.
+  \item \textbf{Invariance helps.} The anti-aliasing line says the opposite of Ge. Inserting a
+        low-pass blur before downsampling restores shift-equivariance, and \citet{zhang2019blurpool}
+        reports it \emph{improves} shift-consistency and clean accuracy and average-case corruption
+        robustness at once. Crucially, Zhang makes no worst-case $\ell_p$ adversarial claim; that is
+        left as future work. The natural ``invariance helps'' counter-voice is about
+        \emph{average-case} robustness, not worst-case.
+\end{itemize}
+
+State the contradiction plainly. Same word, opposite verdicts: one camp says (conditional)
+invariance hurts worst-case $\ell_p$ robustness; another reports it helps; a third proves a
+trade-off on a cyclic-shift construction; and two of the three do not cite the base result. A
+contradiction in the literature is not a nuisance to be smoothed over in related work. It is a
+flashing sign that some shared assumption is wrong, and the assumption is almost always a word doing
+too much work. Here the overloaded word is ``invariance.''
+
+\subsection{Act IV --- the gap the wider field leaves open}
+\label{sub:p2-act4}
+
+Widen the search and the contradiction sharpens into a precise hole. There is a theory camp that
+shows invariance or implicit bias can hurt robustness --- but never about shift. \citet{tramer2020}
+prove that defending against $\ell_p$ sensitivity forces \emph{excessive invariance}, opening a
+distinct invariance-based attack that changes the true label while the prediction stays put; but
+their ``invariance'' is over-invariance to an $\ell_p$ ball, not a group symmetry.
+\citet{frei2023} prove that gradient descent's max-margin implicit bias on two-layer ReLU networks
+reaches solutions that generalize yet are \emph{provably non-robust}, even when robust solutions
+fitting the same data exist; \citet{li2025feature} pin the mechanism on feature averaging and
+recover robustness with finer supervision; \citet{minvidal2024} flip the bias from non-robust to
+robust by swapping the activation. All three are about the optimizer's bias on synthetic, near-
+orthogonal clusters \emph{with no group symmetry}, under $\ell_2$. Their lever on robustness is
+activation or supervision, not translation.
+
+And there is an empirical/linear camp that says symmetry helps --- but not in a way that closes the
+gap. \citet{sahagokhale2024} state verbatim that ``better shift invariance is generally correlated
+with better adversarial robustness,'' and show the effect is architectural rather than a capacity
+artifact --- but it is a pure correlation, with PGD/FGSM only (so possibly gradient-masked, see
+Part~I), one backbone, no causal isolation, and no theorem linking shift to any radius.
+\citet{wang2025bridging} report that rotation/scale equivariance helps without adversarial training,
+but that is the \emph{wrong group} (CNNs are already translation-equivariant), it is enforced rather
+than emergent, and again no $\ell_p$ theorem. \citet{chenzhu2023} and \citet{lawrence2021} prove
+that linear equivariant networks reach a wider margin or a characterized implicit bias --- but they
+are \emph{linear only} and stop at margin/generalization, never an $\ell_p$ radius.
+
+\paragraph{The gap, in one sentence.} Across every paper on both sides, the same thing is missing:
+\emph{no result says what discriminative signal survives a given translation-invariance, turns that
+into an $\ell_p$ robustness certificate, and validates it under a standardized strong attack at
+matched capacity.} The ``helps'' side is empirical, or linear, or the wrong group. The ``hurts''
+side is about $\ell_p$-ball over-invariance or optimizer bias on symmetry-free clusters. The seam
+between them is exactly where the Act~I reproduction's monotone story tore.
+
+This is the situation. A reproduced result whose deviations have no second axis; a working diagnostic
+with no principle; a four-paper contradiction; and a field-wide gap with a precise shape. Everything
+that follows in this part is a question you could have asked while standing here. Now you get to ask
+them.
+
+%======================================================================
+\section{Five open problems, and the forks inside them}
+\label{sec:p2-problems}
+
+For each question I give you the \emph{situation} (what you know and what is unsettled), the
+\emph{candidate directions} you could take with their honest trade-offs, and a prompt asking you to
+commit before reading on. I will not name the quantity, the theorem, or the experiment that resolves
+it. Resist the urge to flip ahead. The value is entirely in deciding under uncertainty.
+
+A note on the format. ``Direction'' means a research strategy, not a guaranteed win. Each has a cost.
+Part of taste is reading those costs accurately, because a direction that cannot be wrong is usually
+a direction that cannot teach you anything either.
+
+%----------------------------------------------------------------------
+\subsection{Q1 --- What single quantity actually orders robustness?}
+\label{sub:p2-q1}
+
+\paragraph{Situation.} Act~I gave you a metric, shift-consistency, that orders robustness
+\emph{most} of the time and is falsified at the margins by its own outliers. Act~III gave you the
+base paper quietly conceding that ``the linear margin predicts robustness better than the dimension
+of the data.'' You suspect consistency is a symptom, not a cause. The deeper question is whether a
+\emph{single measurable scalar} even exists that you can attach to a trained model and that ranks
+models by their robust radius --- and if one does, which family of quantities it belongs to. You are
+genuinely choosing among candidate \emph{families} here, not polishing a known winner: a
+\emph{consistency} score, a bare \emph{margin}, a \emph{sensitivity} measure (a Lipschitz or
+gradient-norm proxy), or some \emph{ratio} of a margin to a sensitivity. Each is a different bet
+about what governs the robust radius, and when your chosen scalar disagrees with consistency, you
+want it to be the one that is \emph{right}.
+
+\paragraph{Candidate directions.}
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{Refine consistency.} Keep the consistency axis but measure it better --- average over
+        more shifts, weight by frequency, use a soft (probability) version instead of a hard
+        label-flip count. \textbf{Trade-off:} cheap, continuous with the prior work, and it might
+        clean up the outliers. But it doubles down on an axis the base paper's own nuance already
+        suspects. If consistency is the wrong \emph{kind} of quantity, no amount of polishing fixes
+        the outliers; you will have built a better thermometer for the wrong temperature.
+  \item \emph{Bet on a single geometric quantity.} Drop consistency and pick \emph{one} geometric
+        scalar instead: a bare margin (distance to the boundary), a bare sensitivity (a Lipschitz or
+        gradient-norm estimate), or a \emph{margin-to-sensitivity ratio} that trades the two against
+        each other. Part~I gives you reason to take the ratio family seriously --- the
+        Lipschitz--margin certificate lower-bounds the robust radius by a margin over a Lipschitz
+        constant --- but the certificate is background, not a verdict: it does not tell you that a
+        ratio \emph{orders} models better than a bare margin or a bare sensitivity does, nor in which
+        feature space to compute any of them. \textbf{Trade-off:} principled, and each candidate
+        ties to geometry you can compute. But a margin and a Lipschitz constant are both nontrivial
+        to measure on a real network; the certificate inequality is one-directional (a lower bound,
+        not an equality --- you will revisit this in Q3); and you must decide \emph{which} feature
+        space (raw pixels? the space the invariance leaves behind?) to measure in. Picking the wrong
+        family, or the wrong space, is the way this direction fails.
+  \item \emph{Let the data choose by regression.} Throw a basket of candidate scalars (consistency,
+        margin, Lipschitz, gradient norms, boundary distance) at a panel of models and report which
+        correlates best with measured robustness. \textbf{Trade-off:} maximally empirical and
+        honest about what predicts what; it cannot be accused of theory-bias. But correlation on a
+        model zoo confounds everything with everything (capacity, normalization, training), and a
+        leaderboard of correlations is not an explanation --- it tells you \emph{that} something
+        orders robustness, never \emph{why}.
+\end{itemize}
+
+\begin{problem}[commit before Part III]
+First decide whether you even believe a single scalar can order robustness across architectures; if
+not, say what minimal set of scalars you would need instead. If you do, pick the family you would bet
+on --- consistency, a margin, a sensitivity, or a margin-to-sensitivity ratio --- and name the single
+most likely reason your bet fails. If you chose a ratio or any geometric scalar, write down which
+feature space you would measure it in and why raw pixels might be the wrong choice. If you chose
+regression, write down the one confound you would control first.
+\end{problem}
+
+%----------------------------------------------------------------------
+\subsection{Q2 --- What discriminative signal survives an imposed invariance?}
+\label{sub:p2-q2}
+
+\paragraph{Situation.} The linear story is brutally clean: force shift-invariance on a linear model
+and it sees only the mean. But real networks are not linear classifiers on raw pixels; they push
+data through nonlinear feature maps first. If a convolution followed by a squaring nonlinearity and
+a pooling step is invariant to shifts, it is \emph{not} reduced to the mean --- it keeps something
+richer. You want to know \emph{exactly what}. Not ``it keeps more''; the precise functional. Because
+whatever survives the invariance is the only material left to build a margin out of, and Q1 told you
+margin is the thing that matters.
+
+\paragraph{Candidate directions.}
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{Quotient and diagonalize.} Treat the invariance as a projection: the model can only
+        depend on the part of the input that the group leaves fixed, so write that projector down and
+        diagonalize the group action (Fourier, for cyclic shifts) to read off the surviving
+        coordinates in closed form. \textbf{Trade-off:} this is exactly the machinery Part~I built,
+        it gives an \emph{exact} answer for the linear and quadratic cases, and it makes the margin
+        computable. But it is cleanest for a single, idealized invariant layer; pushing it through a
+        deep stack of real layers is where the rigor frays.
+  \item \emph{Climb the ladder of classical invariants.} There is a known hierarchy: the mean
+        (degree~1), the power spectrum / autocorrelation (degree~2, what a square-and-pool computes),
+        the bispectrum (degree~3), and beyond. Ask which rung a given architecture sits on and what
+        it can therefore separate. \textbf{Trade-off:} it connects the architecture to a beautiful,
+        well-understood body of signal-processing theory, and it predicts \emph{failure} cases ---
+        classes that one rung cannot tell apart but the next can. But higher rungs cost more
+        (a larger Lipschitz constant; recall that any margin-to-sensitivity ratio has a sensitivity
+        in its denominator), and you must show the
+        architecture \emph{actually} realizes the rung, not just that the rung exists.
+  \item \emph{Probe empirically.} Skip the analysis: train the invariant model and read out which
+        input perturbations it is blind to, mapping the surviving signal by experiment.
+        \textbf{Trade-off:} works for any architecture, no idealization. But it gives you a point
+        cloud, not a formula; it will not tell you the \emph{margin} the surviving signal supports,
+        and it cannot certify anything.
+\end{itemize}
+
+\paragraph{A pointed sub-question.} Recall the base paper's worst case: the ``one hot pixel''
+example, $\pm e_j$, where the class is encoded by \emph{where} the spike sits. Two such inputs that
+differ only by a shift have the \emph{same} power spectrum --- the degree-2 invariant is blind to
+location. So if your architecture stops at degree~2, it cannot separate them at all, and the forced
+trade-off bites hardest exactly there. Does a richer invariant rescue this corner, and at what cost
+to the Lipschitz denominator? Hold that thought; it is a live fork.
+
+\begin{problem}[commit before Part III]
+For a convolution--square--pool layer, write your best guess at the surviving signal in one line.
+Then decide: would you try to \emph{defeat} the hot-pixel worst case with a higher-order invariant,
+or would you accept it as a genuine limit of low-degree invariance? State the price of your choice in
+terms of the margin and the sensitivity (Lipschitz) it would move.
+\end{problem}
+
+%----------------------------------------------------------------------
+\subsection{Q3 --- Does the surviving signal certify an $\ell_p$ radius?}
+\label{sub:p2-q3}
+
+\paragraph{Situation.} Suppose Q2 hands you an exact margin $\eta$ for the surviving signal, and
+suppose you are pursuing the margin-to-sensitivity ratio of Q1's second direction, so the object on
+the table is the Lipschitz--margin certificate $r_2 \ge \eta/L$ from Part~I. It is a \emph{lower}
+bound: it guarantees no adversary inside radius $\eta/L$, but it says nothing about how much
+\emph{further} the true safe radius might extend. For this to be the missing link the whole field
+lacks --- a result tying translation-invariance to an actual $\ell_p$ radius --- you have to decide
+what kind of statement you are even after. (Whether this ratio actually \emph{orders} models better
+than its rivals is still Q1's open business; here you are only asking what the certificate, taken on
+its own terms, can and cannot promise.)
+
+\paragraph{Candidate directions.}
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{Settle for a one-sided certificate (and predictor).} Accept $r_2 \ge \eta/L$ as a
+        guarantee and an empirical predictor, and do not claim it pins the radius exactly.
+        \textbf{Trade-off:} honest and immediately usable; it is enough to \emph{order} models and to
+        \emph{guarantee} safety up to the bound. But a lower bound alone cannot tell you whether a
+        model with a small certificate is actually fragile or merely has a loose bound --- and a
+        referee will ask whether your quantity \emph{characterizes} robustness or merely lower-bounds
+        it.
+  \item \emph{Chase a converse.} Try to prove an upper bound too, so the ratio brackets the true
+        radius from both sides. \textbf{Trade-off:} a two-sided bracket is far stronger and would
+        make the quantity a genuine measure of robustness, not just a safety floor. But you should
+        first ask whether a \emph{universal} converse can even exist --- look for a degenerate example
+        where the ratio is tiny yet the true radius is large. If you can build one, an unconditional
+        converse is dead, and the honest move is to find the extra \emph{condition} under which a
+        converse holds. (This is the search for what has no converse, a research move in its own
+        right; see Section~\ref{sec:p2-taste}.)
+  \item \emph{Add a second, invariance-specific radius.} The certificate above is the
+        \emph{additive-noise} radius. But Tramer's excessive-invariance attack changes the true label
+        \emph{along the orbit} while the prediction stays fixed --- a different failure the additive
+        radius does not see. You could certify a separate ``orbit-flip'' radius for that mode.
+        \textbf{Trade-off:} it captures a real and distinct threat and makes the ``invariance can
+        also \emph{hurt}'' direction precise. But it complicates the story --- now there are two
+        radii to report, and you must say when each one is the binding constraint.
+\end{itemize}
+
+\begin{problem}[commit before Part III]
+Decide whether you would chase a converse or settle for a one-sided certificate. If you would chase
+it, sketch the degenerate example you would build \emph{first} to check whether an unconditional
+converse is even possible --- a function whose certificate is loose by an unbounded factor. If you
+would not, say what claim you are giving up.
+\end{problem}
+
+%----------------------------------------------------------------------
+\subsection{Q4 --- Does any of this survive a strong attack at matched capacity?}
+\label{sub:p2-q4}
+
+\paragraph{Situation.} Acts~I--IV are littered with the same two methodological landmines. First,
+PGD/FGSM attacks can \emph{appear} to show robustness that vanishes under a stronger evaluation
+because the gradients were masked, not the model genuinely robust (Part~I). The ``invariance helps''
+evidence is almost entirely PGD/FGSM. Second, the architectures being compared differ in
+\emph{capacity} (and in normalization, per \citet{galloway2019}), so any robustness gap might be a
+capacity or normalization gap wearing an invariance costume. You want to know whether any geometric
+story you settle on in Q1--Q3 is \emph{real} or an artifact of weak attacks and unmatched models.
+
+\paragraph{Candidate directions.}
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{Trust a stronger attack ensemble.} Re-evaluate every model with a standardized,
+        parameter-free, ensemble attack designed precisely to catch gradient masking, and treat that
+        number as ground truth. \textbf{Trade-off:} this is the community standard and the only way to
+        kill the gradient-masking objection. But it is expensive, and a single robust-accuracy number
+        at one perturbation budget hides the \emph{radius} you actually care about.
+  \item \emph{Measure the radius directly with a min-norm attack.} Instead of ``what fraction
+        survives at budget $\epsilon$,'' find, per input, the \emph{smallest} perturbation that flips
+        it --- the empirical robust radius. \textbf{Trade-off:} this is the right quantity to compare
+        against an $\eta/L$ \emph{radius} certificate, and it gives a distribution, not one number.
+        But min-norm attacks are themselves attacks and can be fooled; you should cross-check them
+        against the ensemble above.
+  \item \emph{Control capacity by construction.} Build a family of architectures --- a plain one, an
+        anti-aliased one, an exactly-cyclic-invariant one, a shift-augmented one --- with
+        \emph{identical} parameter counts, the normalization confound pinned down, and the
+        \emph{same} training. Then any robustness difference is attributable to the invariance, not
+        to size. \textbf{Trade-off:} this is the strongest possible causal isolation and lets you ask
+        not ``does invariance help?'' but ``which term, margin or Lipschitz, does \emph{this}
+        invariance move?'' But matching capacity across structurally different models is fiddly, and
+        you must verify the matched models really are comparable in every nuisance dimension.
+  \item \emph{Stay on synthetic data where the truth is known.} Run everything on the constructions
+        where the margin and radius are computable in closed form, sidestepping attack noise
+        entirely. \textbf{Trade-off:} clean and unimpeachable, and it isolates mechanism. But a
+        referee --- and the gap from Act~IV --- will say the open question is precisely about
+        \emph{real} data under a \emph{strong} attack; synthetic-only re-opens the very gap you set
+        out to close.
+\end{itemize}
+
+\begin{problem}[commit before Part III]
+Design your headline experiment in three lines: which models you compare, what you hold fixed to
+make the comparison causal, and which attack(s) you trust for the final number. Name the one
+confound that, if a reviewer raised it, would most damage your conclusion --- and say how your design
+already answers it.
+\end{problem}
+
+%----------------------------------------------------------------------
+\subsection{Q5 --- Why do trained models land where the diagnostic put them?}
+\label{sub:p2-q5}
+
+\paragraph{Situation.} Q1--Q4 are about what a \emph{given} model's geometry implies. But the
+Act~II quadrant diagram was about \emph{trained} models: gradient descent, not a fixed weight
+vector, decides where each architecture ends up on the consistency-versus-robustness plane. So even
+a perfect geometric theory leaves a gap: \emph{why does optimization land an architecture in the
+quadrant it lands in?} Answer this and the heuristic quadrant diagram becomes a principle; leave it
+and you have explained the map but not the territory. Part~I's implicit-bias and NTK lenses are the
+tools here.
+
+\paragraph{Candidate directions.}
+\begin{itemize}[leftmargin=1.4em]
+  \item \emph{Reduce to a regime where the bias is known.} In the lazy/NTK regime the trained
+        network behaves like a fixed kernel method, where ``what gradient descent selects'' has a
+        clean answer. Ask what enforcing invariance does to that kernel's solution. \textbf{Trade-
+        off:} tractable, and it can turn an empirical trend into a theorem about the selected
+        solution. But the lazy regime is an idealization (wide, near-linear training), the activation
+        matters (a smooth activation behaves very differently from bare ReLU under this lens), and
+        what holds lazily may not hold in the feature-learning regime real training lives in.
+  \item \emph{Split by data geometry.} The Act~III/IV papers suggest the answer is conditional. On
+        data whose classes are \emph{closed under the symmetry} (every shift of a class member is in
+        the class), enforcing invariance may cost nothing --- gradient descent might symmetrize for
+        free. On near-orthogonal \emph{cluster} geometry (the Frei/Li/Min-Vidal setting) invariance
+        may genuinely help the ratio. Prove the easy case, conjecture the hard one.
+        \textbf{Trade-off:} this matches the contradiction's actual shape --- different geometries,
+        different verdicts --- and gives you a provable positive result plus an honest open problem.
+        But it splits the question into pieces, one of which you will have to leave open, and you must
+        be candid that the cluster case resists a full trajectory-level proof.
+  \item \emph{Stay empirical and characterize the landing pattern.} Train the matched families from
+        Q4 across seeds and data regimes and report \emph{where} they land and how tightly,
+        upgrading the quadrant diagram into a measured phenomenon without proving it.
+        \textbf{Trade-off:} robust and honest, and it documents exactly the regime-dependence the
+        theory should later explain. But ``we observed where models land'' is a description, not the
+        principle the Act~II diagram was missing; a reviewer asks \emph{why}.
+\end{itemize}
+
+\begin{problem}[commit before Part III]
+Decide whether you would attack this in the lazy regime, split it by data geometry, or characterize
+it empirically --- and say which part of the question you are willing to leave \emph{open}. (Honest
+answer: at least one piece of Q5 is still open in the project. Predict which piece, and why it is the
+hard one.)
+\end{problem}
+
+%======================================================================
+\section{Research taste: how to find questions like these}
+\label{sec:p2-taste}
+
+The five questions above did not arrive labelled. Someone had to manufacture them from a tangle of
+contradictory papers and an unexplained scatter plot. This section is about that manufacturing.
+It is not a checklist --- taste is not a checklist --- but there are recurring \emph{moves} that
+generate good questions, and there are real \emph{criteria} for deciding which questions are worth
+the months they cost. I illustrate each move with a situation from this project, without giving the
+answer, so you can practice the move rather than memorize the result.
+
+\subsection{Recurring moves}
+\label{sub:p2-moves}
+
+\paragraph{Quotient out the nuisance.} When a symmetry or a degree of freedom is making the problem
+look complicated, do not fight it --- divide by it. Ask what is left once the nuisance is collapsed.
+\emph{In this project:} ``the model is shift-invariant'' looks like a statement about infinitely many
+shifted inputs. Quotient by the shift group and it becomes a statement about a single object --- the
+projection of the data onto the part the group fixes. The infinitely-many-shifts problem becomes a
+one-projector problem. (This is the engine behind Q2.)
+
+\paragraph{Diagonalize the symmetry.} A symmetry that commutes with your operator can be diagonalized,
+and in the eigenbasis the operator is just multiplication --- everything decouples. \emph{In this
+project:} circular shifts are diagonalized by the Fourier basis, so an invariant's action on the data
+becomes coordinate-wise on frequencies, and ``what survives invariance'' becomes ``which frequency
+coordinates the invariant can still read.'' The hard algebra of convolutions turns into reading off a
+diagonal. Whenever you see a group acting linearly, ask for its eigenbasis first.
+
+\paragraph{Bracket what has no converse.} A one-sided inequality is a confession that you do not yet
+know the other side. Before assuming both sides hold, deliberately hunt for a counterexample to the
+converse. If you find one, you have learned that the clean two-sided statement is \emph{false in
+general} --- which is itself a result --- and the real question becomes ``under what extra condition
+does a converse hold?'' \emph{In this project:} the certificate $r_2 \ge \eta/L$ is one-sided; the
+right reflex is to ask whether a universal converse can exist before trying to prove one. (This is
+the heart of Q3, and the degenerate-example reflex below.)
+
+\paragraph{Find the degenerate case.} The fastest way to test a claim or kill a converse is to push
+it to an extreme where one term blows up or collapses, and see if the claim survives. \emph{In this
+project:} to probe whether $\eta/L$ pins the radius, you reach for a function whose curvature can be
+cranked arbitrarily high so the certificate becomes arbitrarily loose while the true radius does not
+move. A single such example settles a general question instantly. Degenerate cases are cheap and
+decisive; build them \emph{before} you invest in a hard proof.
+
+\paragraph{Reduce to the per-unit atom.} A network is a composition of many small pieces. Instead of
+reasoning about the whole, find the smallest piece that carries the phenomenon and solve \emph{that}
+exactly, then ask how the pieces compose. \emph{In this project:} rather than analyze a deep
+invariant network, isolate one convolution--nonlinearity--pool unit and compute exactly what it keeps
+and what margin it supports. The atom is solvable; the composition is the next question. If you
+cannot solve the atom, you certainly cannot solve the network --- and if you can, you have a building
+block and a sanity check for everything larger.
+
+\paragraph{Transport a finite lemma to function space.} A clean fact about finite-dimensional vectors
+(projections are non-expansive; averaging cannot increase a norm) often has an exact analogue in a
+function space (a reproducing-kernel Hilbert space) that turns an empirical trend about trained
+networks into a theorem. \emph{In this project:} ``averaging over the orbit cannot increase the norm''
+is a one-line fact for vectors; transported to the kernel that describes a wide network's training, it
+becomes a statement about the solution gradient descent selects. The move is: prove it where it is
+trivial, then carry it across the bridge that your regime (e.g.\ the lazy/NTK lens from Part~I)
+provides. The catch is always whether the bridge holds --- which is exactly why Q5's lazy direction
+carries an activation caveat.
+
+\subsection{Which questions are worth asking}
+\label{sub:p2-worth}
+
+Moves generate candidate questions faster than you can answer them. Triage is the other half of
+taste. Three criteria did the real work here.
+
+\paragraph{1. There is a small, testable instance.} A question you can probe on a two-frequency toy
+or a closed-form linear case \emph{this afternoon} is worth a hundred you can only settle with a
+six-month training run. The small instance tells you fast whether the big claim is even plausible,
+and it doubles as a sanity check on the eventual general proof. Every one of Q1--Q5 has a synthetic
+miniature where the answer is computable; that is not a coincidence, it is the selection filter.
+If you cannot construct a small instance, you usually do not yet understand the question well enough
+to ask it.
+
+\paragraph{2. It sits exactly at a literature contradiction.} The most fertile questions live on the
+seam where two credible papers disagree, because the disagreement guarantees that \emph{someone}
+is wrong about \emph{something specific}, and resolving it cannot be a no-op. Q1 sits on the seam
+between ``consistency orders robustness'' and Ge's own ``margin predicts better than dimension.''
+Q5 sits on the seam between ``invariance hurts'' (Frei/Li) and ``invariance helps'' (Saha--Gokhale,
+Chen--Zhu). A question that no published paper would dispute is rarely worth asking; a question that
+forces two published papers to reconcile almost always is.
+
+\paragraph{3. The answer changes a decision.} Ask what someone would \emph{do} differently once they
+know the answer. Q1's answer changes which scalar you compute to screen architectures. Q4's answer
+changes whether you trust a PGD number at all. Q3's answer changes whether you can advertise a
+\emph{certificate} or only a \emph{predictor}. If both possible answers lead to the same action, the
+question is decorative; drop it.
+
+\paragraph{Be honest: some good-looking questions did not pan out.} Taste includes being wrong
+gracefully. Several attractive questions in this project bought less than they promised. Polishing the
+consistency metric (Q1's first direction) was tempting and continuous with prior work, but if the
+axis is the wrong \emph{kind} of quantity, a better thermometer does not help --- a lesson you only
+learn by trying it or by reasoning hard about why not. Chasing an \emph{unconditional} converse for
+the certificate (Q3) is a dead end the degenerate-case move kills in an afternoon; the salvageable
+question is the \emph{conditional} one, which is strictly humbler. And the cleanest part of Q5 ---
+the optimization story on symmetric data --- yields a real theorem, while the part everyone wants ---
+the cluster-geometry case in the realistic feature-learning regime --- stays a conjecture supported
+by experiments, not a proof. A primer that pretended otherwise would be teaching you the wrong
+lesson. Knowing which of your questions is provable, which is merely true, and which is only plausible
+is not a footnote to the research. It \emph{is} the research.
+
+\medskip
+
+You now have the five questions, the moves that generate them, and the criteria that select them.
+Before you read Part~III, go back to your five committed answers from the \textit{commit before
+Part~III} prompts. Write, for each, the single observation that would most change your mind. Then,
+and only then, turn the page.
+
+% =====================================================================
+%  CITATION KEYS USED IN THIS FRAGMENT
+% =====================================================================
+%  REUSED (already in primer.bib):
+%    li2025feature   -- Li et al. "Feature averaging..." (the Li 2024 paper;
+%                       primer.bib already keys it as li2025feature)
+%
+%  NEW KEYS -- must be added to primer.bib (real, verified references):
+%    ge2021shift      -- Ge, Kuang & Zou (or as published), "Shift Invariance
+%                        Can Reduce Adversarial Robustness", NeurIPS 2021.
+%    kamath2020       -- Kamath, Deshpande, Subrahmanyam (et al.),
+%                        "Invariance vs. Robustness of Neural Networks",
+%                        ICLR 2020 / OpenReview 2020.
+%    kamath2021       -- Kamath et al., "Can we have it all? On the trade-off
+%                        between spatial and adversarial robustness ...",
+%                        NeurIPS 2021 (introduces CuSP).
+%    galloway2019     -- Galloway, Golubeva, Tanay, Moussa, Taylor,
+%                        "Batch Normalization is a Cause of Adversarial
+%                        Vulnerability", ICML 2019 workshop / arXiv:1905.02161.
+%    zhang2019blurpool-- R. Zhang, "Making Convolutional Networks
+%                        Shift-Invariant Again", ICML 2019 (BlurPool/anti-alias).
+%    tramer2020       -- Tramer, Behrmann, Carlini, Papernot, Jacobsen,
+%                        "Fundamental Tradeoffs between Invariance and
+%                        Sensitivity to Adversarial Perturbations", ICML 2020.
+%    frei2023         -- Frei, Vardi, Bartlett, Srebro, "The double-edged
+%                        sword of implicit bias: generalization vs.
+%                        robustness in ReLU networks", NeurIPS 2023.
+%    minvidal2024     -- Min & Vidal, "Can Implicit Bias Imply Adversarial
+%                        Robustness?", ICML 2024 (polynomial-ReLU flips bias).
+%    sahagokhale2024  -- Saha & Gokhale, "Translation-Invariant Polyphase
+%                        Sampling (TIPS)", WACV 2024.  NOTE: the local file is
+%                        mislabeled "rajput2024_..."; correct authorship is
+%                        Saha & Gokhale.
+%    wang2025bridging -- (Wang et al.) "Bridging Symmetry and Robustness:
+%                        ... Equivariance ...", 2025 (rotation/scale equivariance).
+%    chenzhu2023      -- Chen & Zhu, "Implicit Bias of (Linear) Equivariant
+%                        Steerable Networks", 2023.
+%    lawrence2021     -- Lawrence et al., "Implicit Bias of Linear Equivariant
+%                        Networks", 2021.
+% =====================================================================

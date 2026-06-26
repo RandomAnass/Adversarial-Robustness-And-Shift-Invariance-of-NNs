@@ -1,0 +1,1014 @@
+% =====================================================================
+% Part 1 -- Learning-theory cluster for the shift-invariance / robustness primer.
+% Three sections + closing bridge box:
+%   1. Margins and the max-margin classifier (SVM), convex-hull view.
+%   2. What gradient descent actually learns -- implicit bias.
+%   3. NTK and the lazy-vs-rich dichotomy.
+% This file is meant to be \input into a host document that already loads
+% amsmath/amsthm and defines the theorem environments
+%   theorem, lemma, corollary, proposition, definition, example, remark
+% (exactly as in primer.tex). No \documentclass / \begin{document} here.
+% Every concept is attributed with \citep{...}; the key list is at the end.
+% =====================================================================
+
+\section{Margins and the max-margin classifier}
+\label{sec:margins}
+
+Everything in this primer eventually comes back to a single geometric
+quantity: \emph{how far is a data point from the surface where the
+classifier changes its mind?} That distance is called the \emph{margin},
+and a classifier that makes it as large as possible is a
+\emph{max-margin classifier}, the simplest of which is the
+(hard-margin) \emph{support vector machine}, or SVM
+\citep{boser1992, cortes1995, vapnik}. We build the idea up slowly,
+prove the one formula that every textbook quietly assumes, and then
+look at the same object from a second angle (closest points of two
+convex hulls) that will make the later robustness story intuitive.
+
+\subsection{Hyperplanes and two notions of margin}
+
+We work in $\mathbb{R}^d$. Our data are pairs $(\mathbf{x}_i, y_i)$ with
+inputs $\mathbf{x}_i \in \mathbb{R}^d$ and binary labels
+$y_i \in \{+1, -1\}$. A \emph{linear classifier} predicts the label of a
+new point $\mathbf{x}$ by looking at the sign of an affine function
+$\mathbf{w}\cdot\mathbf{x} + b$, where $\mathbf{w}\in\mathbb{R}^d$ is a
+\emph{weight vector} and $b\in\mathbb{R}$ is a \emph{bias} (also called an
+\emph{intercept} or \emph{threshold}). Here $\mathbf{w}\cdot\mathbf{x}
+= \sum_{j=1}^d w_j x_j$ is the ordinary dot product. The prediction is
+$+1$ when $\mathbf{w}\cdot\mathbf{x}+b>0$ and $-1$ when it is negative.
+
+\begin{definition}[Hyperplane]
+A \emph{hyperplane} in $\mathbb{R}^d$ is the set of points
+$\{\mathbf{x} : \mathbf{w}\cdot\mathbf{x} + b = 0\}$ for some nonzero
+$\mathbf{w}$ and scalar $b$. It is a flat set of dimension $d-1$: a line
+in $\mathbb{R}^2$, an ordinary plane in $\mathbb{R}^3$. The vector
+$\mathbf{w}$ is \emph{normal} (perpendicular) to the hyperplane, and the
+hyperplane is the \emph{decision boundary} of the classifier: the place
+where the score $\mathbf{w}\cdot\mathbf{x}+b$ is exactly zero, so the
+predicted label flips.
+\end{definition}
+
+Why is $\mathbf{w}$ perpendicular to the hyperplane? Take any two points
+$\mathbf{x}$ and $\mathbf{x}'$ that lie on it. Both satisfy the equation,
+so $\mathbf{w}\cdot\mathbf{x}+b = 0$ and $\mathbf{w}\cdot\mathbf{x}'+b = 0$.
+Subtracting, $\mathbf{w}\cdot(\mathbf{x}-\mathbf{x}') = 0$. The vector
+$\mathbf{x}-\mathbf{x}'$ points along the hyperplane (it is the difference
+of two of its points), and it is orthogonal to $\mathbf{w}$; since
+$\mathbf{x},\mathbf{x}'$ were arbitrary, $\mathbf{w}$ is orthogonal to
+every direction inside the hyperplane.
+
+There are two different things one might call ``the margin,'' and keeping
+them apart is the single most common source of confusion, so we name them
+both \citep{burges1998}.
+
+\begin{definition}[Functional and geometric margin]
+For a labelled point $(\mathbf{x}_i, y_i)$ and a classifier
+$(\mathbf{w}, b)$, the \emph{functional margin} is
+\[
+  \hat{\gamma}_i \;=\; y_i\,(\mathbf{w}\cdot\mathbf{x}_i + b).
+\]
+The \emph{geometric margin} is the functional margin divided by the length
+of the weight vector,
+\[
+  \gamma_i \;=\; \frac{y_i\,(\mathbf{w}\cdot\mathbf{x}_i + b)}{\|\mathbf{w}\|},
+\]
+where $\|\mathbf{w}\| = \sqrt{\mathbf{w}\cdot\mathbf{w}}$ is the Euclidean
+norm.
+\end{definition}
+
+The functional margin is positive exactly when the point is classified
+correctly (the label $y_i$ and the score share a sign). But it is
+\emph{not} a geometric distance: if we multiply both $\mathbf{w}$ and $b$
+by $10$, the decision boundary does not move at all (the equation
+$10\mathbf{w}\cdot\mathbf{x}+10b=0$ has the same solution set), yet the
+functional margin grows tenfold. The geometric margin fixes this: it is
+\emph{scale-invariant} (replacing $(\mathbf{w},b)$ by $(c\mathbf{w},cb)$
+for $c>0$ leaves it unchanged because the $c$ in the numerator cancels the
+$c$ in $\|c\mathbf{w}\|=c\|\mathbf{w}\|$), and as we now prove it equals the
+honest perpendicular distance from $\mathbf{x}_i$ to the boundary.
+
+\subsection{The point-to-hyperplane distance, with proof}
+
+Burges' classic tutorial states the distance from a point to a hyperplane
+as a fact and moves on \citep{burges1998}. Because this formula is the
+backbone of margins, certificates and attacks alike, we supply the proof
+in full.
+
+\begin{theorem}[Point-to-hyperplane distance]
+\label{thm:dist}
+Let $H = \{\mathbf{x} : \mathbf{w}\cdot\mathbf{x} + b = 0\}$ with
+$\mathbf{w}\neq \mathbf{0}$, and let $\mathbf{x}_0\in\mathbb{R}^d$ be any
+point. The Euclidean distance from $\mathbf{x}_0$ to $H$ is
+\[
+  \operatorname{dist}(\mathbf{x}_0, H)
+  \;=\; \frac{|\mathbf{w}\cdot\mathbf{x}_0 + b|}{\|\mathbf{w}\|}.
+\]
+\end{theorem}
+
+\begin{proof}
+The distance from $\mathbf{x}_0$ to the set $H$ is by definition the
+smallest value of $\|\mathbf{x}_0 - \mathbf{x}\|$ over all
+$\mathbf{x}\in H$. We will (i) guess the closest point by walking from
+$\mathbf{x}_0$ straight toward $H$ along the normal direction, and
+(ii) prove no point of $H$ is nearer.
+
+\emph{Step 1 (a unit normal).}
+Set $\mathbf{n} = \mathbf{w}/\|\mathbf{w}\|$, the normal $\mathbf{w}$
+rescaled to length one, so $\mathbf{n}\cdot\mathbf{n} = 1$.
+
+\emph{Step 2 (walk along the normal).}
+Consider the point obtained by moving a signed amount $t\in\mathbb{R}$ from
+$\mathbf{x}_0$ along $\mathbf{n}$,
+\[
+  \mathbf{p}(t) \;=\; \mathbf{x}_0 - t\,\mathbf{n}.
+\]
+We want the $t$ that lands $\mathbf{p}(t)$ on $H$, i.e.\ that makes
+$\mathbf{w}\cdot\mathbf{p}(t)+b = 0$.
+
+\emph{Step 3 (solve for $t$).}
+Substitute and expand, using linearity of the dot product in the variable
+$\mathbf{p}$,
+\begin{align*}
+  \mathbf{w}\cdot\mathbf{p}(t) + b
+  &= \mathbf{w}\cdot(\mathbf{x}_0 - t\,\mathbf{n}) + b \\
+  &= \mathbf{w}\cdot\mathbf{x}_0 \;-\; t\,(\mathbf{w}\cdot\mathbf{n}) \;+\; b.
+\end{align*}
+Now $\mathbf{w}\cdot\mathbf{n} = \mathbf{w}\cdot(\mathbf{w}/\|\mathbf{w}\|)
+= \|\mathbf{w}\|^2/\|\mathbf{w}\| = \|\mathbf{w}\|$. Setting the expression
+to zero and solving for $t$,
+\[
+  \mathbf{w}\cdot\mathbf{x}_0 - t\,\|\mathbf{w}\| + b = 0
+  \quad\Longrightarrow\quad
+  t^\star \;=\; \frac{\mathbf{w}\cdot\mathbf{x}_0 + b}{\|\mathbf{w}\|}.
+\]
+So the foot of the perpendicular is $\mathbf{p}(t^\star)\in H$, and the
+length of the step we took is
+\[
+  \|\mathbf{x}_0 - \mathbf{p}(t^\star)\| = \|t^\star\,\mathbf{n}\|
+  = |t^\star|\,\|\mathbf{n}\| = |t^\star|
+  = \frac{|\mathbf{w}\cdot\mathbf{x}_0 + b|}{\|\mathbf{w}\|}.
+\]
+
+\emph{Step 4 (no point of $H$ is nearer).}
+Let $\mathbf{x}\in H$ be arbitrary, so $\mathbf{w}\cdot\mathbf{x}+b = 0$.
+Write the gap from $\mathbf{x}_0$ as
+$\mathbf{x}_0 - \mathbf{x} = \big(\mathbf{x}_0-\mathbf{p}(t^\star)\big)
++ \big(\mathbf{p}(t^\star)-\mathbf{x}\big)$. The first piece equals
+$t^\star\mathbf{n}$ (a multiple of the normal). The second piece,
+$\mathbf{p}(t^\star)-\mathbf{x}$, is the difference of two points of $H$,
+hence (as shown above) orthogonal to $\mathbf{w}$ and so to $\mathbf{n}$.
+The two pieces are therefore orthogonal, and Pythagoras gives
+\[
+  \|\mathbf{x}_0 - \mathbf{x}\|^2
+  = \|t^\star\mathbf{n}\|^2 + \|\mathbf{p}(t^\star)-\mathbf{x}\|^2
+  \;\ge\; \|t^\star\mathbf{n}\|^2 = |t^\star|^2,
+\]
+with equality iff $\mathbf{p}(t^\star)=\mathbf{x}$. Hence the minimum
+distance is exactly $|t^\star| = |\mathbf{w}\cdot\mathbf{x}_0+b|/\|\mathbf{w}\|$.
+\end{proof}
+
+Two corollaries we will reuse constantly. First, the distance from the
+hyperplane to the \emph{origin} (set $\mathbf{x}_0 = \mathbf{0}$) is
+$|b|/\|\mathbf{w}\|$. Second, comparing with the geometric margin:
+$\gamma_i = y_i(\mathbf{w}\cdot\mathbf{x}_i+b)/\|\mathbf{w}\|$ is precisely
+the signed distance of $\mathbf{x}_i$ to the boundary, positive when the
+point is on its correct side. \emph{The geometric margin is a distance.}
+
+\subsection{Canonical scaling, support vectors, and the hard-margin SVM}
+
+Because the geometric margin does not change under rescaling, we are free
+to fix the scale of $(\mathbf{w}, b)$ however is most convenient. The
+convention everyone uses is the \emph{canonical} one
+\citep{burges1998}: rescale so that the closest correctly classified
+points sit at functional margin exactly one. Concretely we require
+
+\begin{equation}
+\label{eq:canonical}
+  y_i\,(\mathbf{w}\cdot\mathbf{x}_i + b) \;\ge\; 1 \qquad\text{for all }i,
+\end{equation}
+with equality achieved by the nearest points. Under this convention the
+two ``rails'' $\mathbf{w}\cdot\mathbf{x}+b = +1$ and
+$\mathbf{w}\cdot\mathbf{x}+b = -1$ are parallel to the boundary and sit
+on either side of it. By Theorem~\ref{thm:dist} each rail is at distance
+$1/\|\mathbf{w}\|$ from the boundary, so the total width of the
+separating slab is
+
+\[
+  \text{margin} \;=\; d_+ + d_- \;=\; \frac{1}{\|\mathbf{w}\|} + \frac{1}{\|\mathbf{w}\|}
+  \;=\; \frac{2}{\|\mathbf{w}\|},
+\]
+
+where $d_+$ ($d_-$) is the distance to the nearest positive (negative)
+point \citep{burges1998}.
+
+\begin{definition}[Support vectors]
+The \emph{support vectors} are the training points that actually touch a
+rail, i.e.\ for which equality holds in \eqref{eq:canonical}:
+$y_i(\mathbf{w}\cdot\mathbf{x}_i+b)=1$. They are the points lying exactly
+on the slab boundary; the solution is determined entirely by them, and
+moving or deleting a non-support point (one strictly inside its own half)
+does not change the classifier.
+\end{definition}
+
+We want the widest slab, i.e.\ the largest $2/\|\mathbf{w}\|$. Since
+$2/\|\mathbf{w}\|$ is a strictly decreasing function of $\|\mathbf{w}\|$,
+maximizing the margin is the same as minimizing $\|\mathbf{w}\|$, and
+equivalently $\tfrac12\|\mathbf{w}\|^2$ (a smooth, convex stand-in). This
+is the \emph{hard-margin SVM} \citep{boser1992, vapnik, burges1998}:
+
+\begin{equation}
+\label{eq:svm-primal}
+  \min_{\mathbf{w}, b}\ \tfrac{1}{2}\|\mathbf{w}\|^2
+  \qquad\text{subject to}\qquad
+  y_i\,(\mathbf{w}\cdot\mathbf{x}_i + b) \ge 1 \ \ \forall i.
+\end{equation}
+
+\begin{proposition}[Max-margin $\Longleftrightarrow$ minimum norm]
+\label{prop:maxmargin}
+Among all $(\mathbf{w}, b)$ satisfying the canonical constraints
+\eqref{eq:canonical}, the one with the largest geometric margin is exactly
+the minimizer of $\tfrac12\|\mathbf{w}\|^2$ in \eqref{eq:svm-primal}.
+\end{proposition}
+\begin{proof}
+The margin under canonical scaling is $2/\|\mathbf{w}\|$. The map
+$r \mapsto 2/r$ is strictly decreasing on $r>0$, so its maximum over the
+feasible set is attained precisely where $\|\mathbf{w}\|$ (hence
+$\tfrac12\|\mathbf{w}\|^2$) is smallest. The two optimizations have the
+same minimizer.
+\end{proof}
+
+Problem \eqref{eq:svm-primal} is a convex quadratic program with linear
+constraints, so it has a unique global solution $\mathbf{w}$; the
+\emph{Karush--Kuhn--Tucker} (KKT) conditions characterize it. We pause to
+define KKT cleanly because it returns in Sections~\ref{sec:implicit} and is
+the language all of these results speak.
+
+\begin{definition}[KKT point]
+\label{def:kkt}
+Consider $\min_{\mathbf{z}} f(\mathbf{z})$ subject to inequality
+constraints $g_i(\mathbf{z})\ge 0$. A point $\mathbf{z}^\star$ is a
+\emph{KKT point} if there exist multipliers $\alpha_i \ge 0$ (one per
+constraint) such that
+\begin{enumerate}[label=(\roman*),nosep]
+\item \emph{stationarity:}
+  $\nabla f(\mathbf{z}^\star) = \sum_i \alpha_i \nabla g_i(\mathbf{z}^\star)$;
+\item \emph{primal feasibility:} $g_i(\mathbf{z}^\star)\ge 0$ for all $i$;
+\item \emph{dual feasibility:} $\alpha_i \ge 0$ for all $i$;
+\item \emph{complementary slackness:} $\alpha_i\, g_i(\mathbf{z}^\star) = 0$
+  for all $i$.
+\end{enumerate}
+For a convex problem the KKT conditions are necessary \emph{and}
+sufficient for a global minimum; for a non-convex problem they are only
+necessary (a KKT point need not be a global minimizer). Intuitively, a
+multiplier $\alpha_i$ is the ``price'' of constraint $i$, and
+complementary slackness says we only pay for constraints that are tight
+($g_i = 0$).
+\end{definition}
+
+Applying Definition~\ref{def:kkt} to the SVM \eqref{eq:svm-primal} with
+$g_i(\mathbf{w},b) = y_i(\mathbf{w}\cdot\mathbf{x}_i+b)-1$, complementary
+slackness reads
+\[
+  \alpha_i\,\big[\,y_i(\mathbf{w}\cdot\mathbf{x}_i+b)-1\,\big] = 0.
+\]
+So $\alpha_i>0$ forces $y_i(\mathbf{w}\cdot\mathbf{x}_i+b)=1$: the points
+with nonzero multiplier are exactly the support vectors. Stationarity in
+$\mathbf{w}$ gives $\mathbf{w} = \sum_i \alpha_i y_i \mathbf{x}_i$, so the
+optimal weight vector is a nonnegative combination of the support vectors
+alone. \emph{Remember this: the SVM solution is built only from the points
+that sit on the margin.} Section~\ref{sec:implicit} will show plain
+gradient descent rediscovers exactly this same combination on its own.
+
+\subsection{The convex-hull view: closest points of two hulls}
+
+There is a second picture, due to Bennett and Bredensteiner
+\citep{bennett2000}, that many people find more intuitive than the
+algebra and which previews the robustness story. It needs one definition.
+
+\begin{definition}[Convex hull]
+The \emph{convex hull} $\operatorname{conv}(A)$ of a finite set
+$A = \{\mathbf{a}_1, \dots, \mathbf{a}_m\}$ is the set of all
+\emph{convex combinations} of its points,
+\[
+  \operatorname{conv}(A) = \Big\{\ \textstyle\sum_{i} u_i \mathbf{a}_i \ :\
+  u_i \ge 0,\ \sum_i u_i = 1 \ \Big\}.
+\]
+It is the smallest convex set containing $A$: in the plane, the rubber
+band stretched around the points.
+\end{definition}
+
+Suppose the two classes are linearly separable. Let $A$ be the positive
+points and $B$ the negative points. Bennett's theorem says the max-margin
+hyperplane is determined by the two closest points of the two hulls.
+
+\begin{theorem}[Closest points of the hulls \citep{bennett2000}]
+\label{thm:hulls}
+For separable classes, let
+\[
+  (\mathbf{c}^\star, \mathbf{d}^\star) = \arg\min_{\mathbf{c}\in\operatorname{conv}(A),\,
+    \mathbf{d}\in\operatorname{conv}(B)} \ \tfrac{1}{2}\|\mathbf{c}-\mathbf{d}\|^2
+\]
+be the closest pair of points, one in each hull. Then the max-margin
+hyperplane is the perpendicular bisector of the segment
+$[\mathbf{c}^\star, \mathbf{d}^\star]$, its normal is
+$\mathbf{w}\propto \mathbf{c}^\star - \mathbf{d}^\star$, and the margin
+(slab width) equals the distance between the hulls,
+$\|\mathbf{c}^\star - \mathbf{d}^\star\|$.
+\end{theorem}
+
+\begin{proof}[Proof skeleton]
+The argument is by contradiction on optimality
+\citep{bennett2000}. (a) \emph{The normal must be along
+$\mathbf{c}^\star-\mathbf{d}^\star$.} If the optimal separating slab's
+normal were \emph{not} parallel to the segment joining the closest hull
+points, then the two parallel supporting planes (one touching each hull)
+would not be as far apart as possible: tilting the slab to align with the
+segment would increase the gap, contradicting maximality. (b) \emph{The
+segment is orthogonal to the supporting planes.} If it were not, then the
+foot of one endpoint could be slid along its hull to a strictly nearer
+point, contradicting that $\mathbf{c}^\star,\mathbf{d}^\star$ are the
+closest pair. Conditions (a) and (b) together force the boundary to be the
+perpendicular bisector of $[\mathbf{c}^\star,\mathbf{d}^\star]$ with normal
+$\mathbf{c}^\star-\mathbf{d}^\star$; the slab width is then the length of
+that segment. The full statement is that the ``closest points of the
+hulls'' problem is the Wolfe dual of the ``push two parallel supporting
+planes apart'' problem, so they have the same solution
+\citep{bennett2000}.
+\end{proof}
+
+The geometric reading is worth keeping: \emph{maximizing the margin is the
+same as finding the two nearest points of the two clouds and bisecting the
+segment between them.} (When classes overlap, Bennett shrinks each hull by
+capping every weight $u_i\le 1/K$ -- the \emph{reduced convex hull} -- and
+shows this softening of the hulls is the dual of allowing margin
+violations, the soft-margin SVM of \citet{cortes1995}. We will not need
+the soft-margin machinery, but it is good to know the picture extends.)
+
+\subsection{Two worked examples and an exercise}
+
+\begin{example}[Two points, margin $2$]
+\label{ex:twopoint}
+Take a single positive point $\mathbf{x}_+ = (2,0)$ with $y=+1$ and a
+single negative point $\mathbf{x}_- = (0,0)$ with $y=-1$ in $\mathbb{R}^2$.
+By symmetry the boundary is the vertical line halfway between them,
+$x_1 = 1$. Let us verify both ways.
+
+\emph{Canonical algebra.} The boundary is normal to the $x_1$-axis, so
+$\mathbf{w}=(w_1,0)$. The canonical constraints with equality at both
+points read $w_1\cdot 2 + b = +1$ and $-(w_1\cdot 0 + b) = +1$, i.e.\
+$b=-1$ and $2w_1 - 1 = 1$, giving $w_1 = 1$. Then $\|\mathbf{w}\| = 1$ and
+the margin is $2/\|\mathbf{w}\| = 2$. The boundary
+$\mathbf{w}\cdot\mathbf{x}+b = x_1 - 1 = 0$ is indeed $x_1=1$.
+
+\emph{Convex-hull view.} Each ``hull'' is a single point:
+$\mathbf{c}^\star=(2,0)$, $\mathbf{d}^\star=(0,0)$. The normal is
+$\mathbf{w}\propto\mathbf{c}^\star-\mathbf{d}^\star = (2,0)$, the bisector
+is $x_1=1$, and the margin is
+$\|\mathbf{c}^\star-\mathbf{d}^\star\| = 2$. The two pictures agree.
+\end{example}
+
+\begin{example}[Four facing segments, margin $3$]
+\label{ex:foursegment}
+Let $A = \{(3,1),(3,-1)\}$ ($y=+1$) and $B = \{(0,1),(0,-1)\}$ ($y=-1$).
+Each hull is now a vertical segment: $\operatorname{conv}(A)$ is the
+segment from $(3,-1)$ to $(3,1)$, and $\operatorname{conv}(B)$ the segment
+from $(0,-1)$ to $(0,1)$. The two segments face each other; the closest
+distance between them is the horizontal gap, $\|(3,y)-(0,y)\| = 3$, and it
+is achieved by \emph{every} horizontally aligned pair (e.g.\ $(3,0)$ and
+$(0,0)$, or $(3,1)$ and $(0,1)$). So the margin is $3$. Canonically, the
+boundary is $x_1 = 1.5$ with $\mathbf{w}=(w_1,0)$; equality at $x_1=3$
+gives $3w_1 + b = 1$ and at $x_1 = 0$ gives $-b = 1$, so $b = -1$ and
+$w_1 = 2/3$, hence margin $2/\|\mathbf{w}\| = 2/(2/3) = 3$, matching the
+hull distance. Note all four points are support vectors: the closest pair
+is non-unique even though the optimal plane is unique.
+\end{example}
+
+\begin{problem}[Point versus segment]
+\label{ex:pointsegment}
+Let $A=\{(2,2)\}$ ($y=+1$) and $B=\{(0,0),(0,2)\}$ ($y=-1$). Sketch
+$\operatorname{conv}(B)$, the vertical segment from $(0,0)$ to $(0,2)$.
+Project the single positive point $(2,2)$ onto that segment to find the
+closest hull point $\mathbf{d}^\star$. Deduce the SVM normal
+$\mathbf{w}\propto\mathbf{c}^\star-\mathbf{d}^\star$ and the margin
+$\|\mathbf{c}^\star-\mathbf{d}^\star\|$, then solve for the canonical
+$(\mathbf{w},b)$ and identify which points are support vectors. (Hint:
+the foot of the perpendicular from $(2,2)$ to the segment $x_1=0,\,
+0\le x_2\le 2$ is $\mathbf{d}^\star = (0,2)$, so $\mathbf{w}\propto(2,0)$,
+margin $2$; $(2,2)$ and $(0,2)$ are support vectors, $(0,0)$ is not.)
+\end{problem}
+
+% =====================================================================
+
+\section{What gradient descent actually learns: implicit bias}
+\label{sec:implicit}
+
+We have a max-margin classifier as an \emph{optimization problem}
+\eqref{eq:svm-primal}. But that is not how neural networks (or even
+logistic regression) are trained in practice. In practice we pick a loss
+function, write down the average loss over the training set, and run
+gradient descent, with \emph{no margin or norm term anywhere in the
+objective}. So here is a genuinely surprising fact, and the bridge from
+Section~\ref{sec:margins} to the rest of the primer: even though nothing
+in the objective mentions the margin, gradient descent on the logistic
+loss drifts toward the max-margin solution all by itself. This silent
+preference is called \emph{implicit bias} \citep{soudry2018}.
+
+\subsection{The setup and the meaning of ``convergence in direction''}
+
+Fold the labels into the inputs by replacing $\mathbf{x}_n$ with
+$y_n\mathbf{x}_n$, so we may assume every label is $+1$ and write the
+linear predictor as $\mathbf{w}^\top\mathbf{x}_n$. The data are
+\emph{linearly separable} if there is some $\mathbf{w}_*$ with
+$\mathbf{w}_*^\top\mathbf{x}_n > 0$ for all $n$ -- a weight vector that
+gets every point right \citep{soudry2018}. We minimize the empirical loss
+\[
+  \mathcal{L}(\mathbf{w}) = \sum_{n=1}^N \ell\!\big(\mathbf{w}^\top\mathbf{x}_n\big),
+\]
+where $\ell$ is, for instance, the logistic loss
+$\ell(u) = \log(1+e^{-u})$ or the exponential loss $\ell(u)=e^{-u}$. Both
+are positive, smooth, strictly decreasing, and flatten toward $0$ as
+$u\to\infty$. Gradient descent takes steps
+\[
+  \mathbf{w}(t+1) = \mathbf{w}(t) - \eta\,\nabla\mathcal{L}(\mathbf{w}(t)),
+  \qquad
+  \nabla\mathcal{L}(\mathbf{w}) = \sum_{n=1}^N \ell'\!\big(\mathbf{w}^\top\mathbf{x}_n\big)\mathbf{x}_n,
+\]
+with a fixed learning rate $\eta>0$ (a small step-size multiplier).
+
+Here is the catch that makes the question subtle. On separable data, to
+push the loss to its infimum $0$ the predictor must send every
+$\mathbf{w}^\top\mathbf{x}_n\to+\infty$, which forces
+$\|\mathbf{w}(t)\|\to\infty$. There is no finite minimizer to converge to.
+But for \emph{classification} only the \emph{direction} of $\mathbf{w}$
+matters, since the predicted label is $\operatorname{sign}(\mathbf{w}^\top
+\mathbf{x})$ and rescaling $\mathbf{w}$ does not change a sign. So the
+right question is about the direction.
+
+\begin{definition}[Convergence in direction]
+We say $\mathbf{w}(t)$ \emph{converges in direction} to a unit vector
+$\mathbf{u}$ if $\|\mathbf{w}(t)\|\to\infty$ while the normalized iterate
+settles, $\mathbf{w}(t)/\|\mathbf{w}(t)\| \to \mathbf{u}$.
+\end{definition}
+
+\subsection{The linear separable case, proved}
+
+The centerpiece of this section is the theorem of
+\citet{soudry2018}: the direction that gradient descent locks onto is the
+$L_2$ max-margin (hard-margin SVM) direction. We state it, then give the
+two-part argument it rests on -- a convergence lemma and the
+``support-vector gradient-domination'' idea that explains \emph{why} the
+SVM direction emerges.
+
+\begin{theorem}[Implicit bias of gradient descent, linear case
+\citep{soudry2018}]
+\label{thm:soudry}
+Let the data be linearly separable and $\ell$ be a smooth, decreasing loss
+with an exponential tail (the logistic and exponential losses qualify).
+For any small enough learning rate $\eta$ and any starting point,
+\[
+  \mathbf{w}(t) \;=\; \widehat{\mathbf{w}}\,\log t \;+\; \boldsymbol{\rho}(t),
+  \qquad \|\boldsymbol{\rho}(t)\| = O(\log\log t),
+\]
+where $\widehat{\mathbf{w}}$ is the $L_2$ max-margin vector, the solution
+of the hard-margin SVM
+$\widehat{\mathbf{w}} = \arg\min \|\mathbf{w}\|^2$ s.t.\
+$\mathbf{w}^\top\mathbf{x}_n\ge 1$. Consequently
+$\mathbf{w}(t)/\|\mathbf{w}(t)\| \to \widehat{\mathbf{w}}/\|\widehat{\mathbf{w}}\|$.
+\end{theorem}
+
+We first record that gradient descent does reach zero loss, with the
+norm diverging. This is the ``no finite critical point'' lemma of
+\citet{soudry2018}.
+
+\begin{lemma}[The loss goes to zero, the norm diverges \citep{soudry2018}]
+\label{lem:diverge}
+Under the assumptions of Theorem~\ref{thm:soudry},
+$\mathcal{L}(\mathbf{w}(t))\to 0$, $\|\mathbf{w}(t)\|\to\infty$, and
+$\mathbf{w}(t)^\top\mathbf{x}_n\to+\infty$ for every $n$.
+\end{lemma}
+\begin{proof}
+Take any separator $\mathbf{w}_*$, so $\mathbf{w}_*^\top\mathbf{x}_n>0$ for
+all $n$. Dot the gradient with $\mathbf{w}_*$:
+\[
+  \mathbf{w}_*^\top \nabla\mathcal{L}(\mathbf{w})
+  = \sum_{n=1}^N \ell'\!\big(\mathbf{w}^\top\mathbf{x}_n\big)\,
+    \big(\mathbf{w}_*^\top\mathbf{x}_n\big).
+\]
+Every term is a product of $\ell'(\cdot)<0$ (the loss is strictly
+decreasing) and $\mathbf{w}_*^\top\mathbf{x}_n>0$, so every term is
+\emph{strictly negative}. Hence at any finite $\mathbf{w}$ the sum is
+strictly negative and cannot be $0$, which means \emph{there is no finite
+critical point}: $\nabla\mathcal{L}(\mathbf{w})\neq\mathbf{0}$ everywhere.
+Gradient descent on a smooth loss with a small enough step size is
+guaranteed to drive $\nabla\mathcal{L}(\mathbf{w}(t))\to\mathbf{0}$; since
+that can only happen ``at infinity,'' the iterate norm diverges,
+$\|\mathbf{w}(t)\|\to\infty$. Because $\ell'(u)\to 0$ only as
+$u\to+\infty$, the gradient can vanish only if every margin
+$\mathbf{w}(t)^\top\mathbf{x}_n\to+\infty$; this forces
+$\ell(\mathbf{w}(t)^\top\mathbf{x}_n)\to 0$ for each $n$, so
+$\mathcal{L}(\mathbf{w}(t))\to 0$.
+\end{proof}
+
+Now the heart of the matter: why is the limiting \emph{direction} the SVM
+direction? The argument is what \citet{soudry2018} call gradient
+domination by the support vectors.
+
+\begin{proof}[Why the direction is the max-margin direction (sketch of
+Theorem~\ref{thm:soudry})]
+Use the exponential loss, $\ell(u)=e^{-u}$, for clarity (the logistic
+loss behaves the same way to leading order). Suppose, as
+Lemma~\ref{lem:diverge}
+permits, that $\mathbf{w}(t)/\|\mathbf{w}(t)\|$ approaches some unit
+direction, and write the iterate as $\mathbf{w}(t) = g(t)\,\mathbf{w}_\infty
++ \boldsymbol{\rho}(t)$ with $g(t)\to\infty$ along the limit direction
+$\mathbf{w}_\infty$ and $\boldsymbol\rho(t)/g(t)\to 0$. The negative
+gradient is
+
+\begin{align*}
+  -\nabla\mathcal{L}(\mathbf{w}(t))
+  &= \sum_{n=1}^N \exp\!\big(-\mathbf{w}(t)^\top\mathbf{x}_n\big)\,\mathbf{x}_n \\
+  &= \sum_{n=1}^N \exp\!\big(-g(t)\,\mathbf{w}_\infty^\top\mathbf{x}_n\big)\,
+     \exp\!\big(-\boldsymbol\rho(t)^\top\mathbf{x}_n\big)\,\mathbf{x}_n.
+\end{align*}
+
+As $g(t)\to\infty$ the factor $\exp(-g(t)\,\mathbf{w}_\infty^\top
+\mathbf{x}_n)$ decays geometrically, and it decays \emph{most slowly} for
+the points with the \emph{smallest} value of $\mathbf{w}_\infty^\top
+\mathbf{x}_n$ -- precisely the points closest to the boundary, the support
+vectors $\arg\min_n \mathbf{w}_\infty^\top\mathbf{x}_n$. All other terms
+are exponentially smaller and become negligible. So in the limit the
+update direction is dominated by, and is a \emph{nonnegative combination
+of}, the support vectors:
+\[
+  \mathbf{w}_\infty \;\propto\; \widehat{\mathbf{w}}
+  \;=\; \sum_{n} \alpha_n \mathbf{x}_n,\qquad
+  \alpha_n\ge 0, \ \text{ with } \alpha_n>0 \text{ only for support vectors.}
+\]
+These are exactly the KKT conditions (Definition~\ref{def:kkt}) of the
+hard-margin SVM \eqref{eq:svm-primal}: a nonnegative support-vector
+combination, with $\widehat{\mathbf{w}}^\top\mathbf{x}_n=1$ on the
+support vectors and $>1$ off them. Hence $\mathbf{w}_\infty$ is
+proportional to the SVM solution $\widehat{\mathbf{w}}$. The detailed
+proof of \citet{soudry2018} additionally shows $g(t)=\log t$ and bounds
+the residual $\boldsymbol\rho(t)$, giving the stated rate.
+\end{proof}
+
+Three things to take away, all of which appear later. (1) The convergence
+to the SVM direction is \emph{very slow}: the direction error decays like
+$O(1/\log t)$, whereas the loss itself decays like $O(1/t)$. So the loss
+can be tiny while the margin is still quietly improving -- a reason to keep
+training past zero training error, and a warning that loss-based early
+stopping can cut off margin (hence robustness) gains \citep{soudry2018}.
+(2) The bias is \emph{specific to gradient descent and to exponential-tail
+losses}: adaptive methods such as Adam, or polynomial-tail losses, need
+not converge to the $L_2$ max-margin direction \citep{soudry2018}. (3) The
+same geometric object -- the support vectors, the convex-hull closest
+points of Section~\ref{sec:margins} -- is what gradient descent homes in
+on.
+
+\subsection{Homogeneous networks: the normalized margin and KKT points}
+
+Linear predictors are a warm-up. Do deep networks, trained the same way,
+also drift toward a margin-maximizing solution? \citet{lyuli2020} answer
+this for an important class of networks, and we must define two terms
+carefully before stating their result.
+
+\begin{definition}[$L$-homogeneous network]
+\label{def:homog}
+A network $\Phi(\boldsymbol\theta;\mathbf{x})$ with parameters
+$\boldsymbol\theta$ is \emph{(positively) $L$-homogeneous} if scaling all
+the parameters by a positive constant $c$ scales the output by $c^L$:
+\[
+  \Phi(c\,\boldsymbol\theta;\mathbf{x}) = c^{L}\,\Phi(\boldsymbol\theta;\mathbf{x})
+  \qquad\text{for all } c>0.
+\]
+Fully-connected and convolutional networks with ReLU (or LeakyReLU)
+activations and \emph{no bias terms} are homogeneous, with $L$ equal to
+the depth (the number of layers) \citep{lyuli2020}. The reason: ReLU
+satisfies $\mathrm{ReLU}(c\,z) = c\,\mathrm{ReLU}(z)$ for $c>0$, and each
+linear layer multiplies the output by its weight, so scaling the weights
+of all $L$ layers multiplies the final output by $c^L$.
+\end{definition}
+
+Just as in the linear case, only the direction of $\boldsymbol\theta$
+matters for the predicted class, and by homogeneity the raw margin scales
+with $\|\boldsymbol\theta\|^L$. So to compare directions fairly we
+normalize.
+
+\begin{definition}[Normalized margin \citep{lyuli2020}]
+Let $q_n(\boldsymbol\theta) = y_n\Phi(\boldsymbol\theta;\mathbf{x}_n)$ be
+the margin on point $n$, and $q_{\min}(\boldsymbol\theta)
+= \min_n q_n(\boldsymbol\theta)$ the smallest margin over the data. The
+\emph{normalized margin} divides out the scale,
+\[
+  \bar\gamma(\boldsymbol\theta)
+  = \frac{q_{\min}(\boldsymbol\theta)}{\|\boldsymbol\theta\|^{L}}.
+\]
+It is invariant to rescaling $\boldsymbol\theta$, just as the geometric
+margin was for the linear model.
+\end{definition}
+
+\begin{theorem}[Gradient descent maximizes the normalized margin
+\citep{lyuli2020}]
+\label{thm:lyuli}
+Consider an $L$-homogeneous network with an exponential-tail loss
+(logistic, exponential, cross-entropy), trained by gradient descent /
+gradient flow, and suppose at some time the network reaches $100\%$
+training accuracy. Then:
+\begin{enumerate}[label=(\alph*),nosep]
+\item a smoothed version of the normalized margin $\bar\gamma$ is
+  \emph{monotonically non-decreasing} thereafter; and
+\item every limit point of the normalized direction
+  $\boldsymbol\theta(t)/\|\boldsymbol\theta(t)\|$ lies along a
+  \emph{KKT point} of the margin-maximization program
+  \[
+    \min \ \tfrac12\|\boldsymbol\theta\|^2
+    \quad\text{s.t.}\quad q_n(\boldsymbol\theta)\ge 1 \ \ \forall n.
+  \]
+\end{enumerate}
+\end{theorem}
+
+We state Theorem~\ref{thm:lyuli} \emph{without proof}: the argument uses
+the Clarke subdifferential (a generalized gradient for the non-smooth ReLU
+network), an Euler-type radial/tangential decomposition of the parameter
+flow, and a monotonicity argument for the smoothed margin -- machinery
+well beyond a first course, and not needed to use the result
+\citep{lyuli2020}. \citet{jitelgarsky2019} prove a closely related
+statement and, for general (possibly non-separable) data, show gradient
+descent follows a unique ray whose direction is the max-margin separator
+of the separable part of the data.
+
+\paragraph{An honest caveat: which KKT point?}
+The crucial difference from the linear case is the word ``KKT.'' For the
+convex SVM, a KKT point \emph{is} the global max-margin solution
+(Definition~\ref{def:kkt}). For a non-convex deep network the
+margin-maximization program is non-convex, so a KKT point is only a
+\emph{first-order stationary point}; it need not be the global
+maximum-margin solution, and \citet{lyuli2020} note one can construct
+examples where it is not. Theorem~\ref{thm:lyuli} therefore tells us
+gradient descent maximizes margin \emph{locally / in a stationarity
+sense}, but it does \emph{not} pin down which margin-stationary solution
+among possibly many. This honesty matters for the project: ``gradient
+descent maximizes the margin'' is exactly true for linear models and only
+true ``up to KKT'' for deep nets.
+
+\paragraph{The margin/robustness bridge.}
+Why care about margin at all? Because the (normalized) margin
+\emph{lower-bounds the distance to the decision boundary}, and that
+distance is the robust radius. Concretely \citet{lyuli2020} state that for
+a ReLU network the normalized margin on a point, divided by the network's
+Lipschitz constant, is a lower bound on the $L_2$ distance from that point
+to the boundary (the same Lipschitz--margin certificate that the
+robustness section of this primer proves via \citet{tsuzuku2018lipschitz}).
+So: plain gradient descent grows the margin, a larger margin means a larger
+certified robust radius, and that is the thread connecting ``what training
+does'' to ``how robust the model is.''
+
+\begin{example}[2D logistic gradient descent finds the SVM direction]
+\label{ex:gd2d}
+Take two positive points $\mathbf{x}_1=(1,1)$ and $\mathbf{x}_2=(1,-1)$
+(both label $+1$, so no label folding needed) and the exponential loss.
+The hard-margin SVM solution is $\widehat{\mathbf{w}}=(1,0)$: it is the
+shortest $\mathbf{w}$ with $\mathbf{w}^\top\mathbf{x}_1\ge1$ and
+$\mathbf{w}^\top\mathbf{x}_2\ge1$, and by symmetry it points along the
+$x_1$-axis. Now run gradient flow from $\mathbf{w}(0)=(0,c)$. The negative
+gradient is
+\[
+  -\nabla\mathcal{L}(\mathbf{w})
+  = e^{-(w_1+w_2)}(1,1) + e^{-(w_1-w_2)}(1,-1),
+\]
+whose second component is $e^{-(w_1+w_2)} - e^{-(w_1-w_2)}$. When $w_2>0$
+this is negative (the first exponent is larger, so its term is smaller),
+pushing $w_2$ down; when $w_2<0$ it is positive, pushing $w_2$ up. Either
+way $w_2\to0$, while the first component is always positive so $w_1\to
++\infty$. Hence $\mathbf{w}(t)/\|\mathbf{w}(t)\|\to(1,0)$: gradient descent
+recovers the SVM direction, exactly as Theorem~\ref{thm:soudry} promises.
+\end{example}
+
+\begin{problem}[Non-support points do not move the limit]
+\label{ex:nonsupport}
+Add a third positive point $\mathbf{x}_3=(3,0)$ to
+Example~\ref{ex:gd2d}. Check that $\widehat{\mathbf{w}}^\top\mathbf{x}_3
+= 3 > 1$, so $\mathbf{x}_3$ is \emph{not} a support vector and its KKT
+multiplier is $\alpha_3=0$. Verify the SVM stationarity
+$\widehat{\mathbf{w}} = \alpha_1\mathbf{x}_1 + \alpha_2\mathbf{x}_2$, and
+argue that although $\mathbf{x}_3$ tugs on the early gradient, the limiting
+direction is unchanged and would be the same if $\mathbf{x}_3$ were
+deleted. (This is gradient domination by support vectors in action.)
+\end{problem}
+
+% =====================================================================
+
+\section{The neural tangent kernel and the lazy-versus-rich dichotomy}
+\label{sec:ntk}
+
+The implicit-bias results tell us a network's training drifts toward a
+margin-maximizing direction. But \emph{what features} does it use to get
+there? Does it learn new features tuned to the task, or does it ride a
+fixed set of features baked in at the start? This is the lazy-versus-rich
+question, and the tool for making it precise is the \emph{neural tangent
+kernel} \citep{jacot2018}. We first build the kernel from a Taylor
+expansion, state Jacot's two theorems, give Chizat's criterion for when
+training is ``lazy,'' and close with the one definition (feature
+averaging) that links all of this back to robustness.
+
+\subsection{Linearization and the neural tangent kernel}
+
+Write a network's scalar output as $f(\boldsymbol\theta, \mathbf{x})$, a
+function of parameters $\boldsymbol\theta$ and input $\mathbf{x}$.
+Training changes $\boldsymbol\theta$; suppose it stays near its starting
+value $\boldsymbol\theta_0$. A first-order Taylor expansion in the
+parameters (not the input) gives the \emph{linearization}.
+
+\begin{definition}[Linearization in parameters]
+The \emph{linearized model} around $\boldsymbol\theta_0$ is the first-order
+Taylor approximation in $\boldsymbol\theta$,
+\[
+  f(\boldsymbol\theta, \mathbf{x}) \;\approx\;
+  f(\boldsymbol\theta_0, \mathbf{x})
+  + \nabla_{\boldsymbol\theta} f(\boldsymbol\theta_0, \mathbf{x})
+    \cdot (\boldsymbol\theta - \boldsymbol\theta_0).
+\]
+This is \emph{linear in the parameter shift}
+$\boldsymbol\theta-\boldsymbol\theta_0$, with a fixed \emph{feature map}
+$\boldsymbol\phi(\mathbf{x}) =
+\nabla_{\boldsymbol\theta} f(\boldsymbol\theta_0, \mathbf{x})$ (the
+gradient of the output with respect to the parameters, frozen at
+$\boldsymbol\theta_0$). It is still nonlinear in $\mathbf{x}$, because
+$\boldsymbol\phi(\mathbf{x})$ can be a complicated function of
+$\mathbf{x}$.
+\end{definition}
+
+\begin{definition}[Neural tangent kernel \citep{jacot2018}]
+The \emph{neural tangent kernel} (NTK) is the inner product of two such
+feature maps,
+\[
+  K(\mathbf{x}, \mathbf{x}')
+  = \big\langle \nabla_{\boldsymbol\theta} f(\boldsymbol\theta, \mathbf{x}),\,
+    \nabla_{\boldsymbol\theta} f(\boldsymbol\theta, \mathbf{x}') \big\rangle
+  = \sum_{p} \frac{\partial f}{\partial \theta_p}(\boldsymbol\theta,\mathbf{x})\,
+    \frac{\partial f}{\partial \theta_p}(\boldsymbol\theta,\mathbf{x}'),
+\]
+summing over all parameters $\theta_p$. A \emph{kernel} is just a symmetric
+function $K(\mathbf{x},\mathbf{x}')$ that measures similarity between
+inputs by an inner product of feature vectors; it lets us do linear
+algebra in a feature space without writing the features out. The NTK is the
+kernel whose features are the parameter-gradients of the network.
+\end{definition}
+
+Under gradient flow the network's \emph{outputs} on the training set move
+according to this kernel. If $u_i(t) = f(\boldsymbol\theta(t),\mathbf{x}_i)$
+collects the outputs and $\mathbf{y}$ the targets, then
+\citep{jacot2018}
+\[
+  \frac{d\,\mathbf{u}(t)}{dt} = -\,H(t)\,\big(\mathbf{u}(t) - \mathbf{y}\big),
+  \qquad H(t)_{ij} = K(\mathbf{x}_i, \mathbf{x}_j; \boldsymbol\theta(t)),
+\]
+i.e.\ \emph{kernel gradient descent in function space} driven by the NTK
+Gram matrix $H$. Two facts make this useful: the cost is \emph{convex in
+function space} (even though it is wildly non-convex in
+$\boldsymbol\theta$), and the dynamics relax fastest along the top
+eigenvectors (principal components) of $H$ -- which is a clean theoretical
+motivation for early stopping \citep{jacot2018}.
+
+\subsection{Width, initialization scale, and Jacot's theorems}
+
+Two quantities decide whether the kernel picture is exact: \emph{width}
+and \emph{initialization scale}.
+
+\begin{definition}[Width and initialization scale]
+The \emph{width} of a hidden layer is its number of neurons; ``infinite
+width'' means letting every hidden layer's neuron count grow without
+bound. The \emph{initialization scale} is the overall size of the random
+parameters at the start, controlled by a factor $\alpha>0$ multiplying the
+output (or equivalently the variance of the initial weights). Both are
+``knobs'' that, turned up, make the network behave more like its fixed
+linearization.
+\end{definition}
+
+Jacot's two theorems say that in the infinite-width limit the NTK becomes
+deterministic and frozen \citep{jacot2018}.
+
+\begin{theorem}[NTK at initialization \citep{jacot2018}, stated]
+\label{thm:jacot1}
+As all hidden widths $\to\infty$, the NTK at initialization converges (in
+probability) to a deterministic limiting kernel $\Theta_\infty$ that
+depends only on the choice of nonlinearity, the depth, and the
+initialization variance -- not on the particular random draw of weights.
+\end{theorem}
+
+\begin{theorem}[NTK stays constant during training \citep{jacot2018},
+stated]
+\label{thm:jacot2}
+Under mild smoothness, in the same infinite-width limit the NTK stays equal
+to $\Theta_\infty$ \emph{throughout} training. Hence training is exactly
+kernel gradient descent with one fixed kernel; for a least-squares loss the
+network function follows a linear differential equation and the outputs
+relax as $\mathbf{u}(t) = \mathbf{y} + e^{-H t}(\mathbf{u}(0)-\mathbf{y})$.
+\end{theorem}
+
+We state Theorems~\ref{thm:jacot1}--\ref{thm:jacot2} \emph{without proof}:
+they rest on a central-limit-theorem argument over the many neurons and on
+controlling how the kernel drifts during training, both of which are
+genuinely involved \citep{jacot2018}. The intuition, though, is simple and
+worth internalizing: \emph{a wide network has so many neurons that each one
+only has to move a tiny amount to fit the data, and if the parameters move
+only a little, the first-order Taylor approximation (the linearization)
+stays accurate.} One honest subtlety from \citet{jacot2018} (their
+Remark~4): each individual neuron's contribution to the kernel does shrink
+with width, but the \emph{collective} contribution of the lower layers does
+not, which is why even ``lazy'' lower layers still participate.
+
+\subsection{Lazy versus rich, and Chizat's criterion}
+
+We can now name the two regimes. Both terms are now standard, traceable to
+\citet{jacot2018} and \citet{chizat2019}.
+
+\begin{definition}[Lazy and rich training]
+Training is \emph{lazy} (also called the \emph{kernel} or
+\emph{fixed-features} regime) when the NTK barely changes, so the network
+behaves like its linearization around $\boldsymbol\theta_0$: it is doing
+kernel regression with features \emph{fixed at initialization}, and the
+parameters hardly move \citep{chizat2019}. Training is \emph{rich} (the
+\emph{feature-learning} regime) when the NTK \emph{evolves} during
+training, so the features adapt to the task; this regime lives outside
+kernel theory (it is described by mean-field / optimal-transport analyses).
+\end{definition}
+
+\citet{chizat2019} pinned down \emph{when} training is lazy with one
+dimensionless number. Introduce an explicit scale factor $\alpha$ via the
+rescaled objective $F_\alpha(\mathbf{w}) = \tfrac{1}{\alpha^2}
+R(\alpha\,h(\mathbf{w}))$. Their criterion (for the square loss $R$) is
+
+\begin{equation}
+\label{eq:kappa}
+  \kappa \;=\; \frac{\|h(\mathbf{w}_0)-\mathbf{y}^\star\|\;\|D^2 h(\mathbf{w}_0)\|}
+                    {\|D h(\mathbf{w}_0)\|^2} \;\ll\; 1
+  \quad\Longrightarrow\quad \text{training is lazy},
+\end{equation}
+
+where $D h$ and $D^2 h$ are the first and second derivatives of the model
+in the parameters. Small $\kappa$ means the model's curvature ($D^2 h$) is
+negligible relative to its slope ($Dh$) over the distance training has to
+travel, so the linearization holds. The key scaling facts
+\citep{chizat2019}:
+\begin{itemize}[nosep]
+\item \emph{Initialization scale.} Under rescaling by $\alpha$,
+  $\kappa_{\alpha h} = \kappa / \alpha$. So \emph{turning up the scale
+  $\alpha$ forces laziness}: large $\alpha$ $\Rightarrow$ small $\kappa$
+  $\Rightarrow$ lazy. This is the scaling law $\kappa_\alpha = \kappa/\alpha$
+  in Chizat et al.\ \citep{chizat2019}.
+\item \emph{Width.} For a one-hidden-layer net the gradient norm grows like
+  $\sqrt{m}$ (with width $m$) while the curvature stays $O(1)$, so
+  $\kappa\sim O(1)/(\sqrt{m})^2 = O(1/m)\to 0$. Width is a second route to
+  the same small-$\kappa$ laziness.
+\item \emph{Parameters barely move.} In the lazy regime
+  $\sup_t\|\mathbf{w}_\alpha(t)-\mathbf{w}_0\| = O(1/\alpha)$, confirming
+  ``the parameters hardly change.''
+\end{itemize}
+
+\begin{remark}[Chizat's honest counterpoint]
+\citet{chizat2019} stress that lazy training is \emph{not} the secret of
+deep learning's success. Their experiments show lazy-trained deep CNNs
+\emph{underperform} ordinary (rich) training. Laziness gives clean theory
+and guaranteed fast fitting, but at the cost of recovering a fixed-kernel
+method; the practical wins come from feature learning. We carry this
+caveat into the bridge: the lazy/rich distinction is a useful conceptual
+axis, not a claim that real networks are lazy.
+\end{remark}
+
+\subsection{Worked examples: NTK of simple models}
+
+\begin{example}[NTK of a linear model is constant]
+\label{ex:ntklinear}
+Let $f(\boldsymbol\theta,\mathbf{x}) = \boldsymbol\theta\cdot\mathbf{x}$
+(plain linear model). Then $\nabla_{\boldsymbol\theta} f = \mathbf{x}$ for
+\emph{every} $\boldsymbol\theta$, so
+\[
+  K(\mathbf{x},\mathbf{x}') = \langle \mathbf{x}, \mathbf{x}'\rangle
+  = \mathbf{x}\cdot\mathbf{x}',
+\]
+which does not depend on $\boldsymbol\theta$ or on time at all. A linear
+model is ``perfectly lazy'': its NTK is the constant kernel
+$\mathbf{x}\cdot\mathbf{x}'$, and training it \emph{is} kernel / linear
+regression. (In the scalar case $f=\theta x$ the kernel is just $xx'$.)
+\end{example}
+
+\begin{example}[NTK of one hidden unit depends on initialization]
+\label{ex:ntkunit}
+Let $f(\boldsymbol\theta,x) = b\,\sigma(a x)$ with parameters
+$\boldsymbol\theta=(a,b)$ and a smooth activation $\sigma$. Then
+$\nabla_{\boldsymbol\theta} f = \big(b\,\sigma'(ax)\,x,\ \sigma(ax)\big)$,
+so
+\[
+  K(x,x') = b^2\,\sigma'(ax)\,\sigma'(ax')\,x x' \;+\; \sigma(ax)\,\sigma(ax').
+\]
+Unlike the linear case, this \emph{depends on $(a,b)$} -- so at random
+initialization the kernel is random, and at finite width it drifts as
+$(a,b)$ move during training. What infinite width buys is exactly the
+freezing of this dependence into a deterministic $\Theta_\infty$
+(Theorem~\ref{thm:jacot1}).
+\end{example}
+
+\begin{problem}[Rescaled-model laziness]
+\label{ex:rescaled}
+Consider a rescaled model $f_\alpha = \alpha\, g$ with the model arranged so
+that $g(\mathbf{w}_0,\mathbf{x})=0$ at initialization. Using the criterion
+\eqref{eq:kappa}, show $\kappa_{\alpha g} = \tfrac{1}{\alpha}\,\kappa_g$,
+and conclude that the linearization error vanishes as $\alpha\to\infty$, so
+the model trains lazily. (Extension: verify $\kappa\sim 1/m$ for a
+one-hidden-layer net using the $\sqrt{m}$-versus-$O(1)$ scaling of the
+gradient and curvature norms.)
+\end{problem}
+
+\subsection{Feature averaging and orbit-structured data}
+
+The last definition is the mechanism that ties lazy/rich to the project's
+real question: \emph{why a max-margin solution can fail to be robust}.
+
+\begin{definition}[Feature averaging, informally; orbit-structured data]
+\label{def:featureavg}
+Many natural inputs are built from \emph{shifted (or otherwise
+transformed) copies} of a few underlying patterns. Calling the set of all
+shifts of a pattern its \emph{orbit} (the group-action term made precise in
+the symmetry section of this primer), we say data are
+\emph{orbit-structured} when each class is a union of such orbits: a cat is
+a cat wherever it sits in the image. \emph{Feature averaging} is the
+phenomenon where a network, instead of detecting the discriminative
+pattern wherever it appears, learns a weight that effectively sums or
+averages the signal across all positions of the orbit. Such an averaged
+feature can separate the training data with a large margin, yet a small,
+carefully placed perturbation that disturbs the averaging can flip the
+prediction -- so the large-margin solution is \emph{not} robust
+\citep{li2025feature}.
+\end{definition}
+
+We keep Definition~\ref{def:featureavg} at the level of motivation,
+because none of the five learning-theory sources read here
+(\citealp{soudry2018, lyuli2020, jitelgarsky2019, jacot2018, chizat2019})
+proves a direct theorem of the form ``lazy/rich $\Leftrightarrow$
+shift-invariant/robust.'' What they \emph{do} give us is the scaffolding:
+a lazy network cannot learn a new invariance that is not already in its
+initialization kernel (its features are frozen), whereas a rich network
+can adapt its features and \emph{learn} shift-invariance rather than
+inherit it. Whether the network's margin-maximizing solution is a robust,
+invariance-respecting one or a brittle, feature-averaging one therefore
+depends on which regime it trained in -- the conceptual hinge the project
+investigates.
+
+% =====================================================================
+
+\subsection*{Closing bridge: how the Part-1 thread fits together}
+
+\begin{quote}
+\textbf{The one-paragraph story this whole part has been building.}
+\emph{Shift-invariance} is, at bottom, a \emph{group-averaging} operation:
+averaging a signal over all the shifts in its orbit is the Reynolds
+projection onto the invariant subspace (the symmetry section of this
+primer makes this an honest orthogonal projection when the shifts act by
+orthogonal matrices). The classical \emph{descriptors} of that invariant
+content are the \emph{power spectrum} and \emph{bispectrum} (the
+shift-invariants section): a shift only rotates the phase of each Fourier
+coefficient, leaving $|X|^2$ untouched, and the bispectrum keeps enough
+relative phase to tell apart signals the power spectrum confuses.
+\emph{Robustness} of a classifier is governed by two numbers we met here
+and in the Lipschitz section: the \emph{margin} (Section~\ref{sec:margins})
+and the \emph{Lipschitz constant}, with the certified robust radius
+behaving like margin over Lipschitz constant. The reason margin is the
+right currency is the implicit-bias result
+(Section~\ref{sec:implicit}): \emph{plain gradient descent, with no
+robustness term in the objective, already drifts toward the max-margin
+solution} -- exactly the SVM solution / convex-hull closest points for
+linear models, and a KKT point of the margin program for homogeneous
+networks. Finally, whether the network \emph{learns} a shift-invariant,
+robust representation or merely \emph{inherits} a fixed set of features
+(and possibly a brittle, feature-averaging margin) depends on the
+\emph{lazy-versus-rich} regime (Section~\ref{sec:ntk}): a lazy,
+wide-or-large-scale network is stuck with its initialization kernel and
+cannot learn a new invariance, whereas a rich network can. That is the
+chain -- \emph{group-averaging $\rightarrow$ spectral descriptors
+$\rightarrow$ margin and Lipschitz $\rightarrow$ implicit bias of gradient
+descent $\rightarrow$ lazy vs.\ rich} -- on which the rest of the project
+is built.
+\end{quote}
+
+% =====================================================================
+% \citep keys used in this file (to be provided by the host bibliography):
+%   vapnik           -- Vapnik 1995/1998, Statistical Learning Theory (max-margin / SVM origin)
+%   boser1992        -- Boser, Guyon, Vapnik 1992 (original SVM)
+%   cortes1995       -- Cortes, Vapnik 1995 (soft-margin SVM)
+%   burges1998       -- Burges 1998 tutorial (canonical margin build-up; asserts distance formula)
+%   bennett2000      -- Bennett, Bredensteiner 2000 (duality/geometry, convex-hull closest points)
+%   soudry2018       -- Soudry et al. 2018 JMLR (implicit bias, linear separable max-margin)
+%   lyuli2020        -- Lyu, Li 2020 ICLR (homogeneous nets, normalized margin -> KKT)
+%   jitelgarsky2019  -- Ji, Telgarsky 2019 (non-separable ray / risk-margin)
+%   jacot2018        -- Jacot, Gabriel, Hongler 2018 NeurIPS (NTK; Thms 1-2)   [bib key in repo: jacot2018neural]
+%   chizat2019       -- Chizat, Oyallon, Bach 2019 NeurIPS (lazy training, kappa criterion)
+%   li2025feature    -- feature-averaging non-robustness (used only for the motivation in Def. of feature averaging)  [bib key in repo: li2025feature]
+%   tsuzuku2018lipschitz -- Tsuzuku et al. 2018 (Lipschitz-margin certificate; referenced in the bridge)  [bib key in repo]
+% Note: jacot2018, li2025feature and tsuzuku2018 already exist in paper/report/references.bib
+%       as jacot2018neural, li2025feature, tsuzuku2018lipschitz. If this fragment is
+%       compiled against that bib, rename jacot2018 -> jacot2018neural. The SVM/implicit-bias
+%       keys (vapnik, boser1992, cortes1995, burges1998, bennett2000, soudry2018, lyuli2020,
+%       jitelgarsky2019, chizat2019) are NOT yet in references.bib and must be added.
+% =====================================================================

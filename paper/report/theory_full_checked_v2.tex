@@ -1,0 +1,876 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[numbers]{natbib}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{conjecture}{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{question}{Open question}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\fdc}{f_{\mathrm{dc}}}
+\newcommand{\Vinv}{V_{\mathrm{inv}}}
+\newcommand{\Vac}{V_{\mathrm{ac}}}
+\newcommand{\Sep}{\mathrm{Sep}}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\Piinv}{\Pi_{\mathrm{inv}}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\Lip}{\operatorname{Lip}}
+\newcommand{\Orb}{\mathcal O}
+
+\title{\textbf{When Does Shift-Invariance Permit Adversarial Robustness?}\\[2pt]
+\large Technical report: definitions, full proofs, and the optimization roadmap\\[2pt]
+\normalsize companion to the paper; self-contained for both the adversarial-robustness and the invariance-theory reader}
+\author{Anass Al Ammiri}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This technical report is the self-contained companion to the paper. Section~\ref{sec:background} collects every definition a reader needs from either side, adversarial robustness or invariance/Fourier analysis, so the report stands alone for both audiences. The remaining sections state and fully prove the results the paper sketches, and develop the optimization roadmap. The central facts are: the invariant linear margin equals the distance between the projected convex hulls (for any finite group, via the group-average projector); a single convolution--square--pooling layer realizes power-spectrum features, and a degree-three bispectrum invariant separates phase-coded classes the power spectrum cannot; the inequality $r_2\ge\eta/L$ is a Lipschitz--margin certificate that we complete to a two-sided bracket $\eta/L\le r_2\le\eta/\alpha$ under an explicit co-Lipschitz constant $\alpha$ (a conditional converse with condition number $\kappa=L/\alpha$, exact for linear features), so $\eta/L$ characterizes the radius up to $\kappa$; on orbit-closed data shift-invariance is provably margin-free, so gradient descent self-symmetrizes, while on near-orthogonal cluster-geometry data it helps, proved in the lazy, smooth-activation regime via an RKHS orbit-averaging projection, with the rich-regime ReLU trajectory left open.
+\end{abstract}
+
+\tableofcontents
+
+\section{Background and definitions}\label{sec:background}
+This report is self-contained.  It is written so that a reader who knows adversarial robustness but not the invariance/Fourier theory, or who knows the theory but not adversarial attacks, can follow every step.  This section collects the primitives from both sides and the learning-theory notions used later; a reader fluent in one subsection can skim it.  Throughout, $x\in\R^d$ is an input (a flattened signal or image), $y\in\{\pm1\}$ a binary label (the multiclass case replaces the scalar score by a logit margin, \S\ref{sec:background-rob}), and $\|\cdot\|_p$ the $\ell_p$ norm with $\|\delta\|_2=(\sum_i\delta_i^2)^{1/2}$ and $\|\delta\|_\infty=\max_i|\delta_i|$.
+
+\subsection{Adversarial robustness}\label{sec:background-rob}
+\begin{definition}[Classifier and prediction]
+A binary classifier is a score $f:\R^d\to\R$ with prediction $\sign f(x)$; it is correct on $(x,y)$ if $\sign f(x)=y$.  A multiclass classifier is a map $F:\R^d\to\R^C$ predicting $\arg\max_c F_c(x)$; its \emph{active margin} at $(x,y)$ is $M(x)=F_y(x)-\max_{c\ne y}F_c(x)$, which is positive exactly when the prediction is correct.
+\end{definition}
+
+\begin{definition}[Threat model and adversarial example]
+An $\ell_p$ threat model of budget $\varepsilon$ allows perturbations in the ball $B_p(\varepsilon)=\{\delta:\|\delta\|_p\le\varepsilon\}$.  Given $(x,y)$ correctly classified, an \emph{adversarial example} is a point $x+\delta$ with $\delta\in B_p(\varepsilon)$ whose prediction is wrong.  The two standard models are $\ell_2$ (Euclidean budget) and $\ell_\infty$ (each coordinate may move by at most $\varepsilon$); on images one also clamps $x+\delta$ to the valid range $[0,1]^d$.
+\end{definition}
+
+\begin{definition}[Robust accuracy and robust radius]\label{def:robust}
+The \emph{robust accuracy at $\varepsilon$} is the fraction of test points that stay correct for \emph{every} $\delta\in B_p(\varepsilon)$.  The \emph{robust radius} of $f$ at a correctly classified $(x,y)$ is
+\[
+r_p(f,x)=\inf\{\|\delta\|_p:\ \sign f(x+\delta)\ne y\},
+\]
+the distance to the decision boundary.  Robust accuracy at $\varepsilon$ equals the fraction of points with $r_p>\varepsilon$; it is a thresholded summary of the radius and suffers floor effects when $\varepsilon$ is large relative to typical radii, whereas the radius itself is the finer, dataset-comparable quantity.
+\end{definition}
+
+\begin{definition}[Attacks: PGD, AutoAttack, DDN]\label{def:attacks}
+An \emph{attack} searches for a small adversarial $\delta$ and so \emph{upper bounds} robust accuracy.  \emph{Projected gradient descent} (PGD) iterates $\delta\leftarrow \Pi_{B_p(\varepsilon)}\big(\delta+\alpha\,u(\nabla_\delta \ell)\big)$ inside a fixed $\varepsilon$-ball, where $u$ is the sign for $\ell_\infty$ and the normalized gradient for $\ell_2$, and $\ell$ is a classification loss \citep{Madry2018}.  \emph{AutoAttack} is a parameter-free ensemble (two automatic-step-size PGD variants on cross-entropy and a margin loss, the white-box FAB attack, and the black-box Square attack) used as a standardized strong evaluation \citep{AutoAttack2020}.  The \emph{decoupled direction and norm} (DDN) attack \citep{Rony2019} is a minimum-norm $\ell_2$ attack: it alternates a normalized-gradient direction step with an adaptive norm budget that shrinks when the current point is adversarial and grows otherwise, converging to the smallest $\|\delta\|_2$ that flips the label; it estimates $r_2$ directly.
+\end{definition}
+
+\begin{definition}[Lipschitz constant and Lipschitz--margin certificate]\label{def:lip}
+A map $g$ is \emph{$L$-Lipschitz} on a set $S$ (in the $\ell_p\!\to\!\ell_2$ sense used here) if $|g(x)-g(y)|\le L\|x-y\|_p$ for $x,y\in S$; the smallest such $L$ is the local Lipschitz constant.  If $g$ is correct at $x$ with score margin $\mu=y\,g(x)>0$ and is $L$-Lipschitz toward the boundary, then no perturbation of norm below $\mu/L$ can change the sign, so the robust radius satisfies $r_p(g,x)\ge \mu/L$.  This lower bound is a \emph{certificate} (a guarantee), in contrast to an attack, which only gives an upper bound.  For a differentiable score, $\|\nabla_x M(x)\|_q$ (the dual norm $q$ of the threat $p$) is the first-order local Lipschitz constant, so $M(x)/\|\nabla_x M(x)\|_q$ is the first-order distance to the boundary.
+\end{definition}
+
+\begin{definition}[Adversarial training]
+\emph{Adversarial training} replaces each training input by an adversarial perturbation of it before the weight update, i.e.\ it minimizes $\E\,[\max_{\delta\in B_p(\varepsilon)}\ell(f(x+\delta),y)]$ \citep{Madry2018}.  It is the standard way to obtain models with nonzero robust accuracy at the RobustBench thresholds ($\ell_\infty$ at $8/255$, $\ell_2$ at $0.5$).
+\end{definition}
+
+\subsection{Group actions, Fourier analysis, and invariance}\label{sec:background-group}
+\begin{definition}[Cyclic shift, group action, orbit]
+The cyclic group $G=\Z_d$ acts on $\R^d$ by circular shifts $(S_sx)_i=x_{(i-s)\bmod d}$.  Each $S_s$ is an orthogonal permutation matrix.  The \emph{orbit} of $x$ is $\Orb(x)=\{S_sx:s\in\Z_d\}$; a set is \emph{orbit-closed} if it contains the full orbit of each of its points.
+\end{definition}
+
+\begin{definition}[Invariance and equivariance]
+A function $f$ is \emph{$G$-invariant} if $f(S_sx)=f(x)$ for all $s,x$.  A map $\Phi$ is \emph{$G$-equivariant} if $\Phi(S_sx)=S_s\Phi(x)$.  Circular convolution is equivariant; composing an equivariant map with a pooling that sums over the group yields an invariant map.
+\end{definition}
+
+\begin{definition}[Discrete Fourier transform, power spectrum, bispectrum]\label{def:dft}
+With the unitary DFT $\hat x_k=d^{-1/2}\sum_{j}x_je^{-2\pi ijk/d}$ and $\omega=e^{2\pi i/d}$, a shift multiplies coefficient $k$ by the unit phase $\omega^{sk}$.  The \emph{power spectrum} $|\hat x_k|^2$ is therefore shift-invariant but phase-blind.  The \emph{bispectrum} $B_{k_1,k_2}(x)=\hat x_{k_1}\hat x_{k_2}\overline{\hat x_{k_1+k_2}}$ is also shift-invariant (the three phases cancel) and, unlike the power spectrum, retains phase information; for signals with no vanishing Fourier coefficient it determines the signal up to a global shift \citep{Kakarala2012}.
+\end{definition}
+
+\begin{definition}[Fixed subspace and group-average projector]
+For a finite orthogonal action $\{R_g\}$, the \emph{fixed subspace} is $V^G=\{v:R_gv=v\ \forall g\}$ and the \emph{group-average projector} is $P_G=|G|^{-1}\sum_g R_g$, the orthogonal projector onto $V^G$.  For cyclic shifts, $V^G=\Vinv=\operatorname{span}\{\one\}$ is the DC (constant) line, $P_G=\Piinv=ee^\top$ with $e=d^{-1/2}\one$, and $\Vac=\Vinv^\perp$ is the zero-sum (AC) subspace.
+\end{definition}
+
+\subsection{Margins, max-margin classifiers, and implicit bias}\label{sec:background-margin}
+\begin{definition}[Geometric margin and max-margin classifier]
+For a linear score $w^\top x+b$ the \emph{geometric margin} at $x$ is $y(w^\top x+b)/\|w\|_2$, the signed Euclidean distance to the hyperplane.  The \emph{hard-margin (max-margin) classifier} of two finite sets maximizes the minimum margin; its value equals $\tfrac12\operatorname{dist}(\conv X_+,\conv X_-)$, half the distance between the class convex hulls, attained by the hyperplane bisecting the closest pair of hull points.
+\end{definition}
+
+\begin{definition}[Homogeneous network, gradient flow, KKT point]\label{def:homog}
+A network $f_\theta$ is \emph{positively homogeneous of degree $k$} if $f_{c\theta}=c^k f_\theta$ for $c>0$; a bias-free two-layer ReLU network $f_\theta(x)=\sum_r a_r\sigma(w_r^\top x)$ is degree-$2$ homogeneous.  \emph{Gradient flow} is the continuous-time limit of gradient descent on the logistic or exponential loss.  A \emph{KKT point} of the margin program $\min\tfrac12\|\theta\|^2$ s.t.\ $y_if_\theta(x_i)\ge1$ is a stationary point of its Lagrangian with nonnegative multipliers and complementary slackness.
+\end{definition}
+
+\begin{definition}[Implicit bias; NTK/lazy versus rich]\label{def:implicit}
+The \emph{implicit bias} is the particular solution gradient descent selects among the many that fit the data.  On separable data a linear model converges to the max-margin direction \citep{Soudry2018}; for homogeneous networks, normalized gradient flow converges in direction to a KKT point of the margin program \citep{Lyu2020,Ji2020}, though which KKT point is reached when several exist is not pinned down by these results.  Training has two regimes: the \emph{lazy / neural-tangent-kernel} regime, where a very wide network stays close to its linearization at initialization and behaves like a fixed kernel \citep{Jacot2018,Chizat2018}, and the \emph{rich} (small-initialization) regime, where features are learned; the implicit-bias effects studied here are a rich-regime phenomenon.
+\end{definition}
+
+\begin{definition}[Feature averaging]
+\emph{Feature averaging} \citep{LiFeature2024} is the mechanism behind implicit-bias non-robustness: on data with many nearly orthogonal cluster-center features, the gradient-descent max-margin solution aligns its weights with a signed average of the cluster centers, which classifies cleanly but is sensitive to perturbations along the individual feature directions, giving a small robust radius.
+\end{definition}
+
+\section{Setting}
+Let $G=\Z_d$ act on $\R^d$ by circular shifts $(S_sx)_i=x_{(i-s)\bmod d}$.  Each $S_s$ is an orthogonal permutation.  Write
+\[
+\Orb(x)=\{S_sx:s\in G\},\qquad
+\Vinv=\{v:S_sv=v\;\forall s\in G\},\qquad \Vac=\Vinv^\perp.
+\]
+Let $e=d^{-1/2}\one$ and
+\[
+\fdc(x)=e^\top x=\frac{1}{\sqrt d}\sum_{i=1}^d x_i.
+\]
+For finite labelled sets $X_+,X_-\subset\R^d$, define the hard-margin separation of two sets $A,B$ by
+\[
+\Sep(A,B):=\frac12\dist(\conv A,\conv B),
+\]
+with value $0$ when the convex hulls intersect.  For a score $f$ and a correctly classified labelled point $(x,y)$, $y\in\{\pm1\}$, define
+\[
+r_2(f,x):=\inf\{\|\delta\|_2:\sign f(x+\delta)\ne y\}.
+\]
+For a linear score $f(x)=w^\top x+b$, if $y f(x)>0$ then
+\[
+r_2(f,x)=\frac{y(w^\top x+b)}{\|w\|_2}.
+\]
+This follows because the closest point on the affine decision hyperplane $w^\top z+b=0$ is the orthogonal projection of $x$ onto that hyperplane.
+
+\begin{lemma}[Fixed subspace for cyclic shifts]\label{lem:cyclic-fixed}
+For the cyclic shift action on $\R^d$,
+\[
+\Vinv=\operatorname{span}\{\one\},\qquad \Piinv=\frac1d\one\one^\top=ee^\top,
+\qquad \Vac=\{v:\one^\top v=0\}.
+\]
+With the unitary DFT $F$, the shifts are diagonalized by Fourier modes: up to the sign convention for the shift,
+\[
+F S_s F^*=\operatorname{diag}(\omega^{sk})_{k=0}^{d-1},\qquad \omega=e^{2\pi i/d}.
+\]
+Consequently $|\widehat{S_sx}_k|^2=|\hat x_k|^2$ for every $k$.
+\end{lemma}
+
+\begin{proof}
+If $v\in\Vinv$, then $S_1v=v$.  In coordinates this says $v_i=v_{i-1}$ for all indices modulo $d$, so all coordinates are equal and $v\in\operatorname{span}\{\one\}$.  Conversely every constant vector is fixed by every permutation $S_s$.  The orthogonal projector onto $\operatorname{span}\{\one\}$ is $\one\one^\top/\|\one\|_2^2=d^{-1}\one\one^\top=ee^\top$, and its orthogonal complement is $\{v:\one^\top v=0\}$.
+
+The DFT diagonalizes every circulant matrix.  Since $S_s$ is a circulant permutation, each Fourier mode is an eigenvector.  The eigenvalue has modulus one, so shifting changes only Fourier phases and preserves every squared magnitude $|\hat x_k|^2$.
+\end{proof}
+
+\section{Invariant linear margin}
+The cleanest statement is not special to cyclic shifts.  It holds for any finite orthogonal group action, and the cyclic theorem is the one-dimensional fixed-subspace specialization.
+
+\begin{theorem}[Invariant linear margin for a finite orthogonal group]\label{thm:finite-group-margin}
+Let a finite group $G$ act orthogonally on $\R^d$ by matrices $R_g$.  Let
+\[
+V^G:=\{v:R_gv=v\;\forall g\in G\},\qquad P_G:=\frac1{|G|}\sum_{g\in G}R_g.
+\]
+A linear score $h(x)=w^\top x+b$ is exactly invariant, $h(R_gx)=h(x)$ for all $x,g$, if and only if $w\in V^G$.  For finite sets $X_+,X_-$, the maximum $\ell_2$ geometric margin among exactly invariant linear classifiers is
+\[
+\gamma_{\mathrm{inv}}
+=\frac12\dist\big(\conv(P_GX_+),\conv(P_GX_-)\big).
+\]
+When the two projected convex hulls are disjoint, the maximum is attained by a unit vector normal to the closest-points segment between the two projected convex hulls, with the bias placing the hyperplane midway between those closest projected points.
+\end{theorem}
+
+\begin{proof}
+First, $h(R_gx)=h(x)$ for all $x$ is equivalent to $w^\top R_gx=w^\top x$ for all $x$, hence to $(R_g^\top w-w)^\top x=0$ for all $x$, hence to $R_g^\top w=w$.  Since $G$ is a group and $R_g^\top=R_g^{-1}=R_{g^{-1}}$, this is equivalent to $R_gw=w$ for all $g$, i.e. $w\in V^G$.  Conversely, if $w\in V^G$, then $R_g^\top w=w$ and $w^\top R_gx=w^\top x$.
+
+Second, $P_G$ is the orthogonal projector onto $V^G$.  Indeed, $P_G^2=|G|^{-2}\sum_{g,h}R_gR_h=|G|^{-1}\sum_k R_k=P_G$, $P_G^\top=P_G$, and its range is exactly the fixed subspace.  If $w\in V^G$, then $w=P_Gw$, so
+\[
+w^\top x=w^\top P_Gx.
+\]
+Thus every invariant linear classifier on $X_+\cup X_-$ is exactly an ordinary linear classifier on the projected sets $P_GX_+$ and $P_GX_-$, with the same normal norm and the same signed margins.  Conversely every linear classifier in the projected space lifts to an invariant classifier on the original space.
+
+For two finite sets $A,B$, the maximum unit-normal margin of an affine hyperplane separating them is $\frac12\dist(\conv A,\conv B)$.  To see this, let $u\in\conv A$ and $v\in\conv B$ be closest points and assume $u\ne v$.  The unit vector $n=(u-v)/\|u-v\|$ and midpoint bias separate the two convex hulls with margin $\|u-v\|/2$.  No hyperplane can have larger margin, because if all points of $A$ and $B$ are at signed distance at least $\gamma$ from a unit-normal hyperplane, then every convex combination in $\conv A$ and $\conv B$ has the same property, so the two convex hulls are at Euclidean distance at least $2\gamma$.  Applying this to $A=P_GX_+$ and $B=P_GX_-$ proves the theorem.
+\end{proof}
+
+For cyclic shifts this specializes to a distance between two scalar DC intervals (Corollary~\ref{cor:cyclic-margin}), and projecting onto the fixed subspace can only shrink the linear max-margin (Corollary~\ref{cor:projection-cannot-increase}); both are recorded in Appendix~\ref{app:supporting}.
+
+\section{The $\eta/L$ certificate and its limits}\label{sec:etaL}
+
+For an invariant feature classifier $g(x)=a^\top\Psi(x)+\beta$ with $\|a\|_2=1$ and an $L$-Lipschitz invariant feature map $\Psi$, the standard Lipschitz--margin certificate gives the lower bound $r_2(g,x)\ge\mu/L$, and with the maximum-margin separator $\mu$ equals the feature margin $\eta=\tfrac12\dist(\conv\Psi(X_+),\conv\Psi(X_-))$, so $r_2(g,x)\ge\eta/L$ (Proposition~\ref{prop:lipschitz-margin}, Appendix~\ref{app:supporting}).  The structural content is not the inequality itself but applying it after identifying which invariant feature space $\Psi$ an architecture realizes and then comparing $\eta/L$ across invariant feature families.  This certificate admits no \emph{universal} converse: there is no constant $C$ with $r_2\le C\,\eta/L$ for all invariant classifiers, as the family $\Psi_n(x)=(e^\top x)^{2n+1}$ shows (Proposition~\ref{prop:no-converse}, Appendix~\ref{app:supporting}).
+
+The rest of this section turns the one-sided certificate into a two-sided bracket under an explicit reachability assumption.  This completes the missing upper arm of the certificate chain of \citet[Eq.~5]{Tsuzuku2018}, whose top inequality (certificate $\le$ true radius) they state cannot be guaranteed and measure empirically as a $1.8$--$2.4\times$ gap.  Previously the only upper bounds on the robust radius were empirical, obtained by running a minimal-distortion attack \citep{CroceHeinFAB2020}.
+
+\begin{theorem}[Two-sided robust-radius bracket: a conditional converse]\label{thm:sandwich}
+Let $g$ be continuous and $L$-Lipschitz (in the $\ell_2$ sense) on a convex set $S$ containing $x$, its nearest boundary point, and the path $\gamma$ below, correct at $x$ with margin $\mu=y\,g(x)>0$, and write $\mathcal B=\{z:g(z)=0\}$ for the decision boundary.
+\begin{enumerate}[leftmargin=1.7em,label=\textup{(\roman*)}]
+\item \emph{Lower arm} (Proposition~\ref{prop:lipschitz-margin}): $r_2(g,x)\ge \mu/L$.
+\item \emph{Upper arm}: if there is a continuous path $\gamma:[0,T]\to S$ with $\gamma(0)=x$, $g(\gamma(T))=0$, and a \emph{co-Lipschitz} (lower-Lipschitz) bound $|g(\gamma(t))-g(x)|\ge\alpha\,\|\gamma(t)-x\|_2$ up to the first boundary hit, then $r_2(g,x)\le \mu/\alpha$, and necessarily $\alpha\le L$.
+\end{enumerate}
+Hence
+\[
+\frac{\mu}{L}\ \le\ r_2(g,x)\ \le\ \frac{\mu}{\alpha},\qquad \kappa:=\frac{L}{\alpha}\ge1,
+\]
+so $\eta/L$ determines the robust radius up to the local bi-Lipschitz condition number $\kappa$ of the score toward the boundary; the certificate is exact ($r_2=\mu/L$) iff $\kappa=1$.
+\end{theorem}
+\begin{proof}
+(i) is Proposition~\ref{prop:lipschitz-margin}.  (ii): at the first boundary hit $g(\gamma(T))=0$, so $\mu=|g(x)|=|g(x)-g(\gamma(T))|\ge\alpha\|\gamma(T)-x\|_2$, giving $\|\gamma(T)-x\|_2\le\mu/\alpha$; since $\gamma(T)\in\mathcal B$ flips the prediction, $r_2(g,x)=\operatorname{dist}(x,\mathcal B)\le\|\gamma(T)-x\|_2\le\mu/\alpha$.  The secant ratio cannot exceed the Lipschitz bound on $S$, so $\alpha\le L$ and $\kappa\ge1$.
+\end{proof}
+
+\begin{corollary}[Linear invariant features: the converse is exact]\label{cor:linear-exact}
+If $g(x)=w^\top x$ with $w\in V^G$, then along the straight path $\gamma(t)=x-t\,w/\|w\|_2$ one has $L=\alpha=\|w\|_2$, so $\kappa=1$ and
+\[
+r_2(g,x)=\frac{\mu}{\|w\|_2}=\frac{\eta}{\|w\|_2},
+\]
+the exact point-to-hyperplane distance \citep{HeinAndriushchenko2017,CristianiniShaweTaylor2000}.
+\end{corollary}
+\begin{proof}
+For linear $g$, $|g(x)-g(z)|=|w^\top(x-z)|\le\|w\|_2\|x-z\|_2$ with equality along $\pm w$, so $L=\|w\|_2$ and the straight path attains $\alpha=\|w\|_2$; the boundary is hit at distance $\mu/\|w\|_2$, which Theorem~\ref{thm:sandwich} pins as the exact radius.
+\end{proof}
+
+The no-converse family is a large-$\kappa$ instance of this bracket rather than a missing bracket, and the bracket is computable in closed form for the power-spectrum surrogate of \S\ref{sec:opt-open}; both are developed in Appendix~\ref{app:supporting} (Remark~\ref{rem:counter-kappa}, Proposition~\ref{prop:computable-bracket}).
+
+\section{Optimization: the open trajectory-level problem}\label{sec:opt-open}
+The existence results above do not imply that gradient descent reaches the invariant classifier with the largest certified radius.  The orbit-bundle lemma (\S\ref{sec:bundle}) is an architectural identity, not an implicit-bias theorem.  This section states the open problem precisely, records what is known, lists the obstacles, and gives candidate proof routes and a checklist of statements to prove.  It is written to be worked on externally.
+
+\subsection{Setup}
+\textbf{Data.}  Fix two base patterns $u,v\in\R^d$ with all Fourier coefficients nonzero (so each cyclic orbit is full rank, Lemma~\ref{lem:orbit-rank}) and distinct power spectra $Q(u)\neq Q(v)$ (so they are power-spectrum separable, Proposition~\ref{prop:single-orbit-correction}).  Let $X_+=\Orb(u)$, $X_-=\Orb(v)$, optionally a union of several such orbits per class (multi-orbit), all labelled by their base.  This is the smallest \emph{nondegenerate} orbit model: it avoids both degeneracies of Proposition~\ref{prop:single-orbit-correction} (rank-$2$ cosines, phase-blind spikes).
+
+\textbf{Models.}  Compare two homogeneous one-hidden-layer ReLU networks trained on the same data: (i) the \emph{unconstrained} network $f(x)=\sum_r a_r\sigma(w_r^\top x)$; (ii) the \emph{shift-invariant} network $f(x)=\sum_r a_r\frac1d\sum_{s}\sigma(\langle w_r,S_sx\rangle)$, which by Lemma~\ref{lem:bundle-corrected} is the same architecture with hidden weights tied into shift orbits and an orbit-averaged readout.  Both are positively homogeneous of degree $2$ in their parameters.
+
+\textbf{Training and the object of study.}  Train by gradient flow on the logistic or exponential loss.  For homogeneous networks, normalized gradient flow converges in direction to a Karush--Kuhn--Tucker (KKT) point of the margin-maximization program $\min\|\theta\|^2$ s.t.\ $y_i f_\theta(x_i)\ge1$ \citep{Lyu2020,Ji2020,Soudry2018}.  The object of study is the realized per-example margin-to-Lipschitz ratio $\eta/L$ (equivalently $\rho_2$ of Proposition~\ref{prop:lipschitz-margin}) at the selected KKT point, for each architecture.
+
+\begin{conjecture}[Trajectory-level conjecture]\label{conj:opt}
+On the nondegenerate orbit data above there is a regime (init scale, width) in which the shift-invariant network's gradient flow reaches a KKT point with strictly larger $\eta/L$ than the unconstrained network's, even though both attain perfect clean margin.  Equivalently, weight sharing plus pooling re-points the implicit bias toward the robust invariant solution.
+\end{conjecture}
+
+\subsection{What is known}
+\begin{itemize}[leftmargin=1.4em]
+\item \emph{Linear / homogeneous implicit bias.}  Gradient descent on separable data converges to the max-margin direction in the linear case \citep{Soudry2018}; for homogeneous networks normalized flow converges in direction to a KKT point of margin maximization \citep{Lyu2020,Ji2020}.  This gives the variational characterization of the limit, but not \emph{which} KKT point is chosen when several exist.
+\item \emph{Non-robust selection.}  For unconstrained two-layer ReLU on near-orthogonal cluster data, the selected max-margin/KKT solution is non-robust \citep{Frei2023}, through feature averaging \citep{LiFeature2024}.
+\item \emph{Architectural lever, conjectural.}  \citet{MinVidal2024} conjecture that changing the architecture re-points this bias; they do not prove it.  Conjecture~\ref{conj:opt} is the shift-invariant instance.
+\item \emph{Convolutional and equivariant implicit bias.}  Linear convolutional networks have a frequency-domain implicit bias toward Fourier-sparse predictors \citep{Gunasekar2018}.  More directly, linear group-equivariant CNNs trained by gradient descent have a Fourier-domain (per-irreducible-representation) $2/L$-Schatten-norm implicit bias \citep{Lawrence2021}, and linear equivariant steerable networks in group-invariant binary classification converge in direction to the group-invariant maximum-margin classifier under a unitary input representation \citep{ChenZhu2023}.  These are \emph{linear} results about margin and generalization, not robustness, so the linear equivariant implicit-bias case is not untouched; what remains open is the nonlinear ReLU, orbit-data, robustness-through-$\eta/L$, and KKT-selection problem.
+\item \emph{Augmentation and lazy regimes.}  Data augmentation carries its own implicit regularization (a tangent-curvature penalty \citep{LeJeune2019}, a spectral reweighting for linear models \citep{Lin2022}), so an augmentation arm is a separate mechanism from architectural invariance.  In the lazy/NTK regime a wide network behaves like a fixed kernel \citep{Jacot2018,Chizat2018}, washing out the feature learning the conjecture needs; the relevant regime is rich (small-init) training.
+\end{itemize}
+
+\subsection{Why it is hard}
+\begin{enumerate}[leftmargin=1.4em]
+\item \textbf{Premise mismatch.}  Orbit data is rank-structured (Lemma~\ref{lem:orbit-rank}), not the near-orthogonal $\Omega(d)$-cluster model of \citet{Frei2023,LiFeature2024}, so their non-robustness conclusion does not transfer; one must either re-derive the unconstrained KKT on orbit data or identify the minimal orbit model on which the premise genuinely holds.  (Proposition~\ref{prop:single-orbit-correction} shows the two textbook single-orbit constructions are exactly the degenerate cases that do \emph{not} hold.)
+\item \textbf{Constrained KKT.}  Weight sharing and pooling tie the hidden units (Lemma~\ref{lem:bundle-corrected}), so the shift-invariant margin program is maximized over a constrained parameter class; its KKT stationarity conditions differ from the unconstrained ones and must be written out, not inherited.
+\item \textbf{Selection among KKT points.}  Homogeneity gives convergence to \emph{some} KKT point; the content of the conjecture is which one, exactly the difficulty in \citet{Frei2023}.  This needs trajectory information (init scale, early dynamics), not just the variational limit.
+\item \textbf{Tracking $L$, not just the margin.}  $\eta/L$ depends on the realized Lipschitz term, so the analysis must control the input-gradient norm along the trajectory, not only the functional margin.
+\end{enumerate}
+
+\subsection{Candidate routes}
+\begin{enumerate}[leftmargin=1.4em]
+\item \textbf{Two-orbit, frequency-domain reduction.}  Take one orbit per class.  For the conv-plus-pool-plus-quadratic surrogate the features are power-spectrum coordinates (Lemma~\ref{lem:ps-corrected}), so the invariant margin program becomes a linear/quadratic max-margin in Fourier-magnitude space, possibly solvable in closed form; compute its $\eta/L$ and compare to the unconstrained KKT on the same data.  Replace the quadratic surrogate by ReLU once the mechanism is clear.
+\item \textbf{Explicit KKT on circulant data.}  Use the circulant/DFT diagonalization to write the unconstrained and constrained KKT systems in Fourier coordinates, where shift symmetry decouples frequencies; solve per frequency.
+\item \textbf{Rich vs lazy.}  Contrast small-init (rich, feature-learning) and NTK (lazy) regimes; the selected $\eta/L$ should differ, and the invariant constraint should matter most in the rich regime.
+\item \textbf{Lower bound via the constrained dual.}  Bound the invariant network's achieved margin below by the convex-hull margin of Theorem~\ref{thm:finite-group-margin} in feature space, and the unconstrained network's $\eta/L$ above by a feature-averaging direction, then compare.
+\end{enumerate}
+
+\subsection{What to prove (checklist)}
+\begin{enumerate}[leftmargin=1.4em]
+\item[(P1)] Write the margin-maximization (KKT) program for the shift-invariant class on the two-orbit data and characterize the selected solution's $\eta/L$ (route 1 or 2).
+\item[(P2)] Show the unconstrained network's gradient flow reaches a KKT point of strictly smaller $\eta/L$ on the \emph{same} data, \emph{or} exhibit the minimal nondegenerate orbit model on which the \citet{Frei2023} feature-averaging premise provably holds.
+\item[(P3)] Combine (P1)--(P2) into Conjecture~\ref{conj:opt}: weight sharing re-points the bias toward larger $\eta/L$.
+\item[(P4)] Open sub-question: does the non-robust-selection premise hold on any full-rank orbit model at all?  If not, the correct statement is weaker (existence of robust invariant solutions plus an empirical selection claim), and the conjecture should be restricted to multi-orbit data with a controlled cluster geometry.
+\end{enumerate}
+The executed dissection (\S\ref{sec:cifar-plan}), under both standard and adversarial training and across three datasets (CIFAR-10, MNIST, Fashion-MNIST) and two threat models ($\ell_\infty$ and $\ell_2$), shows shift-consistency anti-predicts and the threat-matched $\eta/L$ predicts trained-model robustness in practice (consistency vs.\ AutoAttack Pearson $-0.60$ to $-0.88$), but that is evidence for, not a proof of, Conjecture~\ref{conj:opt}.  The partial progress on the checklist that is now provable (the closed-form quadratic-surrogate solution for P1, the explicit KKT systems for the ReLU class, and why P2 does not transfer from existing feature-averaging theorems) is collected in Appendix~\ref{app:opt-scaffold}; the two theorems below close the generic-orbit and lazy-cluster halves directly.
+
+\subsection{P4 stress test: when does invariance re-point the bias?}\label{sec:p4}
+We test Conjecture~\ref{conj:opt} directly on synthetic orbit data ($d=64$): two homogeneous one-hidden-layer ReLU networks, unconstrained versus tied-invariant (Lemma~\ref{lem:bundle-corrected}), trained to convergence on the logistic loss, compared by the per-sample $\ell_2$ robust radius and the realized $\eta/L$, with the quadratic surrogate (Theorem~\ref{thm:quadratic-two-orbit}) as the invariant reference.  Two data regimes give opposite answers.
+
+\textbf{(i) Generic full-rank orbit data} (random bases, all Fourier coefficients nonzero).  Across $1$ and $4$ orbits per class and across rich and lazy initialization, the unconstrained and tied networks reach essentially the same robustness: their $\eta/L$ agree to within $1$--$13\%$, and the unconstrained network is \emph{itself} approximately invariant (output variance across each orbit below $5\%$).  No Frei/Li collapse occurs (the unconstrained radius is $64$--$89\%$ of the invariant reference, not the $\sim10$--$30\%$ a feature-averaging collapse would give).  On generic orbit data, weight sharing is redundant: gradient descent self-symmetrizes.
+
+\textbf{(ii) Near-orthogonal cluster-geometry data} (each class a union of single-frequency orbits in disjoint frequency bands, so the orbits are near-orthogonal low-rank clusters; measured max cross-orbit $|\cos|\approx0$).  Here invariance \emph{does} help, robustly across the grid (4, 6, 8 orbits per class; $d\in\{64,128\}$; up to five seeds; training with the loss-based increasing learning rate of \citet{Lyu2020} to reach the margin regime).  The tied network's $\eta/L$ exceeds the unconstrained network's in every configuration, statistically separated: by a factor $1.22$ in the rich regime and by a factor $3.1$--$4.6$ in the lazy regime ($d{=}128$ lazy: tied $0.92$ vs unconstrained $0.20$).  Two facts pin the mechanism.  First, the normalized margins of the two classes are equal to within noise, so by Theorem~\ref{thm:selfsym} the advantage is \emph{not} in the margin but entirely in a smaller Lipschitz constant at equal margin.  Second, the gap is largest exactly where the unconstrained network \emph{fails} to self-symmetrize: its orbit output-variance is $\approx0.01$ in the rich regime (so it nearly matches the tied network) but $\approx0.3$ in the lazy regime, while the tied network is invariant by construction.  Thus the negative result (generic-orbit self-symmetrization) and the positive result (cluster-geometry advantage) are one phenomenon seen from two sides.
+
+\paragraph{Refined picture.}  The conjecture is data-model-dependent.  On generic orbit data it is effectively false, because gradient descent already finds an approximately invariant max-margin solution and the architectural constraint adds nothing.  On near-orthogonal cluster-geometry data the constraint re-points the selected solution toward a larger $\eta/L$, most strongly in the lazy regime where unconstrained feature learning is weakest.  This falsifies the naive conjecture and identifies the regime where a positive P2/P3 theorem is plausible.  It splits the question into a now-\emph{proven} half on generic orbit data (Theorem~\ref{thm:selfsym}: invariance is margin-free, so it cannot help there), a now-\emph{proven} lazy-regime half on cluster geometry (Theorem~\ref{thm:lazy-cluster}: orbit-averaging is a non-expansive RKHS projection, so invariance lowers the Lipschitz constant at equal margin), and an open rich-regime/ReLU half (Conjecture~\ref{conj:cluster}).
+
+\begin{theorem}[Invariance is margin-free on orbit-closed data]\label{thm:selfsym}
+Let the data be orbit-closed with labels constant on orbits.  For two-layer ReLU networks $f(x)=\sum_r a_r\sigma(w_r^\top x)$ (positively homogeneous, no bias), the minimum parameter norm $\tfrac12\sum_r(a_r^2+\|w_r\|^2)$ achieving unit margin is the same for the unconstrained class and the shift-invariant (tied orbit-bundle) class.  Equivalently, imposing exact shift-invariance changes neither the max-margin value nor the achievable margin: there is an invariant max-margin solution of the same norm.
+\end{theorem}
+\begin{proof}
+($\ge$) The tied class is a subset of the unconstrained class, so its min-norm is at least the unconstrained min-norm.
+($\le$) Let $f^\star=\sum_r a_r\sigma(w_r^\top x)$ be an unconstrained solution with margin $\ge1$.  Its orbit average $f_{\rm sym}(x)=\frac1d\sum_s f^\star(S_sx)$ is shift-invariant (reindex the pooling sum) and lies in the tied class by Lemma~\ref{lem:bundle-corrected}.  Because the data is orbit-closed with labels constant on orbits, each $S_sx_i$ is a training point of label $y_i$ with $y_if^\star(S_sx_i)\ge1$, so $y_if_{\rm sym}(x_i)\ge1$: the margin is preserved.  Finally, minimizing the cost $\tfrac12(a^2+\|w\|^2)$ of a single ReLU unit $a\,\sigma(w^\top x)$ over the rescaling $(a,w)\mapsto(a/c,cw)$ with $c^2=|a|/\|w\|$ (which leaves the function unchanged since $\sigma$ is positively homogeneous of degree one) gives minimal cost $|a|\,\|w\|$.  The bundle realizing $f_{\rm sym}$ has units $\{(a_r/d,\,S_{-s}w_r)\}_{r,s}$, whose minimal cost is $\sum_r\sum_s \tfrac{|a_r|}{d}\|w_r\|=\sum_r |a_r|\,\|w_r\|$, equal to the minimal cost of $f^\star$ (orthogonal shifts preserve $\|w_r\|$).  Hence the tied min-norm is at most the unconstrained min-norm.  The two are equal.
+\end{proof}
+
+\begin{remark}[What the theorem does and does not give]\label{rem:selfsym}
+Theorem~\ref{thm:selfsym} is the nonlinear-ReLU, orbit-closed analogue of the linear steerable/augmentation equivalence of \citet{ChenZhu2023}: on orbit-closed data, shift-invariance is margin-free.  It explains the generic-orbit P4 finding that unconstrained and tied networks reach the same robustness.  It does \emph{not} fix which max-margin solution gradient descent selects, and the certified radius $\eta/L$ depends on the Lipschitz term $L$, not only the margin; the cluster-geometry experiment shows the selected $L$, hence $\eta/L$, can differ between the two classes.  That selection is Conjecture~\ref{conj:cluster}.
+\end{remark}
+
+\begin{conjecture}[Invariance helps on cluster geometry]\label{conj:cluster}
+On near-orthogonal cluster-geometry orbit data, the tied-invariant network's gradient flow reaches a strictly larger $\eta/L$ than the unconstrained network's, with the gap growing as initialization moves toward the lazy regime.  This is the regime in which P2/P3 should be proved.
+\end{conjecture}
+
+\subsection{Lazy-regime resolution of the cluster conjecture}\label{sec:lazy-cluster}
+The lazy regime is exactly where Conjecture~\ref{conj:cluster} becomes a theorem: there the trained network is a fixed-kernel minimum-norm interpolant, and orbit-averaging is an orthogonal projection in the tangent RKHS, so the invariant solution cannot have larger norm, hence cannot have larger Lipschitz constant, at equal margin.
+
+\begin{theorem}[Invariance lowers the Lipschitz constant in the lazy regime]\label{thm:lazy-cluster}
+Work in the lazy/NTK regime, where each trained network equals the minimum-RKHS-norm interpolant of its fixed neural tangent kernel \citep{Jacot2018,Chizat2018}, with a smooth activation so that the tangent feature map $\Phi$ is $L_\Phi$-Lipschitz on the data ball \citep[Prop.~9]{BiettiMairalNTK2019}.  Let the data be orbit-closed with labels constant on orbits, and let the unconstrained tangent kernel $K$ be $G$-invariant, so its Reynolds average $\Pi_G f=\frac1{|G|}\sum_{g\in G}f(g\cdot)$ is defined on $\mathcal H_K$ and the shift-tied bundle of Lemma~\ref{lem:bundle-corrected} realizes exactly the invariant subspace $\mathcal H^G=\Pi_G\mathcal H_K$ with the restricted norm (the invariant tangent kernel is the symmetrized kernel; \citealp{HaasdonkBurkhardt2007}).  Let $f_{\rm unc}$ be the unconstrained min-norm interpolant and $f_{\rm inv}$ the min-norm interpolant in $\mathcal H^G$.  Then
+\begin{enumerate}[leftmargin=1.7em,label=\textup{(\roman*)}]
+\item $\Pi_G$ is the orthogonal projection of $\mathcal H_K$ onto $\mathcal H^G$, hence non-expansive, with $\|f\|_K^2=\|\Pi_G f\|_K^2+\|(I-\Pi_G)f\|_K^2$ \citep[Lemma~1]{Elesedy2021kernel};
+\item $\Pi_G f_{\rm unc}$ still interpolates with the same unit margin (labels are orbit-constant), so $\|f_{\rm inv}\|_K\le\|\Pi_G f_{\rm unc}\|_K\le\|f_{\rm unc}\|_K$;
+\item therefore $L_{\rm inv}\le L_\Phi\|f_{\rm inv}\|_K\le L_\Phi\|f_{\rm unc}\|_K$, and at the common unit margin $\eta$ the invariant model has the weakly larger certified ratio $\eta/L$.  The gap is the discarded non-invariant energy $\|(I-\Pi_G)f_{\rm unc}\|_K^2$ (the orbit-variance), and is strict unless $f_{\rm unc}$ is already invariant.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(i) For a $G$-invariant kernel $\Pi_G$ is self-adjoint and idempotent on $\mathcal H_K$ with spectrum in $\{0,1\}$, hence the orthogonal projection onto $\mathcal H^G$, and the displayed identity is the Pythagorean theorem for that projection \citep[Lemma~1]{Elesedy2021kernel}.  (ii) Orbit-constant labels give $y_i f_{\rm unc}(g\cdot x_i)\ge1$ for every $g$, so $y_i(\Pi_G f_{\rm unc})(x_i)\ge1$; thus $\Pi_G f_{\rm unc}$ is feasible for the invariant min-norm problem, giving $\|f_{\rm inv}\|_K\le\|\Pi_G f_{\rm unc}\|_K$, which (i) bounds by $\|f_{\rm unc}\|_K$.  (iii) The RKHS Lipschitz bound $|f(x)-f(y)|\le\|f\|_K\|\Phi(x)-\Phi(y)\|_K\le L_\Phi\|f\|_K\|x-y\|_2$ \citep[Eq.~9]{BiettiMairalNTK2019} holds for smooth $\Phi$; substitute the norm inequality of (ii).  The gap is the orthogonality identity of (i).
+\end{proof}
+
+\begin{remark}[ReLU caveat; what remains open]\label{rem:lazy-relu}
+The norm contraction (i)--(ii) is activation-independent, but step (iii) uses smoothness: the bare two-layer ReLU NTK feature map is \emph{not} Lipschitz (its RKHS contains unit-norm functions of unbounded Lipschitz constant, \citealp[Prop.~3]{BiettiMairalNTK2019}), so for ReLU one must take a smooth activation (Prop.~9) or carry $\sup\|\nabla\Phi\|$ on the data ball explicitly.  Theorem~\ref{thm:lazy-cluster} thus proves Conjecture~\ref{conj:cluster} in the lazy, smooth-activation regime, exactly where the P4 stress test shows the largest gap (orbit-variance $\approx0.3$, tied/unconstrained $\eta/L$ up to $4.6\times$).  The rich (small-init) regime and the bare-ReLU trajectory stay open: gradient descent then leaves the fixed-kernel picture and the KKT selection of \citet{Lyu2020,Ji2020} must be tracked directly.  Recent finite-network results relating equivariance to gradient regularization \citep{BridgingSymRobust2025} operate in the trained-network/certified-bound setting rather than the lazy interpolant and do not establish the strict orbit-variance gap proved here.
+\end{remark}
+
+\section{Relation to prior work}\label{sec:novelty-audit}
+We position the results of this report honestly against the adjacent literatures, several of which supply ingredients used here.
+
+The structural backbone is invariant-feature linear algebra.  The cyclic fixed subspace and the DFT diagonalization of circulant shifts (Lemma~\ref{lem:cyclic-fixed}) are standard Fourier analysis, used explicitly in shift-invariance robustness analyses \citep{Ge2021}.  The invariant linear margin as the distance between projected convex hulls (Theorem~\ref{thm:finite-group-margin}) specializes for cyclic shifts to the DC-dependence statement of \citet{Ge2021}; group averaging onto a fixed subspace is a standard representation-theoretic tool, so the contribution here is the clean general finite-group formulation with the convex-hull margin normalization, not the cyclic phenomenon itself.  The inequality $\gamma_{\rm inv}\le\gamma_{\rm full}$ (Corollary~\ref{cor:projection-cannot-increase}) is a direct consequence of non-expansiveness of projection.
+
+The certification thread builds on the Lipschitz--margin literature.  The lower bound $r_2\ge\eta/L$ (Proposition~\ref{prop:lipschitz-margin}) is the standard Lipschitz--margin certificate \citep{HeinAndriushchenko2017,Tsuzuku2018,Sokolic2016,Bartlett2017}; its useful role here is applying it after identifying the invariant feature map an architecture realizes and then decomposing robustness into the invariant margin $\eta$ and the Lipschitz term $L$.  We do not call $\eta/L$ a new robustness quantity.  The two-sided bracket (Theorem~\ref{thm:sandwich}) is the report's principal theoretical contribution: it completes the upper arm of the certificate chain of \citet[Eq.~5]{Tsuzuku2018}, which they state cannot be guaranteed and measure empirically as a $1.8$--$2.4\times$ gap, and replaces the previously only-empirical, attack-based upper bounds \citep{CroceHeinFAB2020}.  For linear invariant features the bracket is tight (Corollary~\ref{cor:linear-exact}), recovering the classical point-to-hyperplane distance \citep{HeinAndriushchenko2017,CristianiniShaweTaylor2000}; the absence of a \emph{universal} converse (Proposition~\ref{prop:no-converse}) is the unboundedness of the bi-Lipschitz condition number $\kappa$ over the model class, a metric-subregularity phenomenon \citep{DontchevRockafellar2009}.
+
+The richer-invariant constructions reuse classical descriptors.  One conv--square--pool layer realizing power-spectrum coordinates (Lemma~\ref{lem:ps-corrected}) and the bispectrum as a degree-three shift invariant (Lemma~\ref{lem:bispectrum}, Proposition~\ref{prop:bispectrum}) draw on classical translation-invariant representations and scattering networks \citep{BrunaMallat2012} and on the bispectrum reconstruction theorem \citep{Kakarala2012}; what is specific here is using the bispectrum to separate the exact phase-coded corner of \citet{Ge2021} and quantifying the margin-versus-Lipschitz cost.  The orbit-bundle equivalence (Lemma~\ref{lem:bundle-corrected}) is the standard view of convolution as weight sharing over translated filters, formalized by group-equivariant networks \citep{CohenWelling2016}; the cyclic-orbit rank lemma (Lemma~\ref{lem:orbit-rank}) is a standard circulant-matrix fact.  The orbit-flip upper bound (Proposition~\ref{prop:oracle-flip}) restates the excessive-invariance / invariance-attack phenomenon of \citet{Jacobsen2019,Tramer2020} in the present notation, unifying it with the projection-margin picture.
+
+The optimization thread is positioned against implicit-bias theory.  Gradient descent can select non-robust solutions despite robust ones existing \citep{Frei2023}, via feature averaging \citep{LiFeature2024}, and architectural or supervision levers are conjectured to re-point this bias \citep{MinVidal2024}; linear convolutional and equivariant networks have their own frequency-domain implicit bias \citep{Gunasekar2018,Lawrence2021,ChenZhu2023}.  Within this, the self-symmetrization theorem (Theorem~\ref{thm:selfsym}) is the nonlinear-ReLU, orbit-closed analogue of the linear steerable/augmentation equivalence \citep{ChenZhu2023}, and the lazy-regime cluster theorem (Theorem~\ref{thm:lazy-cluster}) proves the cluster conjecture in the lazy, smooth-activation regime through the RKHS orbit-averaging projection of \citet{Elesedy2021kernel} and the smooth-NTK Lipschitz control of \citet{BiettiMairalNTK2019}, with invariant kernels in the sense of \citet{HaasdonkBurkhardt2007}; the rich-regime ReLU trajectory and its KKT selection remain open.  Finally, the executed CIFAR/AutoAttack decomposition uses the standardized AutoAttack/RobustBench evaluation \citep{AutoAttack2020,RobustBench2020} under capacity control in the spirit of \citet{RobArch2023}; its question is not whether invariance helps but, at matched capacity, whether the robustness difference comes from the margin $\eta$, the Lipschitz term $L$, or their ratio.
+
+\section{Capacity-matched CIFAR/AutoAttack dissection (executed)}\label{sec:cifar-plan}
+\paragraph{Status: executed.}  This program has been carried out; the companion paper holds the tables and figures.  Standard-trained capacity-matched arms (standard, anti-aliased blur-pool, exact-cyclic, shift-augmented; identical parameter counts) give $\eta/L$ versus the $\ell_2$ robust radius at Pearson $0.998$ across architecture-by-width cells, while shift-consistency is anti-correlated ($-0.55$); the margin/Lipschitz decomposition shows anti-aliasing raises $\eta/L$ by lowering the Lipschitz term and exact cyclic invariance lowers it by shrinking the margin (the Ge collapse on real data).  Under PGD adversarial training ($\ell_\infty$, $\epsilon=8/255$) AutoAttack becomes informative ($27$--$41\%$ robust accuracy, no gradient masking): shift-consistency still anti-predicts robustness (Pearson $-0.88$), and the \emph{threat-matched} ratio $\eta/\|\nabla M\|_1$ (the $\ell_\infty$ dual norm) predicts AutoAttack robust accuracy at Pearson $0.90$, whereas the $\ell_2$ ratio ($0.62$) and the $\ell_2$ radius do not, because adversarial training robustifies in $\ell_\infty$.  The same two laws replicate on MNIST and Fashion-MNIST ($\ell_\infty$) and on CIFAR-10 under an $\ell_2$ threat: across all four conditions shift-consistency anti-predicts AutoAttack robustness (Pearson $-0.60$ to $-0.88$) and the threat-matched ratio predicts it, exceeding the mismatched ratio in every $\ell_\infty$ condition; under $\ell_2$ training the $\ell_1$ and $\ell_2$ gradient norms run nearly proportional, so the matched ($+0.87$) and mismatched ($+0.91$) ratios coincide and the $\ell_2$ robust radius instead carries the prediction ($+0.79$); no gradient masking appears in any condition.  On denser grids with bootstrap $95\%$ confidence intervals (a $24$-cell standard-training grid and a $12$-cell adversarial-training grid) the correlations reproduce: $\eta/L$ versus the robust radius is $+0.998$ (CI $[+0.997,+0.999]$, permutation $p<10^{-3}$), and under adversarial training shift-consistency versus AutoAttack is $-0.75$ (CI $[-0.92,-0.02]$, $p=0.006$) with the threat-matched ratio $+0.83$ (CI $[+0.49,+0.93]$, $p=0.002$); under standard training shift-consistency is not a significant predictor of the radius ($-0.33$, $p=0.11$), so the strong anti-prediction is specific to adversarial training.  The design that was carried out is recorded below.
+
+The dissection ties the theory to a benchmark where robustness evaluation is standardized.  CIFAR-10 has $60{,}000$ images of size $32\times32$ in ten classes, split into $50{,}000$ training and $10{,}000$ test images \citep{Krizhevsky2009}.  RobustBench evaluates CIFAR models under fixed $\ell_\infty$ and $\ell_2$ threat models, using AutoAttack as the standard strong attack suite \citep{AutoAttack2020,RobustBench2020}.  Because architecture robustness can be confounded by parameter count, FLOPs, training recipe, and clean accuracy, the experiment must be capacity-matched rather than a comparison of arbitrary pretrained models; this concern is also explicit in architecture-robustness studies such as \citet{RobArch2023}.
+
+\subsection{Experimental arms}
+Use the same optimizer, augmentation, training duration, adversarial-training recipe where applicable, batch size, data preprocessing, and seed schedule for every arm.  The primary comparison should be within each parameter/FLOP budget, not across budgets.
+\begin{enumerate}[leftmargin=1.4em]
+\item \textbf{Standard CNN/ResNet baseline.}  A non-exactly-invariant baseline with conventional padding/strides.
+\item \textbf{Anti-aliased or blur-pooled CNN.}  This tests whether increased shift stability without exact cyclic invariance changes $\eta$, $L$, or both; it is motivated by anti-aliased CNNs \citep{Zhang2019}.
+\item \textbf{Exact cyclic conv-plus-global-pooling model.}  This is the closest implementation of the theory.  Use circular padding and global pooling so that the model is exactly invariant to cyclic translations.
+\item \textbf{Capacity-matched group-equivariant variant.}  If rotations/reflections are included, compare to G-CNN-style weight sharing \citep{CohenWelling2016}; otherwise keep the shift-only version to avoid mixing group effects.
+\item \textbf{Data-augmentation control.}  Same base architecture, trained with translation augmentation but without exact architectural invariance.  This separates architectural invariance from invariance learned by augmentation.
+\end{enumerate}
+
+Budgets should include at least three scales, for example small, medium, and large.  For each scale, match parameter count first and report FLOPs second.  Also create a clean-accuracy-matched subset by selecting checkpoints or widths with comparable clean test accuracy; this avoids mistaking accuracy loss for robustness loss.
+
+\subsection{Robustness evaluation}
+Report clean accuracy, AutoAttack robust accuracy under $\ell_\infty$ at $\epsilon=8/255$, and AutoAttack robust accuracy under $\ell_2$ at $\epsilon=0.5$, matching the common RobustBench CIFAR-10 settings \citep{RobustBench2020}.  Also run PGD sanity checks, but do not use PGD alone as the main claim.  If an architecture contains nonstandard preprocessing, stochasticity, quantization, or non-differentiable steps, run adaptive checks; otherwise the evaluation risks the gradient-masking failure mode highlighted by \citet{Athalye2018,Carlini2019}.  The accepted robustness number should be the worst result among AutoAttack and any stronger adaptive attack used for that model.
+
+\subsection{The $\eta/L\to$ margin/Lipschitz decomposition}
+For a trained multiclass logit map $F_\theta:\R^d\to\R^C$, define the per-example logit margin
+\[
+ m_i = F_{\theta,y_i}(x_i)-\max_{c\ne y_i}F_{\theta,c}(x_i).
+\]
+Let $c_i^*=\arg\max_{c\ne y_i}F_{\theta,c}(x_i)$ and define the active margin function
+\[
+ M_i(x)=F_{\theta,y_i}(x)-F_{\theta,c_i^*}(x).
+\]
+For an $\ell_2$ threat model, estimate the local Lipschitz proxy by
+\[
+ L_{i,2}^{\rm grad}=\|\nabla_x M_i(x_i)\|_2,
+\qquad
+ \rho_{i,2}^{\rm proxy}=m_i/L_{i,2}^{\rm grad}.
+\]
+For an $\ell_\infty$ threat model, use the dual norm
+\[
+ L_{i,\infty}^{\rm grad}=\|\nabla_x M_i(x_i)\|_1,
+\qquad
+ \rho_{i,\infty}^{\rm proxy}=m_i/L_{i,\infty}^{\rm grad}.
+\]
+These are local proxies, not certificates unless a valid neighborhood Lipschitz upper bound is proved.  Complement them with a finite-difference or adversarially estimated local slope
+\[
+ L_{i,p}^{\rm adv}(\epsilon)=\max_{\|\delta\|_p\le\epsilon}
+ \frac{|M_i(x_i+\delta)-M_i(x_i)|}{\|\delta\|_p},
+\]
+estimated by projected ascent.  The resulting empirical decomposition is
+\[
+ \Delta\log \rho_p
+ =\Delta\log m - \Delta\log L_p.
+\]
+Thus, if an invariant architecture is more robust, the experiment identifies whether the gain comes from larger margins, smaller input sensitivity, or both.  If it is less robust, the same decomposition distinguishes ``invariance erased class signal'' from ``invariance preserved signal but increased Lipschitz cost.''
+
+\subsection{Primary tests and decision rules}
+The main statistical test should not be a single correlation.  Use all of the following.
+\begin{enumerate}[leftmargin=1.4em]
+\item \textbf{Prediction of robust accuracy:} compare AutoAttack robust accuracy to the fraction of test examples with $m_i>\epsilon L_{i,p}$.
+\item \textbf{Within-budget decomposition:} for each matched budget, report $\Delta\log m$, $\Delta\log L_p$, and $\Delta\log(m/L_p)$ between the invariant/equivariant model and its baseline.
+\item \textbf{Clean-accuracy matched comparison:} repeat the same decomposition on models whose clean accuracies are within a small tolerance.
+\item \textbf{Invariance diagnostic:} measure shift consistency separately from $m/L_p$.  The theory predicts that consistency alone is not sufficient: a perfectly invariant model can be non-robust if the invariant margin is small.
+\item \textbf{Architecture ablation:} compare exact invariance, anti-aliasing, and augmentation.  If only exact invariance changes the margin term, that supports the projection-margin story.  If anti-aliasing mainly lowers $L$, that supports a different mechanism.
+\end{enumerate}
+
+\subsection{History and the question this answered}
+The literature contains three messages.  First, shift invariance can shrink margins when the class signal is only in the DC component \citep{Ge2021}.  Second, spatial robustness and pixel-adversarial robustness can trade off in both theory and experiments \citep{Kamath2021}.  Third, excessive invariance creates a distinct invariance-based adversarial failure mode \citep{Jacobsen2019,Tramer2020}.  The surgical question, under a capacity-matched CIFAR/AutoAttack protocol, was which term in $m/L$ moves when invariance is added.  The executed dissection answers it: anti-aliasing moves the Lipschitz term $L$, exact cyclic invariance moves the margin $\eta$, and under adversarial training the threat-matched ratio $\eta/\|\nabla M\|_1$ is what tracks AutoAttack robustness.  This converts a qualitative trade-off story into a measured mechanism.
+
+If the answer is ``margin shrinks,'' the structural theorem is the correct explanation and the remedy is richer invariant features.  If the answer is ``Lipschitz cost grows,'' then the remedy is spectral/Jacobian/architecture control rather than changing the invariant feature.  If the answer is ``both improve'' for a specific architecture, that architecture becomes the first serious candidate for a positive coexistence result beyond toy data.
+
+\appendix
+\section{Supporting and standard results}\label{app:supporting}
+This appendix collects the supporting lemmas, standard facts, and reproved results used in the main body.  These are not headline contributions; each known or reproved statement cites its original source.  The technical report retains them in full for self-containedness.
+
+\subsection{Cyclic specialization and projection monotonicity}\label{app:cyclic-corollaries}
+
+\begin{corollary}[Cyclic DC formula]\label{cor:cyclic-margin}
+For cyclic shifts, $P_G=\Piinv=ee^\top$.  Let
+\[
+I_+=[\min_{x\in X_+}\fdc(x),\max_{x\in X_+}\fdc(x)],\qquad
+I_-=[\min_{x\in X_-}\fdc(x),\max_{x\in X_-}\fdc(x)].
+\]
+Then
+\[
+\gamma_{\mathrm{inv}}=\frac12\dist(I_+,I_-)
+=\frac12\max\Big\{
+\min_{X_+}\fdc-\max_{X_-}\fdc,
+\min_{X_-}\fdc-\max_{X_+}\fdc,
+0
+\Big\}.
+\]
+If $I_+$ lies to the right of $I_-$, the optimal normal is $+e$; if $I_-$ lies to the right of $I_+$, the optimal normal is $-e$.
+\end{corollary}
+
+\begin{proof}
+By Lemma~\ref{lem:cyclic-fixed}, $\Piinv x=(e^\top x)e=\fdc(x)e$.  Therefore the projected data lie on the line $\operatorname{span}\{e\}$ and are identified isometrically with the scalar intervals $I_+$ and $I_-$.  The distance between two intervals $[a,b]$ and $[c,d]$ is $\max\{c-b,a-d,0\}$.  The result follows from Theorem~\ref{thm:finite-group-margin}.
+\end{proof}
+
+\begin{remark}[Orientation of the DC gap]
+The invariant-margin quantity is the distance between the two projected convex hulls (here the two scalar DC intervals), not a one-sided labelled gap such as $\tfrac12(\min_{X_+}\fdc-\max_{X_-}\fdc)_+$; that one-sided expression is correct only when the positive class lies above the negative class in the DC coordinate.  The symmetric form in Corollary~\ref{cor:cyclic-margin} covers both orientations.
+\end{remark}
+
+\begin{corollary}[Projection cannot increase the linear max-margin]\label{cor:projection-cannot-increase}
+Let
+\[
+\gamma_{\mathrm{full}}=\frac12\dist(\conv X_+,\conv X_-),\qquad
+\gamma_{\mathrm{inv}}=\frac12\dist(\conv(P_GX_+),\conv(P_GX_-)).
+\]
+Then $\gamma_{\mathrm{inv}}\le \gamma_{\mathrm{full}}$.  In the cyclic case, this says
+\[
+\dist(I_+,I_-)
+=\dist\big(\fdc(\conv X_+),\fdc(\conv X_-)\big)
+\le \dist(\conv X_+,\conv X_-).
+\]
+\end{corollary}
+
+\begin{proof}
+For any $u\in\conv X_+$ and $v\in\conv X_-$,
+\[
+\|P_Gu-P_Gv\|_2\le \|u-v\|_2
+\]
+because orthogonal projectors are non-expansive.  Taking the infimum over $u,v$ gives
+\[
+\dist(\conv(P_GX_+),\conv(P_GX_-))\le \dist(\conv X_+,\conv X_-).
+\]
+The cyclic formula follows by identifying the projected line with the scalar coordinate $\fdc$.
+\end{proof}
+
+\subsection{The $\eta/L$ certificate, its limits, and the computable bracket}\label{app:etal-supporting}
+
+\begin{proposition}[Lipschitz--margin certificate]\label{prop:lipschitz-margin}
+Let $\Psi:\R^d\to\R^m$ be invariant under the group action and let $a\in\R^m$, $\|a\|_2=1$, $\beta\in\R$.  Define
+\[
+g(x)=a^\top\Psi(x)+\beta,
+\qquad
+\mu:=\min_{(x,y)\in X_+\times\{+1\}\cup X_-\times\{-1\}} y\,g(x).
+\]
+Assume $\mu>0$ and assume $\Psi$ is $L$-Lipschitz on every segment from a data point $x$ to every point $x+\delta$ with $\|\delta\|_2<\mu/L$.  Then $g$ is invariant and
+\[
+r_2(g,x)\ge \mu/L
+\]
+for every data point $x$.  If $a,\beta$ are chosen as the maximum-margin linear separator of the feature sets, then
+\[
+\mu=\eta:=\frac12\dist\big(\conv\Psi(X_+),\conv\Psi(X_-)\big),
+\]
+so $r_2(g,x)\ge\eta/L$.
+\end{proposition}
+
+\begin{proof}
+Invariance is immediate: $\Psi(R_gx)=\Psi(x)$ implies $g(R_gx)=g(x)$.  For any data point $(x,y)$ and any admissible perturbation $\delta$,
+\[
+|g(x+\delta)-g(x)|
+=|a^\top(\Psi(x+\delta)-\Psi(x))|
+\le \|a\|_2\,\|\Psi(x+\delta)-\Psi(x)\|_2
+\le L\|\delta\|_2.
+\]
+If $\|\delta\|_2<\mu/L$, then $|g(x+\delta)-g(x)|<\mu\le y g(x)$.  Therefore $y g(x+\delta)>0$, so the sign cannot change.  This proves the radius lower bound.  The final equality for $\eta$ is the standard hard-margin identity for two finite sets in feature space, proved exactly as in Theorem~\ref{thm:finite-group-margin}.
+\end{proof}
+
+This is the standard Lipschitz--margin bound \citep{HeinAndriushchenko2017,Tsuzuku2018,Sokolic2016,Bartlett2017}; the structural content is not the inequality itself but identifying which invariant feature space $\Psi$ an architecture realizes, computing the feature margin $\eta$ after quotienting out the group, and comparing $\eta/L$ across invariant feature families.
+
+\begin{proposition}[No universal converse for $\eta/L$]\label{prop:no-converse}
+There is no universal constant $C$ such that every invariant classifier satisfying Proposition~\ref{prop:lipschitz-margin} also satisfies
+\[
+r_2(g,x)\le C\,\eta/L
+\]
+at every data point.  This failure holds even when the invariant feature depends only on the DC coordinate.
+\end{proposition}
+
+\begin{proof}
+Let $e=d^{-1/2}\one$ and write $t=e^\top x$.  Consider the shift-invariant scalar feature
+\[
+\Psi_n(x)=t^{2n+1},\qquad n\ge1,
+\]
+and the classifier $g_n(x)=\Psi_n(x)$.  Take two data points $x_+=e$ with label $+1$ and $x_-=-e$ with label $-1$.  Then $g_n(e)=1$ and $g_n(-e)=-1$, so the signed feature margin is $\eta=1$ in the one-dimensional feature space.
+
+On the segment $\{te: t\in[-1,1]\}$, the Lipschitz constant of $\Psi_n$ is
+\[
+L_n=\max_{|t|\le1}|(2n+1)t^{2n}|=2n+1.
+\]
+Thus the certificate gives $\eta/L_n=1/(2n+1)$.  However the decision boundary is $t=0$.  The closest point to $e$ with $t=0$ is $0$ in the DC direction, at Euclidean distance $\|e-0\|_2=1$, and perturbations in $\Vac$ do not change $t$ at all.  Hence $r_2(g_n,e)=1$.  The ratio
+\[
+\frac{r_2(g_n,e)}{\eta/L_n}=2n+1
+\]
+is unbounded.  Therefore no upper bound in terms of $\eta/L$ alone is possible.
+\end{proof}
+
+\begin{remark}[The no-converse counterexample is a large-$\kappa$ instance, not a missing bracket]\label{rem:counter-kappa}
+For $\Psi_n(x)=t^{2n+1}$ at $x=e$ (Proposition~\ref{prop:no-converse}), the straight DC path to the origin has secant slope $\alpha=|0-1|/\|e\|_2=1$ (the feature drops from $1$ to $0$ over Euclidean distance $1$), while the upper Lipschitz on that segment is $L=\max_{|t|\le1}(2n+1)t^{2n}=2n+1$.  Thus $\kappa=2n+1$ and the bracket $[\mu/L,\,\mu/\alpha]=[1/(2n+1),\,1]$ correctly contains $r_2=1$, which sits at the $\mu/\alpha$ end.  The failure of a \emph{universal} converse (Proposition~\ref{prop:no-converse}) is precisely the unboundedness of $\kappa$ over the model class, not the absence of a bracket for a fixed model.  The \emph{pointwise} lower-Lipschitz $\inf_t|\Psi_n'|$ vanishes at the boundary (a metric-subregularity failure, \citealp{DontchevRockafellar2009}), which is why no derivative-based converse exists; the secant co-Lipschitz above stays positive and yields the finite bracket.
+\end{remark}
+
+\begin{proposition}[Computable bracket for the power-spectrum surrogate]\label{prop:computable-bracket}
+For the two-orbit quadratic surrogate of Theorem~\ref{thm:quadratic-two-orbit} on $\|x\|_2\le B$, both arms are explicit.  The upper Lipschitz satisfies $L\le 2B$ (Corollary~\ref{cor:ps-lip}); along the gradient-descent path of $g$ from a positive orbit point to the boundary the co-Lipschitz constant is $\alpha=\inf_{z\in\gamma}\|\nabla g(z)\|_2$, the minimum of the affine field $\nabla g=a^{\star\top}\nabla Q$ over a ball, strictly positive whenever the path avoids the single critical point of the quadratic.  This yields the analytic bracket
+\[
+\frac{\eta_Q}{2B}\ \le\ r_2\ \le\ \frac{\eta_Q}{\alpha},
+\]
+the first two-sided radius statement for an invariant-feature model, with condition number $\kappa=L/\alpha$ of order one.
+\end{proposition}
+\begin{proof}
+$L\le2B$ is Corollary~\ref{cor:ps-lip} with $\|a^\star\|_2=1$.  Moving along $-\nabla g/\|\nabla g\|$ gives $|g(x)-g(\gamma(t))|=\int_0^t\|\nabla g(\gamma(s))\|\,ds\ge(\inf\|\nabla g\|)\,\mathrm{len}(\gamma|_{[0,t]})\ge\alpha\|\gamma(t)-x\|_2$, so $\alpha$ is a valid co-Lipschitz constant and Theorem~\ref{thm:sandwich}(ii) applies; $\nabla g=a^{\star\top}\nabla Q$ is affine in $x$ because $Q$ is quadratic, so its norm is minimized by a small program on the ball.
+\end{proof}
+
+\subsection{Power spectrum from convolution, square, and pooling}\label{sec:ps}
+Use the unitary DFT convention
+\[
+\hat x_k=\frac1{\sqrt d}\sum_{j=0}^{d-1}x_j e^{-2\pi i jk/d}.
+\]
+For real signals, $\hat x_{d-k}=\overline{\hat x_k}$.
+
+\begin{lemma}[Power-spectrum span of conv--square--pool features]\label{lem:ps-corrected}
+Define the unnormalised circular cross-correlation
+\[
+(w\star x)_s:=\sum_{j=0}^{d-1}w_jx_{j+s\bmod d}
+\]
+and
+\[
+\Phi_w(x):=\frac1d\sum_{s=0}^{d-1}(w\star x)_s^2.
+\]
+Then, for real $w,x$,
+\[
+\Phi_w(x)=\sum_{k=0}^{d-1}|\hat w_k|^2|\hat x_k|^2.
+\]
+If instead the correlation is normalised by $d^{-1/2}$ inside the definition of $w\star x$, then the right-hand side is multiplied by $1/d$.  With real filters, the span of the maps $\Phi_w$ is the span of the real power coordinates
+\[
+|\hat x_0|^2,
+\quad |\hat x_{d/2}|^2\text{ when }d\text{ is even},
+\quad |\hat x_k|^2+|\hat x_{d-k}|^2\quad 1\le k<d/2.
+\]
+Equivalently, since $x$ is real and $|\hat x_k|=|\hat x_{d-k}|$, this spans all nonredundant real power-spectrum magnitudes.  If complex filters are allowed, one may isolate individual complex coordinates $|\hat x_k|^2$.
+\end{lemma}
+
+\begin{proof}
+For the unnormalised circular cross-correlation, the unitary DFT convolution theorem gives
+\[
+\widehat{w\star x}_k=\sqrt d\,\overline{\hat w_k}\hat x_k,
+\]
+up to the harmless sign convention for correlation.  By Parseval,
+\[
+\Phi_w(x)
+=\frac1d\sum_s |(w\star x)_s|^2
+=\frac1d\sum_k |\widehat{w\star x}_k|^2
+=\sum_k |\hat w_k|^2|\hat x_k|^2.
+\]
+If the correlation is defined with an extra factor $d^{-1/2}$, then $\widehat{w\star x}_k=\overline{\hat w_k}\hat x_k$, giving the extra factor $1/d$ in $\Phi_w$.
+
+For real $w$, Fourier coefficients obey $\hat w_{d-k}=\overline{\hat w_k}$, hence $|\hat w_{d-k}|^2=|\hat w_k|^2$.  Thus a real filter cannot assign independent weights to $|\hat x_k|^2$ and $|\hat x_{d-k}|^2$.  It can, however, isolate each conjugate pair: choose $w$ whose DFT is supported only on $\{k,d-k\}$, with conjugate values chosen so that $w$ is real.  It can also isolate $k=0$ and, when $d$ is even, $k=d/2$, both of which are self-conjugate.  Linear combinations of these choices give exactly the stated real span.  Complex filters remove the conjugate-symmetry constraint and allow a single nonzero Fourier coefficient.
+\end{proof}
+
+\begin{corollary}[Lipschitz constant of power-spectrum features on a ball]\label{cor:ps-lip}
+Let $Q(x)=(|\hat x_0|^2,\ldots,|\hat x_{d-1}|^2)\in\R^d$.  On the Euclidean ball $\|x\|_2\le B$,
+\[
+\|Q(x)-Q(y)\|_2\le 2B\|x-y\|_2.
+\]
+For the nonredundant real pair-sum representation in Lemma~\ref{lem:ps-corrected}, the Lipschitz constant is at most $2\sqrt2 B$.  For a scalar quadratic score
+\[
+f_a(x)=\sum_k a_k|\hat x_k|^2,
+\]
+one has $\Lip(f_a;\|x\|_2\le B)\le 2B\|a\|_\infty$ in the full complex-coordinate representation.
+\end{corollary}
+
+\begin{proof}
+For complex numbers $z,z'$, $||z|^2-|z'|^2|\le |z-z'|(|z|+|z'|)$.  Applying this coordinatewise to $Fx$ and $Fy$ gives
+\[
+\|Q(x)-Q(y)\|_2
+\le \|F(x-y)\|_2\big(\|Fx\|_2+\|Fy\|_2\big)
+=\|x-y\|_2(\|x\|_2+\|y\|_2)
+\le 2B\|x-y\|_2,
+\]
+where unitarity of $F$ was used.  Passing from the full coordinate vector to conjugate-pair sums applies a linear map whose operator norm is at most $\sqrt2$, yielding $2\sqrt2B$.  Finally,
+\[
+|f_a(x)-f_a(y)|\le \|a\|_\infty\|Q(x)-Q(y)\|_1.
+\]
+A sharper direct gradient calculation gives $\nabla f_a(x)=2F^*\operatorname{diag}(a)Fx$ in the real identification, so
+\[
+\|\nabla f_a(x)\|_2\le 2\|a\|_\infty\|x\|_2\le 2B\|a\|_\infty,
+\]
+which proves the scalar bound.
+\end{proof}
+
+\begin{theorem}[Exact nonlinear toy radius]\label{thm:toy-radius}
+Let $U,V$ be orthogonal subspaces of $\R^d$.  Let
+\[
+X_+=\{u\in U:\|u\|_2=a\},\qquad X_-=
+\{v\in V:\|v\|_2=a\}
+\]
+for $a>0$, or finite orbit subsets of these spheres whose convex hulls contain $0$ in their respective subspaces.  The quadratic invariant score
+\[
+f(x)=\|P_Ux\|_2^2-\|P_Vx\|_2^2
+\]
+classifies $X_+$ and $X_-$ correctly, and every point in $X_+\cup X_-$ has exact $\ell_2$ robust radius $a/\sqrt2$ with respect to $f$.  No linear classifier can separate the full sphere version, and no linear classifier can separate the finite-orbit version whenever $0$ lies in both class convex hulls.
+\end{theorem}
+
+\begin{proof}
+For $x\in X_+$, $x\in U$, $\|x\|_2=a$, and $P_Vx=0$, so $f(x)=a^2>0$.  The negative class is analogous.  Starting from $x\in X_+$, decompose a perturbation as
+\[
+\delta=\delta_U+\delta_V+\delta_W,
+\]
+where $W=(U\oplus V)^\perp$.  The boundary condition $f(x+\delta)\le0$ is
+\[
+\|x+\delta_U\|_2^2\le \|\delta_V\|_2^2.
+\]
+The component $\delta_W$ does not help to satisfy the constraint, so it is optimal to take $\delta_W=0$.  Let $r=\|x+\delta_U\|_2$.  For fixed $r$, the smallest possible $\|\delta_U\|_2$ is $|a-r|$, attained by moving along the ray through $x$, and the smallest feasible $\|\delta_V\|_2$ is $r$.  Therefore the squared perturbation norm is at least
+\[
+(a-r)^2+r^2,
+\]
+which is minimized at $r=a/2$, with value $a^2/2$.  This gives radius $a/\sqrt2$, and the construction $\delta_U=-(a/2)(x/a)$, $\|\delta_V\|=a/2$ attains it.  The proof for $X_-$ is identical.
+
+For linear separability, if $0\in\conv X_+$ and $0\in\conv X_-$, then the two convex hulls intersect, so no affine hyperplane can strictly separate the classes.  The full spheres have $0$ in their convex hulls, and the same holds for cyclic cosine orbits with at least three distinct phases in each frequency plane.
+\end{proof}
+
+\begin{lemma}[Bispectrum: a degree-three shift invariant]\label{lem:bispectrum}
+The bispectrum $B_{k_1,k_2}(x)=\hat x_{k_1}\hat x_{k_2}\overline{\hat x_{k_1+k_2}}$ is shift-invariant: under $x\mapsto S_sx$ each $\hat x_k$ is multiplied by the unit phase $\omega^{sk}$, and the three phases cancel because $k_1+k_2-(k_1+k_2)=0$.  Each coordinate is a cubic form in $x$, realizable by circular correlations, a pointwise product, and global average pooling (a degree-three convolution-pooling feature).  On $\|x\|_2\le B$ it is locally Lipschitz with constant $O(B^2)$.
+\end{lemma}
+
+\begin{proposition}[The bispectrum separates phase-coded classes the power spectrum cannot]\label{prop:bispectrum}
+There exist classes with identical power spectra that the bispectrum separates.  For the black/white dot of \citet{Ge2021}, $x_+=e_j$ and $x_-=-e_j$ have identical power spectra ($|\hat x_k|^2=1/d$ for all $k$, so every power-spectrum feature is blind to the difference), yet $B_{0,0}(e_j)=+d^{-3/2}$ and $B_{0,0}(-e_j)=-d^{-3/2}$: a single bispectrum coordinate separates them with margin $d^{-3/2}$.  (The shift-invariant \emph{linear} DC feature also separates this particular pair, through $\fdc(\pm e_j)=\pm d^{-1/2}$, but only with the weak $1/\sqrt d$ margin of the Ge collapse, and it is blind to any DC-matched pair; the sharper statement is that the bispectrum separates any two non-shift-equivalent orbits, including DC- and power-spectrum-matched phase-coded pairs that no linear or quadratic shift-invariant feature distinguishes.)  More generally, for signals whose Fourier coefficients are all nonzero the bispectrum determines the signal up to a global shift \citep{Kakarala2012}, so it separates any two shift-orbits that are not shift-equivalent.  Hence the localized, phase-coded ``forced trade-off corner'' of the linear and power-spectrum analyses is separable by a higher-order invariant, at the cost of a larger Lipschitz constant ($O(B^2)$ versus $O(B)$), i.e.\ a smaller certified $\eta/L$ at equal margin.
+\end{proposition}
+
+\begin{proof}
+Shift-invariance and realizability are Lemma~\ref{lem:bispectrum}.  For $x=e_j$ with the unitary DFT, $\hat x_k=d^{-1/2}\omega^{-jk}$, so $|\hat x_k|^2=1/d$ and $B_{0,0}=\hat x_0\hat x_0\overline{\hat x_0}=\hat x_0|\hat x_0|^2=d^{-1/2}\cdot d^{-1}=d^{-3/2}$; for $-e_j$ the sign of $\hat x_0$ flips and $B_{0,0}=-d^{-3/2}$.  The two power spectra are identical, so no power-spectrum feature distinguishes them (the linear DC feature does separate $\pm e_j$, with margin $1/\sqrt d$, but is blind to any DC-matched pair), while the single coordinate $B_{0,0}$ does.  The completeness-up-to-shift statement is the bispectrum reconstruction theorem of \citet{Kakarala2012}.  The Lipschitz claim follows because a cubic form has gradient of order $\|x\|_2^2$ on the ball.
+\end{proof}
+
+\begin{theorem}[Two-orbit quadratic surrogate: P1 for the power-spectrum model]\label{thm:quadratic-two-orbit}
+Let $u,v\in\R^d$ be real signals whose power spectra differ, and let $X_+=\Orb(u)$, $X_-=\Orb(v)$.  Let $Q(x)=(|\hat x_0|^2,\ldots,|\hat x_{d-1}|^2)$ and set $q_+=Q(u)$, $q_-=Q(v)$.  Consider the invariant quadratic class $f_{a,\beta}(x)=a^\top Q(x)+\beta$ with $a$ conjugate-symmetric ($a_k=a_{d-k}$), so it is realizable by real convolution, square activation, global average pooling, and a linear output (Lemma~\ref{lem:ps-corrected}).  Then
+\begin{enumerate}[leftmargin=1.4em]
+\item $Q(X_+)=\{q_+\}$ and $Q(X_-)=\{q_-\}$;
+\item the maximum feature-space margin over $\|a\|_2=1$ and free $\beta$ is $\eta_Q=\tfrac12\|q_+-q_-\|_2$, attained by $a^\star=(q_+-q_-)/\|q_+-q_-\|_2$, $\beta^\star=-\tfrac12(a^\star)^\top(q_++q_-)$;
+\item on $\|x\|_2\le B$ the score is $L_Q$-Lipschitz with $L_Q\le 2B\|a^\star\|_\infty\le 2B$, hence $r_2(f_{a^\star,\beta^\star},x)\ge \eta_Q/L_Q\ge \|q_+-q_-\|_2/(4B)$ for $x\in X_+\cup X_-$.
+\end{enumerate}
+This solves the invariant (P1) side in closed form for the quadratic surrogate.  It does \emph{not} prove the same for a trained ReLU conv-plus-pool network, whose KKT system and selection problem are nonconvex.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:cyclic-fixed}, $Q(S_sx)=Q(x)$, so every positive orbit point maps to $q_+$ and every negative one to $q_-$, giving (1).  The two feature-space classes are the singletons $\{q_+\}$ and $\{q_-\}$; the maximum unit-normal margin between two distinct points is half their Euclidean distance, attained by the hyperplane orthogonal to $q_+-q_-$ through their midpoint, which is exactly $a^\star,\beta^\star$, with signed score $\tfrac12\|q_+-q_-\|_2$ on each side, proving (2).  Since $u,v$ are real, $q_{\pm,k}=q_{\pm,d-k}$, so $a^\star_k=a^\star_{d-k}$ and $a^\star$ lies in the real-filter span of Lemma~\ref{lem:ps-corrected}; the score is realizable.  Corollary~\ref{cor:ps-lip} gives $\Lip\le 2B\|a^\star\|_\infty$, and $\|a^\star\|_2=1$ implies $\|a^\star\|_\infty\le1$; Proposition~\ref{prop:lipschitz-margin} with margin $\eta_Q$ then yields the radius certificate, proving (3).
+\end{proof}
+
+\subsection{Discrete and continuous orbit gradients}
+
+\begin{lemma}[Continuous orbit-gradient suppression]\label{lem:continuous-gradient}
+Define the continuous circular-shift action by Fourier phases,
+\[
+T_a=F^*\operatorname{diag}(e^{2\pi iak/d})_{k=0}^{d-1}F,
+\]
+with the real subspace identified by conjugate symmetry.  Let $A=\frac{d}{da}T_a|_{a=0}$.  If $g$ is differentiable and $g(T_ax)=g(x)$ for all real $a$, then
+\[
+\langle \nabla g(x),Ax\rangle=0.
+\]
+\end{lemma}
+
+\begin{proof}
+The map $a\mapsto g(T_ax)$ is constant.  Differentiating at $a=0$ and using the chain rule gives
+\[
+0=\frac{d}{da}g(T_ax)\bigg|_{a=0}=\langle \nabla g(x),Ax\rangle.
+\]
+\end{proof}
+
+\begin{remark}[Discrete shifts]
+For an integer shift, exact invariance gives the endpoint identity $g(S_sx)=g(x)$.  This is stronger than a first-order statement at the endpoint, but it is not the same as saying that the straight chord direction $S_sx-x$ is locally flat: generally
+\[
+\langle\nabla g(x),S_sx-x\rangle\ne0.
+\]
+Thus the continuous tangent lemma should not be sold as a discrete-threat robustness theorem.  It is a differential statement about an interpolated orbit.  For discrete semantic attacks, the relevant quantity is the chord length $\|S_sx-x\|_2$ and whether the oracle label changes along the group orbit.
+\end{remark}
+
+\subsection{Formal invariance-based attack bound}\label{sec:tramer-formal}
+
+\begin{proposition}[A precise invariance-based upper bound]\label{prop:oracle-flip}
+Let $y_*:\R^d\to\{\pm1\}$ be an oracle labelling rule.  Let $g$ be invariant under a group action: $g(R_hx)=g(x)$ for all $h$.  Suppose $g$ is correct at $x$, so $\sign g(x)=y_*(x)$.  Define the orbit-flip radius
+\[
+\rho_G(x):=\inf\{\|R_hx-x\|_2: y_*(R_hx)\ne y_*(x)\}.
+\]
+If the set in the infimum is nonempty, then the oracle-robust radius of the invariant classifier is at most $\rho_G(x)$: there exists an input at distance arbitrarily close to $\rho_G(x)$ on which the oracle label has changed while the model prediction has not.
+\end{proposition}
+
+\begin{proof}
+For any $h$ with $y_*(R_hx)\ne y_*(x)$, invariance gives
+\[
+\sign g(R_hx)=\sign g(x)=y_*(x)\ne y_*(R_hx).
+\]
+Thus $R_hx$ is an invariance-based adversarial example in the oracle sense, at distance $\|R_hx-x\|_2$.  Taking the infimum over such $h$ proves the claim.
+\end{proof}
+
+\begin{corollary}[Co-existence condition for a threat budget]
+For a threat budget $\varepsilon$, an invariant classifier can be both certified against sensitivity-based sign changes by Proposition~\ref{prop:lipschitz-margin} and not immediately broken by an orbit-flip attack only if
+\[
+\varepsilon < \rho_G(x)\quad\text{and}\quad \varepsilon\le \mu/L
+\]
+for the relevant data points.  Thus $\mu/L$ controls model-score stability, while $\rho_G$ controls whether the imposed invariance is semantically valid at the same radius.
+\end{corollary}
+
+\subsection{Orbit-bundle form of convolution plus global pooling}\label{sec:bundle}
+
+\begin{lemma}[Orbit-bundle equivalence]\label{lem:bundle-corrected}
+Consider a one-hidden-layer circular convolutional network with global average pooling,
+\[
+f(x)=\sum_{r=1}^m \alpha_r\frac1d\sum_{s\in G}\sigma(\langle w_r,S_sx\rangle+b_r)+\beta.
+\]
+Then $f$ is exactly a two-layer fully connected network whose hidden units are tied into shift-orbit bundles:
+\[
+f(x)=\sum_{r=1}^m\sum_{s\in G}\frac{\alpha_r}{d}\,\sigma(\langle S_{-s}w_r,x\rangle+b_r)+\beta.
+\]
+For each filter $w_r$, the $d$ hidden weights are the orbit $\{S_{-s}w_r:s\in G\}$ and share the same output weight $\alpha_r/d$ and bias $b_r$.
+\end{lemma}
+
+\begin{proof}
+Because $S_s$ is orthogonal, $\langle w_r,S_sx\rangle=\langle S_s^\top w_r,x\rangle=\langle S_{-s}w_r,x\rangle$.  Substituting this identity into the convolution-plus-pooling expression gives the displayed two-layer network.  The tied-weight description is exactly the list of hidden weights and output coefficients in that expression.  Invariance follows separately by reindexing the pooling sum:
+\[
+f(S_tx)=\sum_r\alpha_r\frac1d\sum_s\sigma(\langle w_r,S_sS_tx\rangle+b_r)+\beta
+=\sum_r\alpha_r\frac1d\sum_{s'}\sigma(\langle w_r,S_{s'}x\rangle+b_r)+\beta=f(x),
+\]
+where $s'=s+t$ ranges over all of $G$.
+\end{proof}
+
+\subsection{Rank of a single orbit}\label{sec:rank}
+
+\begin{lemma}[Rank of a cyclic orbit]\label{lem:orbit-rank}
+Let $C(u)$ be the $d\times d$ matrix whose columns are the cyclic shifts $S_su$.  With the unitary DFT convention,
+\[
+\operatorname{rank} C(u)=\#\{k:\hat u_k\ne0\}.
+\]
+For real $u$, this count is understood in the complex diagonalization; equivalently the real span has dimension $1$ for each nonzero self-conjugate frequency block $k=0$ and, when $d$ is even, $k=d/2$, and dimension $2$ for each nonzero conjugate pair $\{k,d-k\}$ with $1\le k<d/2$.
+\end{lemma}
+
+\begin{proof}
+The orbit matrix $C(u)$ is circulant.  Circulant matrices are diagonalized by the DFT, and their eigenvalues are $\sqrt d\,\hat u_k$ up to a convention-dependent phase.  Multiplication by the invertible DFT matrix does not change rank, so the rank is exactly the number of nonzero eigenvalues, i.e. the number of nonzero Fourier coefficients.  The real-dimensional statement is the same decomposition written in real sine-cosine blocks.
+\end{proof}
+
+\begin{proposition}[Generic single orbits are full-rank and power-spectrum separable]\label{prop:single-orbit-correction}
+If $u,v\in\R^d$ have all Fourier coefficients nonzero and have distinct power spectra, then:
+\begin{enumerate}[leftmargin=1.4em]
+\item each single orbit $\Orb(u)$ and $\Orb(v)$ has full rank $d$;
+\item the power-spectrum feature maps each orbit to one point, $Q(u)$ and $Q(v)$;
+\item if $Q(u)\ne Q(v)$, then a linear separator in power-spectrum space separates the two orbits with feature margin $\frac12\|Q(u)-Q(v)\|_2$.
+\end{enumerate}
+For random continuous $u,v$, full rank and $Q(u)\ne Q(v)$ hold with probability one.
+\end{proposition}
+
+\begin{proof}
+Full rank follows immediately from Lemma~\ref{lem:orbit-rank}.  The power spectrum is shift-invariant by Lemma~\ref{lem:cyclic-fixed}, so $Q(S_su)=Q(u)$ and $Q(S_tv)=Q(v)$ for all shifts $s,t$.  If $Q(u)\ne Q(v)$, then the two feature-space class sets are two distinct points.  The maximum-margin linear separator between two points has margin half their Euclidean distance, namely $\frac12\|Q(u)-Q(v)\|_2$.
+
+If $u$ is drawn from any distribution absolutely continuous with respect to Lebesgue measure on $\R^d$, each event $\hat u_k=0$ is a proper linear constraint and has probability zero; a finite union over $k$ still has probability zero.  Similarly, for independent continuous $u,v$, the algebraic equalities $|\hat u_k|^2=|\hat v_k|^2$ for all $k$ hold simultaneously with probability zero.  Hence the generic claim follows.
+\end{proof}
+
+\begin{remark}[Degenerate special cases]
+Two single-orbit constructions fall outside Proposition~\ref{prop:single-orbit-correction} and should not be generalized from.  A pure nonzero, non-Nyquist cosine has rank $2$ because only one sine--cosine frequency block is present.  A signed or location-coded spike has a flat power spectrum, so $+e_j$ versus $-e_j$, or one location versus another, cannot be separated by the power spectrum.  These are special examples, not the generic case.
+\end{remark}
+
+\subsection{Recoveries and reconciliations}\label{sec:recoveries}
+
+\paragraph{Ge et al.}
+The invariant-linear margin theorem recovers the DC-dependence statement: shift-invariant linear separation depends only on DC components.  In the black/white dot example $x_+=e_j$ and $x_-=-e_j$,
+\[
+\fdc(x_+)=1/\sqrt d,
+\qquad
+\fdc(x_-)=-1/\sqrt d,
+\qquad
+\gamma_{\mathrm{inv}}=1/\sqrt d.
+\]
+This is the half-gap convention; the full DC gap is $2/\sqrt d$.  However, the comparison ``unconstrained margin equals $1$'' applies to the two unshifted training images $\{e_j\}$ and $\{-e_j\}$.  If the comparison class is the orbit-closed finite dataset $\Orb(e_j)$ versus $\Orb(-e_j)$, then the unconstrained linear max-margin is also $1/\sqrt d$, because one linear hyperplane must classify all basis vectors as positive and all negative basis vectors as negative.  These two experimental/theoretical protocols should not be conflated.
+
+\paragraph{Kamath et al.}
+The spatial-versus-adversarial trade-off \citep{Kamath2021} has a conditional structural statement in the present framework: if the invariant coordinate carrying the label has margin $O(d^{-1/2})$ and the feature Lipschitz constant is $\Theta(1)$, then the certificate is $\eta/L=O(d^{-1/2})$, so invariance can preserve accuracy while failing to provide a large adversarial radius.  That is a small-margin regime, not an ``invariance discards all signal'' regime.
+
+\paragraph{Tram\`er et al.}
+Proposition~\ref{prop:oracle-flip} is the promised formalization.  It separates two quantities that should not be collapsed: $\eta/L$ is a lower bound on model-score stability, while $\rho_G$ is an upper bound on semantic/oracle robustness under the imposed invariance.  Excessive invariance is precisely the case where $\rho_G$ is small.
+
+\section{Optimization scaffolding: partial progress on the checklist}\label{app:opt-scaffold}
+The checklist of \S\ref{sec:opt-open} separates into a part that is now provable and a part that remains genuinely trajectory-level.  The provable part is recorded here.
+
+\begin{proposition}[P1 for the quadratic invariant surrogate]\label{prop:p1-quadratic}
+For the two-orbit data $X_+=\Orb(u)$, $X_-=\Orb(v)$ with $Q(u)\ne Q(v)$, the shift-invariant quadratic surrogate has the explicit max-margin solution, margin $\eta_Q=\tfrac12\|Q(u)-Q(v)\|_2$, and certified radius $\ge\eta_Q/(2B)$ on $\|x\|_2\le B$ of Theorem~\ref{thm:quadratic-two-orbit}.
+\end{proposition}
+\begin{proof}
+This is Theorem~\ref{thm:quadratic-two-orbit} restated in the checklist notation.
+\end{proof}
+
+\begin{proposition}[KKT systems for the ReLU models]\label{prop:kkt-systems}
+For the unconstrained network $f_\theta(x)=\sum_r a_r\sigma(w_r^\top x)$ with margin program $\min\tfrac12\sum_r(a_r^2+\|w_r\|_2^2)$ s.t.\ $y_if_\theta(x_i)\ge1$, every differentiable KKT point has multipliers $\lambda_i\ge0$ with $\lambda_i(y_if_\theta(x_i)-1)=0$ and
+\[
+a_r=\sum_i\lambda_i y_i\,\sigma(w_r^\top x_i),\qquad
+w_r=\sum_i\lambda_i y_i a_r\,\mathbf 1_{\{w_r^\top x_i>0\}}x_i.
+\]
+For the tied invariant network $f_\theta^{\rm inv}(x)=\sum_r a_r\frac1d\sum_s\sigma(\langle w_r,S_sx\rangle)$ the stationarity conditions are
+\[
+a_r=\sum_i\lambda_i y_i\tfrac1d\sum_s\sigma(\langle w_r,S_sx_i\rangle),\qquad
+w_r=\sum_i\lambda_i y_i a_r\tfrac1d\sum_s\xi_{irs}\,S_sx_i,\quad \xi_{irs}\in\partial\sigma(\langle w_r,S_sx_i\rangle).
+\]
+These are the correct P1 starting point for the ReLU class; they do not identify which KKT point gradient flow selects.
+\end{proposition}
+\begin{proof}
+Stationarity of the Lagrangian $\tfrac12\sum_r(a_r^2+\|w_r\|^2)+\sum_i\lambda_i(1-y_if_\theta(x_i))$ in $a_r$ gives $a_r=\sum_i\lambda_i y_i\,\partial_{a_r}f=\sum_i\lambda_i y_i\sigma(w_r^\top x_i)$, and in $w_r$ gives $w_r=\sum_i\lambda_i y_i\,\partial_{w_r}f=\sum_i\lambda_i y_i a_r\mathbf 1_{\{w_r^\top x_i>0\}}x_i$ (a ReLU subgradient at the kink).  For the invariant net substitute the hidden feature $\phi_r(x)=\frac1d\sum_s\sigma(\langle w_r,S_sx\rangle)$; then $\partial_{a_r}f=\phi_r(x_i)$ and $\partial_{w_r}f=a_r\frac1d\sum_s\xi_{irs}S_sx_i$.
+\end{proof}
+
+\begin{proposition}[P2 does not follow from existing feature-averaging theorems]\label{prop:p2-not-transfer}
+The non-robust implicit-bias results of \citet{Frei2023,LiFeature2024} assume data with many nearly orthogonal cluster-center features and analyze the averaging of those features.  Full-rank cyclic orbit data instead has a circulant/Toeplitz Gram matrix determined by base autocorrelations, labels constant on each orbit, and invariant separation through the power-spectrum difference $Q(u)-Q(v)$.  These structural facts prevent substituting orbit data into the cited theorem statements, so P2 requires a new orbit-specific KKT/trajectory analysis, or a multi-orbit construction whose Gram geometry satisfies the cluster assumptions while keeping invariant-feature separation.
+\end{proposition}
+
+\begin{corollary}[Conditional P3]\label{cor:conditional-p3}
+If P2 is established on an orbit model, so that gradient flow for the unconstrained ReLU network selects a KKT point with $\eta/L=\rho_{\rm unc}$ while the invariant model achieves $\rho_{\rm inv}>\rho_{\rm unc}$ on the same data and threat norm, then by Proposition~\ref{prop:lipschitz-margin} the invariant classifier has the strictly larger certified radius: weight sharing re-points the selected solution.  The content is entirely P2 and the ReLU side of P1, not this implication.
+\end{corollary}
+
+\begin{thebibliography}{99}
+\bibitem[AutoAttack, 2020]{AutoAttack2020} Croce, F. and Hein, M. (2020). Reliable evaluation of adversarial robustness with an ensemble of diverse parameter-free attacks. \emph{arXiv:2003.01690}.
+\bibitem[Athalye et al., 2018]{Athalye2018} Athalye, A., Carlini, N., and Wagner, D. (2018). Obfuscated gradients give a false sense of security. \emph{arXiv:1802.00420}.
+\bibitem[Bartlett et al., 2017]{Bartlett2017} Bartlett, P. L., Foster, D. J., and Telgarsky, M. J. (2017). Spectrally-normalized margin bounds for neural networks. \emph{arXiv:1706.08498}.
+\bibitem[Bruna and Mallat, 2012]{BrunaMallat2012} Bruna, J. and Mallat, S. (2012). Invariant scattering convolution networks. \emph{arXiv:1203.1513}.
+\bibitem[Carlini et al., 2019]{Carlini2019} Carlini, N., Athalye, A., Papernot, N., Brendel, W., Rauber, J., Tsipras, D., Goodfellow, I., Madry, A., and Kurakin, A. (2019). On evaluating adversarial robustness. \emph{arXiv:1902.06705}.
+\bibitem[Cohen and Welling, 2016]{CohenWelling2016} Cohen, T. S. and Welling, M. (2016). Group equivariant convolutional networks. \emph{arXiv:1602.07576}.
+\bibitem[Croce et al., 2020]{RobustBench2020} Croce, F., Andriushchenko, M., Sehwag, V., Debenedetti, E., Flammarion, N., Chiang, M., Mittal, P., and Hein, M. (2020). RobustBench: a standardized adversarial robustness benchmark. \emph{arXiv:2010.09670}.
+\bibitem[Frei et al., 2023]{Frei2023} Frei, S., Vardi, G., Bartlett, P. L., and Srebro, N. (2023). The double-edged sword of implicit bias: generalization vs. robustness in ReLU networks. \emph{arXiv:2303.01456}.
+\bibitem[Ge et al., 2021]{Ge2021} Ge, S., Singla, V., Basri, R., and Jacobs, D. (2021). Shift invariance can reduce adversarial robustness. \emph{arXiv:2103.02695}.
+\bibitem[Gunasekar et al., 2018]{Gunasekar2018} Gunasekar, S., Lee, J., Soudry, D., and Srebro, N. (2018). Implicit bias of gradient descent on linear convolutional networks. \emph{arXiv:1806.00468}.
+\bibitem[Hein and Andriushchenko, 2017]{HeinAndriushchenko2017} Hein, M. and Andriushchenko, M. (2017). Formal guarantees on the robustness of a classifier against adversarial manipulation. \emph{arXiv:1705.08475}.
+\bibitem[Jacobsen et al., 2019]{Jacobsen2019} Jacobsen, J.-H., Behrmann, J., Zemel, R., and Bethge, M. (2019). Excessive invariance causes adversarial vulnerability. \emph{arXiv:1811.00401}.
+\bibitem[Kakarala, 2012]{Kakarala2012} Kakarala, R. (2012). The bispectrum as a source of phase-sensitive invariants for Fourier descriptors: a group-theoretic approach. \emph{arXiv:0902.0196}.
+\bibitem[Kamath et al., 2021]{Kamath2021} Kamath, S., Deshpande, A., Subrahmanyam, K. V., and Balasubramanian, V. N. (2021). Can we have it all? On the trade-off between spatial and adversarial robustness of neural networks. \emph{arXiv:2002.11318}.
+\bibitem[Krizhevsky, 2009]{Krizhevsky2009} Krizhevsky, A. (2009). Learning multiple layers of features from tiny images. University of Toronto technical report.
+\bibitem[Li et al., 2024]{LiFeature2024} Li, B., Pan, Z., Lyu, K., and Li, J. (2024). Feature averaging: an implicit bias of gradient descent leading to non-robustness in neural networks. \emph{arXiv:2410.10322}.
+\bibitem[Min and Vidal, 2024]{MinVidal2024} Min, H. and Vidal, R. (2024). Can implicit bias imply adversarial robustness? \emph{arXiv:2405.15942}.
+\bibitem[Peng et al., 2023]{RobArch2023} Peng, S., Xu, W., Cornelius, C., Li, K., Duggal, R., Chau, D. H., and Martin, J. (2023). RobArch: designing robust architectures against adversarial attacks. \emph{arXiv:2301.03110}.
+\bibitem[Sokolic et al., 2016]{Sokolic2016} Sokolic, J., Giryes, R., Sapiro, G., and Rodrigues, M. R. D. (2016). Robust large margin deep neural networks. \emph{arXiv:1605.08254}.
+\bibitem[Tram\`er et al., 2020]{Tramer2020} Tram\`er, F., Behrmann, J., Carlini, N., Papernot, N., and Jacobsen, J.-H. (2020). Fundamental tradeoffs between invariance and sensitivity to adversarial perturbations. \emph{arXiv:2002.04599}.
+\bibitem[Tsuzuku et al., 2018]{Tsuzuku2018} Tsuzuku, Y., Sato, I., and Sugiyama, M. (2018). Lipschitz-margin training: scalable certification of perturbation invariance for deep neural networks. \emph{arXiv:1802.04034}.
+\bibitem[Croce and Hein, 2020b]{CroceHeinFAB2020} Croce, F. and Hein, M. (2020). Minimally distorted adversarial examples with a fast adaptive boundary attack. \emph{ICML; arXiv:1907.02044}.
+\bibitem[Dontchev and Rockafellar, 2009]{DontchevRockafellar2009} Dontchev, A. L. and Rockafellar, R. T. (2009). \emph{Implicit Functions and Solution Mappings: A View from Variational Analysis}. Springer.
+\bibitem[Cristianini and Shawe-Taylor, 2000]{CristianiniShaweTaylor2000} Cristianini, N. and Shawe-Taylor, J. (2000). \emph{An Introduction to Support Vector Machines and Other Kernel-based Learning Methods}. Cambridge University Press.
+\bibitem[Zhang, 2019]{Zhang2019} Zhang, R. (2019). Making convolutional networks shift-invariant again. \emph{arXiv:1904.11486}.
+\bibitem[Soudry et al., 2018]{Soudry2018} Soudry, D., Hoffer, E., Nacson, M. S., Gunasekar, S., and Srebro, N. (2018). The implicit bias of gradient descent on separable data. \emph{arXiv:1710.10345}.
+\bibitem[Lyu and Li, 2020]{Lyu2020} Lyu, K. and Li, J. (2020). Gradient descent maximizes the margin of homogeneous neural networks. \emph{arXiv:1906.05890}.
+\bibitem[Ji and Telgarsky, 2020]{Ji2020} Ji, Z. and Telgarsky, M. (2020). Directional convergence and alignment in deep learning. \emph{arXiv:2006.06657}.
+\bibitem[Lawrence et al., 2021]{Lawrence2021} Lawrence, H., Georgiev, K., Dienes, A., and Kiani, B. T. (2021). Implicit bias of linear equivariant networks. \emph{arXiv:2110.06084}.
+\bibitem[Chen and Zhu, 2023]{ChenZhu2023} Chen, Z. and Zhu, W. (2023). On the implicit bias of linear equivariant steerable networks. \emph{arXiv:2303.04198}.
+\bibitem[LeJeune et al., 2019]{LeJeune2019} LeJeune, D., Balestriero, R., Javadi, H., and Baraniuk, R. G. (2019). Implicit rugosity regularization via data augmentation. \emph{arXiv:1905.11639}.
+\bibitem[Lin et al., 2022]{Lin2022} Lin, C.-H., Kaushik, C., Dyer, E. L., and Muthukumar, V. (2022). The good, the bad and the ugly sides of data augmentation: an implicit spectral regularization perspective. \emph{arXiv:2210.05021}.
+\bibitem[Jacot et al., 2018]{Jacot2018} Jacot, A., Gabriel, F., and Hongler, C. (2018). Neural tangent kernel: convergence and generalization in neural networks. \emph{arXiv:1806.07572}.
+\bibitem[Chizat et al., 2018]{Chizat2018} Chizat, L., Oyallon, E., and Bach, F. (2018). On lazy training in differentiable programming. \emph{arXiv:1812.07956}.
+\bibitem[Elesedy, 2021]{Elesedy2021kernel} Elesedy, B. (2021). Provably strict generalisation benefit for invariance in kernel methods. \emph{NeurIPS; arXiv:2106.02346}.
+\bibitem[Elesedy and Zaidi, 2021]{ElesedyZaidi2021} Elesedy, B. and Zaidi, S. (2021). Provably strict generalisation benefit for equivariant models. \emph{ICML; arXiv:2102.10333}.
+\bibitem[Bietti and Mairal, 2019]{BiettiMairalNTK2019} Bietti, A. and Mairal, J. (2019). On the inductive bias of neural tangent kernels. \emph{NeurIPS; arXiv:1905.12173}.
+\bibitem[Haasdonk and Burkhardt, 2007]{HaasdonkBurkhardt2007} Haasdonk, B. and Burkhardt, H. (2007). Invariant kernel functions for pattern analysis and machine learning. \emph{Machine Learning} 68(1):35--61.
+\bibitem[Wang et al., 2025]{BridgingSymRobust2025} Wang, L., Uddin, I.\ I., Santosh, K.\ C., Zhang, C., Qin, X., and Zhou, Y. (2025). Bridging symmetry and robustness: on the role of equivariance in enhancing adversarial robustness. \emph{arXiv:2510.16171}.
+\bibitem[Madry et al., 2018]{Madry2018} Madry, A., Makelov, A., Schmidt, L., Tsipras, D., and Vladu, A. (2018). Towards deep learning models resistant to adversarial attacks. \emph{arXiv:1706.06083}.
+\bibitem[Rony et al., 2019]{Rony2019} Rony, J., Hafemann, L. G., Oliveira, L. S., Ben Ayed, I., Sabourin, R., and Granger, E. (2019). Decoupling direction and norm for efficient gradient-based $\ell_2$ adversarial attacks and defenses. \emph{arXiv:1811.09600}.
+\end{thebibliography}
+
+\end{document}

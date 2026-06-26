@@ -1,0 +1,1048 @@
+% =====================================================================
+%  PRIMER PART I -- THE INVARIANCE CLUSTER
+%  Four background sections for a strong undergraduate:
+%    (1) orthogonal projectors,
+%    (2) the discrete Fourier transform and circulant/shift structure,
+%    (3) group actions, invariance/equivariance, group averaging,
+%    (4) shift-invariant descriptors: power spectrum and bispectrum.
+%
+%  This fragment supplies NO preamble: the assembler provides
+%  amsmath/amsthm and the theorem-like environments
+%  (definition, theorem, lemma, corollary, proposition, example,
+%   problem, remark) and the macros \R \Z \one \sign \conv \Orb.
+%
+%  Notation conventions are FIXED here, once, to the engineering/forward
+%  DFT convention of the project digest (see the "Notation" box below):
+%      omega = e^{-2 pi i / N},  F_{jk} = omega^{jk},  DFT(x) = F x.
+%  All worked numbers were checked by hand and by computer.
+% =====================================================================
+
+\section{Orthogonal projectors: the one linear-algebra tool everything rests on}
+\label{sec:projectors}
+
+Almost every later idea in this primer turns out to be the same gesture: take an
+object, throw away the part of it that some symmetry can move around, and keep only
+the part the symmetry leaves alone. The mathematical name for ``keep only the part a
+subspace can see'' is \emph{orthogonal projection}. We start here so that the rest of
+the document can lean on one clean theorem instead of re-deriving it three times.
+
+We work in a real or complex inner-product space $V$ (think of $V = \R^n$ or $V =
+\mathbb{C}^n$ with the usual dot product). The \emph{inner product} of two vectors is
+written $\langle u, v\rangle$; in $\R^n$ it is $\langle u,v\rangle = \sum_k u_k v_k$,
+and in $\mathbb{C}^n$ it is $\langle u,v\rangle = \sum_k u_k \overline{v_k}$, where
+$\overline{c}$ is the \emph{complex conjugate} of $c$ (if $c = a + bi$ then
+$\overline{c} = a - bi$). The \emph{norm} is $\|v\| = \sqrt{\langle v,v\rangle}$, and
+two vectors are \emph{orthogonal}, written $u \perp v$, when $\langle u,v\rangle = 0$.
+Throughout, an \emph{operator} means a linear map $P : V \to V$, which we may identify
+with a square matrix once a basis is fixed.
+
+\subsection{Two adjectives: idempotent and self-adjoint}
+
+\begin{definition}[Idempotent]
+\label{def:idempotent}
+An operator $P : V \to V$ is \emph{idempotent} if $P^2 = P$, i.e.\ $P(Pv) = Pv$ for
+every $v \in V$. In words: applying $P$ twice does exactly what applying it once does.
+\end{definition}
+
+The intuition is that $P$ \emph{lands} every vector somewhere, and once a vector has
+already landed, $P$ leaves it alone. The set of places vectors can land is the
+\emph{range} (or image) $\operatorname{range}(P) = \{Pv : v \in V\}$; the set of
+vectors $P$ sends to $0$ is the \emph{kernel} (or null space) $\ker(P) = \{v : Pv =
+0\}$. Idempotence says precisely that $P$ acts as the identity on its own range: if
+$w = Pv$ is in the range, then $Pw = P(Pv) = Pv = w$.
+
+\begin{example}[A $2\times 2$ idempotent that is \emph{not} a clean projection]
+\label{ex:oblique}
+Take, for a fixed number $\alpha \neq 0$,
+\[
+  P \;=\; \begin{bmatrix} 0 & 0 \\ \alpha & 1 \end{bmatrix}.
+\]
+A direct multiplication gives
+\[
+  P^2 \;=\; \begin{bmatrix} 0 & 0 \\ \alpha & 1 \end{bmatrix}
+            \begin{bmatrix} 0 & 0 \\ \alpha & 1 \end{bmatrix}
+        \;=\; \begin{bmatrix} 0\cdot 0 + 0\cdot\alpha & 0\cdot 0 + 0\cdot 1 \\
+                              \alpha\cdot 0 + 1\cdot\alpha & \alpha\cdot 0 + 1\cdot 1
+              \end{bmatrix}
+        \;=\; \begin{bmatrix} 0 & 0 \\ \alpha & 1 \end{bmatrix} \;=\; P,
+\]
+so $P$ is idempotent: it \emph{is} a projection. But it is a \emph{skewed} one. Its
+range is the line spanned by $(0,1)$ and its kernel is the line spanned by
+$(1,-\alpha)$ (check: $P\,(1,-\alpha)^\top = (0, \alpha - \alpha)^\top = 0$). These two
+lines are \emph{not} perpendicular when $\alpha \neq 0$. Such a $P$ is called an
+\emph{oblique} projection. This example, due to Wikipedia's projection article
+\citep{wiki_projection}, is the cautionary tale of the section: idempotence alone does
+not make a projection ``drop straight down.'' One more property is needed.
+\end{example}
+
+\begin{definition}[Self-adjoint]
+\label{def:selfadjoint}
+An operator $P : V \to V$ is \emph{self-adjoint} if
+\[
+  \langle Pu, v \rangle \;=\; \langle u, Pv \rangle \qquad \text{for all } u,v \in V.
+\]
+In matrix terms this is $P = P^\top$ for real $V$ (the matrix equals its transpose)
+and $P = P^\ast$ for complex $V$, where $P^\ast = \overline{P}^{\top}$ is the
+\emph{conjugate transpose} (transpose, then conjugate every entry). Self-adjoint real
+matrices are also called \emph{symmetric}.
+\end{definition}
+
+\begin{example}[The clean version of the same idea]
+\label{ex:lineproj}
+Let $a = (1,1)^\top$ and form
+\[
+  P \;=\; \frac{a\,a^\top}{a^\top a}
+        \;=\; \frac{1}{2}\begin{bmatrix} 1 & 1 \\ 1 & 1 \end{bmatrix}.
+\]
+Then $P = P^\top$ (it is visibly symmetric), and $P^2 = \tfrac14
+\left[\begin{smallmatrix} 2 & 2 \\ 2 & 2 \end{smallmatrix}\right] = P$. So $P$ is
+\emph{both} idempotent and self-adjoint. Geometrically it projects every vector
+straight down onto the line through $a$: for $x = (3,1)^\top$ we get $Px = (2,2)^\top$,
+and the leftover piece $x - Px = (1,-1)^\top$ is orthogonal to $a$ (their dot product
+is $1 - 1 = 0$). That is the behaviour we want, and the next theorem says it always
+happens \citep{projectors_tamu,wiki_projection}.
+\end{example}
+
+\subsection{The central theorem}
+
+\begin{theorem}[Idempotent {\boldmath$+$} self-adjoint {\boldmath$\Rightarrow$}
+orthogonal projection]
+\label{thm:orthoproj}
+Let $P : V \to V$ be idempotent ($P^2 = P$) and self-adjoint ($P = P^\ast$). Then $P$
+is the \emph{orthogonal} projection onto its range $W = \operatorname{range}(P)$:
+for every $v$, the vector $Pv$ lies in $W$, the leftover $v - Pv$ is orthogonal to
+all of $W$, and $Pv$ is the unique closest point of $W$ to $v$.
+\end{theorem}
+
+\begin{proof}
+The whole proof rests on showing one orthogonality statement; everything else follows
+from it. We follow Garrett's argument \citep{projectors_garrett}.
+
+\emph{Step 1: the complementary operator.} Write $I$ for the identity and set $Q = I -
+P$. Then $Q$ measures the leftover: $Qv = v - Pv$. Note $Q$ is also self-adjoint,
+because $Q^\ast = (I - P)^\ast = I^\ast - P^\ast = I - P = Q$, using $P^\ast = P$.
+
+\emph{Step 2: the key product vanishes.} Compute, for the operator $QP = (I-P)P$,
+\begin{align*}
+  QP \;&=\; (I - P)P \\
+     \;&=\; IP - P^2 \\
+     \;&=\; P - P \qquad\text{(here we used idempotence $P^2 = P$)} \\
+     \;&=\; 0 .
+\end{align*}
+So $QP = 0$ as an operator: $Q$ annihilates everything $P$ produces.
+
+\emph{Step 3: range of $P$ is orthogonal to range of $Q$.} Take any $v, w \in V$. We
+test the inner product of an arbitrary range vector $Pv$ against an arbitrary leftover
+vector $Qw$:
+\begin{align*}
+  \langle Pv,\; Qw \rangle
+    \;&=\; \langle Pv,\; (I-P)w \rangle \\
+    \;&=\; \langle (I-P)^\ast Pv,\; w \rangle
+        &&\text{(move the operator to the other slot via the adjoint)} \\
+    \;&=\; \langle (I-P) Pv,\; w \rangle
+        &&\text{(since $(I-P)^\ast = I-P$ by Step 1)} \\
+    \;&=\; \langle QP\, v,\; w \rangle \\
+    \;&=\; \langle 0,\; w \rangle
+        &&\text{(since $QP = 0$ by Step 2)} \\
+    \;&=\; 0 .
+\end{align*}
+Because $v$ and $w$ were arbitrary, \emph{every} vector $Pv$ in the range of $P$ is
+orthogonal to \emph{every} leftover $Qw = w - Pw$. In particular, taking $w$ to range
+over all of $V$, the leftover $v - Pv$ is orthogonal to the entire range $W$.
+
+\emph{Step 4: closest point (Pythagoras).} Fix $v$ and let $w$ be any point of $W$.
+Since $Pv \in W$ and $w \in W$, also $Pv - w \in W$, hence by Step~3 it is orthogonal
+to the leftover $v - Pv$. The Pythagorean law for orthogonal vectors
+\citep{fourier_rutgers} then gives
+\[
+  \|v - w\|^2 \;=\; \|\,(v - Pv) + (Pv - w)\,\|^2
+              \;=\; \|v - Pv\|^2 + \|Pv - w\|^2
+              \;\ge\; \|v - Pv\|^2,
+\]
+with equality if and only if $\|Pv - w\|^2 = 0$, i.e.\ $w = Pv$. Therefore $Pv$ is the
+unique point of $W$ nearest to $v$. This is exactly what ``$P$ projects $v$
+orthogonally onto $W$'' means.
+\end{proof}
+
+\begin{remark}
+The converse is also true and equally short: an orthogonal projection is automatically
+self-adjoint \citep{projectors_garrett,wiki_projection}. We will only need the
+direction proved above. The single fact you must carry forward is the slogan
+\[
+  \boxed{\ \text{idempotent} + \text{self-adjoint} \;\Longrightarrow\;
+          \text{orthogonal projection (the closest-point map)}.\ }
+\]
+\end{remark}
+
+\begin{corollary}[Eigenvalues of a projector are $0$ or $1$]
+\label{cor:eig01}
+If $P^2 = P$ and $Pv = \lambda v$ with $v \neq 0$, then $\lambda v = Pv = P^2 v =
+\lambda(Pv) = \lambda^2 v$, so $\lambda = \lambda^2$, forcing $\lambda \in \{0,1\}$
+\citep{wiki_projection}. The eigenvectors with $\lambda = 1$ span the range (what $P$
+keeps); those with $\lambda = 0$ span the kernel (what $P$ discards).
+\end{corollary}
+
+\subsection{Spectral norm: how much an operator can stretch}
+
+We also need one number that measures the largest stretching a linear map can do,
+because later it controls how a shift or a perturbation can grow.
+
+\begin{definition}[Spectral / operator norm]
+\label{def:specnorm}
+For a matrix $W$ the \emph{spectral norm} (also operator norm) is the largest factor by
+which $W$ can lengthen a unit vector:
+\[
+  \|W\|_2 \;=\; \max_{\|z\| = 1} \|Wz\| .
+\]
+Equivalently $\|W\|_2 = \sigma_{\max}(W)$, the largest \emph{singular value} of $W$,
+which equals $\sqrt{\lambda_{\max}(W^\ast W)}$, the square root of the largest
+eigenvalue of $W^\ast W$.
+\end{definition}
+
+The equality $\|W\|_2 = \sqrt{\lambda_{\max}(W^\ast W)}$ comes from maximizing the
+\emph{Rayleigh quotient}: $\|Wz\|^2 = \langle Wz, Wz\rangle = \langle W^\ast W z,
+z\rangle$, and over unit vectors this is largest exactly at the top eigenvector of the
+self-adjoint matrix $W^\ast W$, where it equals $\lambda_{\max}(W^\ast W)$.
+
+\begin{example}
+For $W = \left[\begin{smallmatrix} 3 & 0 \\ 0 & 1 \end{smallmatrix}\right]$ we have
+$W^\ast W = \left[\begin{smallmatrix} 9 & 0 \\ 0 & 1 \end{smallmatrix}\right]$, whose
+eigenvalues are $9$ and $1$, so $\|W\|_2 = \sqrt 9 = 3$. A useful sanity check on the
+whole section: an \emph{orthogonal} projection never stretches, $\|P\|_2 \le 1$,
+because $\|Pv\| \le \|v\|$ is just the inequality $\|v-Pv\|^2 \ge 0$ rearranged through
+the Pythagoras identity of Step~4.
+\end{example}
+
+\begin{problem}
+\label{prob:proj}
+Build $P = a a^\top / (a^\top a)$ for $a = (2,1)^\top$, so $P = \tfrac15
+\left[\begin{smallmatrix} 4 & 2 \\ 2 & 1 \end{smallmatrix}\right]$. Verify $P^2 = P$
+and $P = P^\top$, and check that $P$ annihilates $(-1,2)^\top$ (which is orthogonal to
+$a$). Then take the oblique $P' = \left[\begin{smallmatrix} 0 & 0 \\ 1 & 1
+\end{smallmatrix}\right]$: confirm $P'^2 = P'$ but $P' \neq P'^\top$, find its range
+and kernel, and observe they are not perpendicular. The moral: Theorem~\ref{thm:orthoproj}'s
+two hypotheses are both load-bearing.
+\end{problem}
+
+
+% =====================================================================
+\section{The discrete Fourier transform and the structure of shifts}
+\label{sec:dft}
+
+A previous version of this primer asserted, with no explanation, that ``shift operators
+are diagonalized by the DFT.'' That sentence is true and it is the keystone of the
+whole subject, but it is useless until every word in it is defined and the claim is
+proved. This section does that, building up from scratch, following the
+``discover the transform, don't postulate it'' approach of Bamieh
+\citep{fourier_bamieh}, with the concrete computations of the MIT~18.06 notes
+\citep{fourier_mit1806} and the rigorous theorem--proof spine of the Rutgers notes
+\citep{fourier_rutgers}.
+
+\paragraph{Notation, fixed once.}
+We work with vectors of length $N$, indexed $0,1,\dots,N-1$, and read every index
+\emph{modulo $N$} (so index $-1$ means $N-1$, index $N$ means $0$, and so on; we think
+of the entries as sitting on a circle). The basic constant is the \emph{primitive
+$N$-th root of unity}
+\[
+  \omega \;=\; e^{-2\pi i / N},
+\]
+chosen with a minus sign to match the engineering / forward DFT convention used throughout this
+primer. It satisfies $\omega^N = 1$ but $\omega^m \neq 1$ for $0 < m < N$; its powers
+$1, \omega, \omega^2, \dots, \omega^{N-1}$ are the $N$ solutions of $z^N = 1$, equally
+spaced points on the unit circle. The \emph{discrete Fourier transform} (DFT) matrix
+$F$ has entries
+\[
+  F_{jk} \;=\; \omega^{jk}, \qquad 0 \le j,k \le N-1,
+  \qquad\text{and we write } \widehat{x} = \mathrm{DFT}(x) = F x .
+\]
+Two facts about $\omega$ we will use constantly: $\overline{\omega} = e^{+2\pi i/N} =
+\omega^{-1}$ (conjugating flips the sign of the exponent), and the \emph{finite
+geometric series}
+\begin{equation}
+\label{eq:geomsum}
+  \sum_{m=0}^{N-1} \omega^{rm} \;=\;
+  \begin{cases}
+    N, & \text{if } r \equiv 0 \pmod N, \\[2pt]
+    \dfrac{1 - \omega^{rN}}{1 - \omega^{r}} = \dfrac{1-1}{1-\omega^r} = 0, &
+    \text{otherwise,}
+  \end{cases}
+\end{equation}
+where the first case is ``add $N$ copies of $1$'' and the second uses $\omega^{rN} =
+(\omega^N)^r = 1$ while $\omega^r \neq 1$. Equation~\eqref{eq:geomsum} is the engine
+behind both Parseval and the diagonalization.
+
+\subsection{What ``diagonalize'' means, and the shift operator}
+
+\begin{definition}[Eigenvector, eigenvalue, diagonalize]
+\label{def:diag}
+A nonzero vector $v$ is an \emph{eigenvector} of a matrix $A$ with \emph{eigenvalue}
+$\lambda$ if $A v = \lambda v$: the matrix only stretches $v$, never tilts it. To
+\emph{diagonalize} $A$ is to find an invertible matrix $V$ (its columns a full set of
+eigenvectors $v_1,\dots,v_N$) so that $V^{-1} A V = D$ is diagonal, with the
+eigenvalues $\lambda_1,\dots,\lambda_N$ on the diagonal. In that eigenvector basis the
+matrix acts by simple coordinatewise scaling. A family of matrices is
+\emph{simultaneously diagonalized} by one $V$ if the same eigenvector basis works for
+all of them at once.
+\end{definition}
+
+\begin{definition}[Cyclic shift]
+\label{def:shift}
+The \emph{cyclic (right) shift} $S$ moves every entry one step forward around the
+circle:
+\[
+  (S x)_k \;=\; x_{k-1} \quad (\text{indices mod } N),
+  \qquad\text{e.g.}\quad S\,(x_0,x_1,x_2,x_3) = (x_3,x_0,x_1,x_2).
+\]
+As a matrix $S$ is a \emph{permutation matrix} (a single $1$ in each row and column).
+It is the most fundamental object of this whole section; we now find its eigenvectors.
+\end{definition}
+
+\subsection{The shift is diagonalized by the DFT}
+
+\begin{theorem}[Eigenvectors of the shift]
+\label{thm:shifteig}
+Let $h_j$ denote the $j$-th column of the DFT matrix $F$, that is
+\[
+  h_j \;=\; \bigl(\omega^{0\cdot j},\ \omega^{1\cdot j},\ \omega^{2\cdot j},\ \dots,\
+            \omega^{(N-1)j}\bigr)^{\!\top}
+        \;=\; \bigl(1,\ \omega^{j},\ \omega^{2j},\ \dots,\ \omega^{(N-1)j}\bigr)^{\!\top}.
+\]
+Then each $h_j$ is an eigenvector of the cyclic shift $S$:
+\[
+  S\, h_j \;=\; \omega^{-j}\, h_j \qquad (j = 0,1,\dots,N-1),
+\]
+so the eigenvalues of $S$ are the $N$ roots of unity $\{\omega^{-j}\} = \{1, \omega^{-1},
+\dots, \omega^{-(N-1)}\}$, the same set as $\{1, \omega, \dots, \omega^{N-1}\}$ in a
+different order.
+\end{theorem}
+
+\begin{proof}
+We chase one entry. The $k$-th entry of $h_j$ is $(h_j)_k = \omega^{kj}$. Apply the
+definition of the shift, $(S\,h_j)_k = (h_j)_{k-1}$, and compute, for each $k$,
+\begin{align*}
+  (S\, h_j)_k \;&=\; (h_j)_{k-1} \\
+              \;&=\; \omega^{(k-1)j}
+                  &&\text{(definition of $h_j$ at index $k-1$)} \\
+              \;&=\; \omega^{kj}\,\omega^{-j}
+                  &&\text{(law of exponents $\omega^{(k-1)j} = \omega^{kj}\cdot\omega^{-j}$)} \\
+              \;&=\; \omega^{-j}\,(h_j)_k .
+\end{align*}
+This holds for every entry $k$ (the wrap-around at $k=0$ is automatic because the
+exponent is read mod $N$ and $\omega^{N} = 1$). Therefore $S\,h_j = \omega^{-j} h_j$ as
+vectors: $h_j$ is an eigenvector with eigenvalue $\omega^{-j}$. The $N$ eigenvalues
+$\omega^{0}, \omega^{-1}, \dots, \omega^{-(N-1)}$ are distinct, so the $N$ eigenvectors
+$h_0,\dots,h_{N-1}$ are linearly independent and form a basis: the columns of $F$
+diagonalize $S$.
+\end{proof}
+
+\begin{remark}[A note on conventions, so you are never confused later]
+With the \emph{forward} convention $\omega = e^{-2\pi i/N}$ adopted here, the shift
+eigenvalue attached to column $h_j$ is $\omega^{-j}$. Some textbooks
+(e.g.\ \citep{fourier_mit1806,fourier_rutgers}) use the opposite sign $\omega =
+e^{+2\pi i/N}$ and obtain $S h_j = \omega^{j} h_j$. The eigenvectors are the same lines,
+the eigenvalues are the same set of roots of unity; only the bookkeeping label changes.
+We will always state which convention is in force.
+\end{remark}
+
+\subsection{Circulant matrices: every shift-invariant linear map}
+
+\begin{definition}[Circulant matrix and circular convolution]
+\label{def:circulant}
+A matrix $C$ is \emph{circulant} if each column is the cyclic shift of the previous one;
+equivalently its entries depend only on $k - l \bmod N$, written $(C_a)_{kl} =
+a_{k-l}$, where $a = (a_0,\dots,a_{N-1})$ is its first column. The action of a circulant
+is exactly a \emph{circular convolution}: writing $a \conv x$ for the convolution,
+\[
+  (C_a x)_k \;=\; \sum_{l=0}^{N-1} a_{k-l}\, x_l \;=\; (a \conv x)_k \qquad
+  (\text{indices mod } N).
+\]
+A convolution ``slides one signal across another and sums the overlaps.'' The shift
+itself is the circulant whose first column is $(0,1,0,\dots,0)$.
+\end{definition}
+
+The reason circulants matter is that they are \emph{precisely} the matrices that
+commute with the shift, and ``commutes with the shift'' is the algebraic spelling of
+``treats every position the same way'' --- the defining feature of a translation-blind
+operation \citep{fourier_bamieh,groups_bronstein}.
+
+\begin{lemma}[Circulants are polynomials in the shift]
+\label{lem:polyS}
+A matrix $C$ is circulant if and only if it is a polynomial in $S$,
+\[
+  C \;=\; c_0 I + c_1 S + c_2 S^2 + \dots + c_{N-1} S^{N-1},
+\]
+where $(c_0,\dots,c_{N-1})$ is the first column of $C$. In particular every circulant
+commutes with $S$, and any two circulants commute with each other.
+\end{lemma}
+
+\begin{proof}
+Note first that $S^p$ is the circulant that shifts by $p$ places, $(S^p x)_k = x_{k-p}$.
+Hence a polynomial $\sum_p c_p S^p$ sends $x$ to the vector with $k$-th entry $\sum_p
+c_p x_{k-p}$, which is the circular convolution $(c \conv x)_k$ --- a circulant with
+first column $c$. Conversely, given a circulant $C$ with first column $c$, the operator
+$\sum_p c_p S^p$ has the same first column ($S^p e_0 = e_p$, so $\sum_p c_p S^p$ applied
+to $e_0$ returns $c$) and, being shift-invariant, the same every column; so the two
+matrices agree. Finally $S$ commutes with any polynomial in $S$, and two polynomials in
+$S$ commute with each other because powers of $S$ do
+\citep{fourier_rutgers}.
+\end{proof}
+
+\begin{theorem}[The DFT simultaneously diagonalizes all circulants;\\
+the convolution theorem]
+\label{thm:circdiag}
+Let $C_a$ be the circulant with first column $a$, equivalently $C_a x = a \conv x$.
+Then every column $h_j$ of $F$ is an eigenvector of $C_a$, and the eigenvalue is the
+$j$-th DFT coefficient of $a$:
+\[
+  C_a\, h_j \;=\; \widehat{a}_j\, h_j,
+  \qquad\text{where } \widehat{a}_j = (Fa)_j = \sum_{l=0}^{N-1} a_l\, \omega^{jl}.
+\]
+Consequently the DFT turns convolution into entrywise multiplication --- the
+\emph{convolution theorem}:
+\[
+  \boxed{\ \mathrm{DFT}(a \conv x) \;=\; \mathrm{DFT}(a)\,\odot\,\mathrm{DFT}(x)\ }
+  \qquad (\odot = \text{entrywise product}).
+\]
+\end{theorem}
+
+\begin{proof}
+\emph{Eigenvalues.} Write $C_a = \sum_p a_p S^p$ as in Lemma~\ref{lem:polyS}. Apply it
+to the shift eigenvector $h_j$ and use $S h_j = \omega^{-j} h_j$
+(Theorem~\ref{thm:shifteig}), hence $S^p h_j = \omega^{-pj} h_j$:
+\[
+  C_a\, h_j \;=\; \sum_{p=0}^{N-1} a_p\, S^p h_j
+            \;=\; \sum_{p=0}^{N-1} a_p\, \omega^{-pj}\, h_j
+            \;=\; \Bigl(\underbrace{\sum_{p=0}^{N-1} a_p\, \omega^{-pj}}_{=\,(Fa)_{-j}=\widehat a_{-j}}\Bigr)\, h_j .
+\]
+The bracket is a single number, so $h_j$ is an eigenvector. (With our forward
+convention the eigenvalue on column $h_j$ is $\widehat a_{-j}$; the whole \emph{set} of
+eigenvalues is $\{\widehat a_0, \dots, \widehat a_{N-1}\}$, just relabelled. The clean
+``eigenvalue $=$ DFT of the first column'' statement holds verbatim with the
+opposite-sign convention \citep{fourier_bamieh}; we keep ours and note the relabelling.)
+Because the $h_j$ form a basis, $C_a$ is diagonal in that basis: this is what
+``simultaneously diagonalized'' means, since the same columns of $F$ work for
+\emph{every} choice of $a$.
+
+\emph{Convolution theorem (direct index chase, following
+\citep{fourier_rutgers,wiki_convolution}).} We compute the $k$-th DFT coefficient of
+$a \conv x$ from the definitions:
+\begin{align*}
+  \mathrm{DFT}(a \conv x)_k
+    \;&=\; \sum_{j=0}^{N-1} (a \conv x)_j\, \omega^{kj} \\
+    \;&=\; \sum_{j=0}^{N-1} \Bigl(\sum_{l=0}^{N-1} a_{j-l}\, x_l\Bigr)\, \omega^{kj}
+        &&\text{(definition of convolution)} \\
+    \;&=\; \sum_{l=0}^{N-1} x_l \sum_{j=0}^{N-1} a_{j-l}\, \omega^{kj}
+        &&\text{(swap the two finite sums)} \\
+    \;&=\; \sum_{l=0}^{N-1} x_l \sum_{m=0}^{N-1} a_{m}\, \omega^{k(m+l)}
+        &&\text{(set $m = j - l$; still a full period)} \\
+    \;&=\; \sum_{l=0}^{N-1} x_l\, \omega^{kl} \sum_{m=0}^{N-1} a_{m}\, \omega^{km}
+        &&\text{(factor $\omega^{k(m+l)} = \omega^{km}\,\omega^{kl}$)} \\
+    \;&=\; \Bigl(\sum_{l} x_l \omega^{kl}\Bigr)\Bigl(\sum_{m} a_m \omega^{km}\Bigr)
+        \;=\; \widehat{x}_k\,\widehat{a}_k .
+\end{align*}
+That is exactly the entrywise product $\widehat a \odot \widehat x$ at index $k$. The
+substitution $m = j - l$ is legitimate because both $a$ and the exponential are
+$N$-periodic in their index, so summing $j$ over one full period is the same as summing
+$m$ over one full period.
+\end{proof}
+
+\subsection{Parseval: the DFT preserves energy (up to a factor of $N$)}
+
+\begin{theorem}[Parseval / Plancherel]
+\label{thm:parseval}
+With the forward (unnormalized) DFT, for every vector $x \in \mathbb{C}^N$,
+\[
+  \|\mathrm{DFT}(x)\|^2 \;=\; N\,\|x\|^2,
+  \qquad\text{equivalently}\qquad \|x\|^2 = \tfrac1N\,\|\mathrm{DFT}(x)\|^2 .
+\]
+(With the \emph{unitary} normalization $\tfrac{1}{\sqrt N}F$ it reads $\|x\| =
+\|\mathrm{DFT}(x)\|$ exactly.)
+\end{theorem}
+
+\begin{proof}
+The proof is the orthogonality of the columns of $F$, which is exactly the geometric
+series \eqref{eq:geomsum}. Take two columns $h_j, h_k$ of $F$ and form their inner
+product (recall $\langle u,v\rangle = \sum_m u_m \overline{v_m}$, and
+$\overline{\omega^{km}} = \omega^{-km}$):
+\begin{align*}
+  \langle h_j,\, h_k\rangle
+    \;&=\; \sum_{m=0}^{N-1} \omega^{jm}\,\overline{\omega^{km}}
+        \;=\; \sum_{m=0}^{N-1} \omega^{jm}\,\omega^{-km}
+        \;=\; \sum_{m=0}^{N-1} \omega^{(j-k)m}
+        \;=\;
+        \begin{cases} N, & j = k, \\ 0, & j \neq k, \end{cases}
+\end{align*}
+where the last step is \eqref{eq:geomsum} with $r = j-k$. In matrix form this says
+$F^\ast F = N I$, i.e.\ the columns are orthogonal each of squared length $N$. Now
+expand the DFT in this basis. Writing $\widehat x = Fx$,
+\[
+  \|\widehat x\|^2
+    \;=\; \langle Fx,\, Fx\rangle
+    \;=\; \langle F^\ast F x,\, x\rangle
+    \;=\; \langle N x,\, x\rangle
+    \;=\; N\,\|x\|^2 ,
+\]
+where we moved $F$ to the other slot of the inner product through its adjoint $F^\ast$
+and then used $F^\ast F = N I$. Dividing by $N$ gives the second form.
+\end{proof}
+
+\subsection{Worked examples at {\boldmath$N=4$} (do these by hand once)}
+
+With $N = 4$ the root of unity is $\omega = e^{-2\pi i/4} = -i$, and the forward DFT
+matrix is
+\[
+  F_4 \;=\;
+  \begin{bmatrix}
+    1 & 1 & 1 & 1 \\
+    1 & -i & -1 & i \\
+    1 & -1 & 1 & -1 \\
+    1 & i & -1 & -i
+  \end{bmatrix}.
+\]
+(The entry $F_{jk} = (-i)^{jk}$; the MIT~18.06 notes \citep{fourier_mit1806} print the
+complex-conjugate version because they use the $+$ sign convention.)
+
+\begin{example}[Convolution two ways]
+Let $a = (1,1,0,0)$ and $x = (1,2,3,4)$. Direct circular convolution: $(a\conv x)_k =
+\sum_l a_{k-l} x_l$ with $a_0 = a_1 = 1$, $a_2 = a_3 = 0$, so $(a\conv x)_k = x_k +
+x_{k-1}$:
+\[
+  a \conv x = (x_0 + x_3,\ x_1 + x_0,\ x_2 + x_1,\ x_3 + x_2)
+            = (1+4,\ 2+1,\ 3+2,\ 4+3) = (5,3,5,7).
+\]
+Via the transform: $\widehat a = F_4 a = (2,\,1-i,\,0,\,1+i)$ and $\widehat x = F_4 x =
+(10,\,-2+2i,\,-2,\,-2-2i)$. Their entrywise product is $\widehat a \odot \widehat x =
+(20,\,(1-i)(-2+2i),\,0,\,(1+i)(-2-2i)) = (20,\,4i,\,0,\,-4i)$, hmm let us simplify:
+$(1-i)(-2+2i) = -2+2i+2i-2i^2 = -2+4i+2 = 4i$ and similarly the last entry is $-4i$.
+Applying the inverse DFT, $\tfrac14 F_4^\ast(20,4i,0,-4i)$, returns $(5,3,5,7)$,
+matching the direct computation \citep{fourier_rutgers}. The two routes agree exactly,
+which is the convolution theorem at work.
+\end{example}
+
+\begin{example}[Parseval check]
+For $x = (1,2,-1,0)$ we have $\|x\|^2 = 1 + 4 + 1 + 0 = 6$. Its DFT is $\widehat x = F_4
+x = (2,\,2-2i,\,-2,\,2+2i)$, so $\|\widehat x\|^2 = |2|^2 + |2-2i|^2 + |-2|^2 +
+|2+2i|^2 = 4 + 8 + 4 + 8 = 24 = 4 \cdot 6 = N\|x\|^2$, exactly as
+Theorem~\ref{thm:parseval} predicts.
+\end{example}
+
+\begin{problem}
+\label{prob:dft}
+Show by hand that the $4\times 4$ cyclic shift $S$ has eigenvalues equal to the $4$th
+roots of unity $\{1, i, -1, -i\}$, with eigenvectors the columns of $F_4$. Then verify
+Parseval for $x = (1,2,-1,0)$ (the example above) and for one vector of your own
+choosing. Finally, confirm the convolution theorem on $a = (1,1,0,0)$, $x = (1,2,3,4)$
+by reproducing both routes in the previous example.
+\end{problem}
+
+
+% =====================================================================
+\section{Symmetry made precise: group actions, orbits, invariance,
+and group averaging}
+\label{sec:groups}
+
+The DFT story was about \emph{one} symmetry, the cyclic shift. To talk about
+shift-invariance and adversarial robustness in general we need the vocabulary that
+makes ``a symmetry acting on data'' precise. The right language is that of group
+actions, and the right tool is the operation that ``averages a function over a
+symmetry'' --- the classical Reynolds operator. We follow the geometric deep learning
+treatment of Bronstein, Bruna, Cohen and Veli\v{c}kovi\'c \citep{groups_bronstein} and
+the Wikipedia articles on group actions and equivariant maps
+\citep{wiki_groupaction,wiki_equivariant}, downgrading their integrals over abstract
+groups to finite sums an undergraduate can compute.
+
+\subsection{Groups, actions, orbits}
+
+\begin{definition}[Group]
+\label{def:group}
+A \emph{group} $(G,\cdot)$ is a set $G$ with a multiplication $\cdot$ that is
+associative, has an \emph{identity} element $e$ (with $e g = g e = g$ for all $g$), and
+gives every $g$ an \emph{inverse} $g^{-1}$ (with $g g^{-1} = g^{-1} g = e$). The group is
+\emph{abelian} (commutative) if $g h = h g$ always. The running example is the
+\emph{cyclic group} $\Z_N = \{0,1,\dots,N-1\}$ under addition mod $N$, which is abelian
+and is generated by the single element $1$ (every element is a repeated sum of $1$'s).
+\end{definition}
+
+\begin{definition}[Group action]
+\label{def:action}
+A (left) \emph{action} of a group $G$ on a set $X$ is a rule $G \times X \to X$, written
+$(g,x) \mapsto g \cdot x$, satisfying two axioms \citep{wiki_groupaction}:
+\[
+  \text{(identity)}\quad e \cdot x = x, \qquad\qquad
+  \text{(compatibility)}\quad g \cdot (h \cdot x) = (g h) \cdot x .
+\]
+The identity axiom says ``doing nothing does nothing''; the compatibility axiom says
+``doing $h$ then $g$ is the same as doing the product $g h$.'' When $X$ is a vector
+space and each $g$ acts by a linear (in fact invertible) map, the action is called a
+\emph{representation}; we write that map as a matrix $\rho(g)$, and compatibility reads
+$\rho(g)\rho(h) = \rho(gh)$.
+\end{definition}
+
+\begin{example}[The cyclic shift action, the one we care about]
+\label{ex:shiftaction}
+Let $G = \Z_N$ act on signals $x \in \mathbb{C}^N$ by shifting: the group element $u$
+acts by $\rho(u) = S^u$, so $(\,u \cdot x\,)_k = x_{k - u}$ (shift the signal forward by
+$u$). The identity $u = 0$ does nothing; compatibility $S^u S^v = S^{u+v}$ holds because
+shifting by $u$ then by $v$ shifts by $u + v$. This is the action that turns
+``$\Z_N$-symmetry'' into ``the shift operators of Section~\ref{sec:dft}.''
+\end{example}
+
+\begin{definition}[Orbit]
+\label{def:orbit}
+The \emph{orbit} of a point $x$ is everything reachable from $x$ by the group,
+\[
+  \Orb(x) \;=\; G \cdot x \;=\; \{\, g \cdot x : g \in G \,\}.
+\]
+Orbits \emph{partition} $X$: every point is in exactly one orbit, because the relation
+``$y = g\cdot x$ for some $g$'' is reflexive ($e$), symmetric ($g^{-1}$) and transitive
+(compatibility). An orbit is the set of all configurations that the symmetry regards as
+``the same up to the symmetry.''
+\end{definition}
+
+\begin{example}[Orbits of the shift on $\R^4$]
+\label{ex:orbits4}
+Under $\Z_4$ acting by shifts on $\R^4$: the orbit of $(1,0,0,0)$ is the four cyclic
+shifts $\{(1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1)\}$ --- the four standard basis
+vectors. The orbit of the constant vector $(1,1,1,1)$ is just itself: shifting it
+changes nothing, so it is a \emph{fixed point}. Already you can feel the
+shift-invariance theme: a function that should not care about position must give the
+same value everywhere along an orbit.
+\end{example}
+
+\subsection{Invariant versus equivariant}
+
+This distinction is the single most important conceptual point of the section, and the
+old primer never made it.
+
+\begin{definition}[Invariant and equivariant functions]
+\label{def:inveq}
+Let $G$ act on a domain $X$ and (for equivariance) also on a codomain $Y$. A function
+$f : X \to Y$ is
+\[
+  \textbf{invariant} \quad\text{if}\quad f(g\cdot x) = f(x) \ \ \forall g,
+  \qquad\qquad
+  \textbf{equivariant} \quad\text{if}\quad f(g\cdot x) = g\cdot f(x) \ \ \forall g .
+\]
+An invariant function gives the same output no matter how the input is transformed: it
+\emph{collapses each orbit to a single value}. An equivariant function lets the
+transformation pass through predictably: transform the input and the output transforms
+the same way. Invariance is the special case of equivariance where the action on the
+codomain is trivial \citep{wiki_equivariant}.
+\end{definition}
+
+\begin{example}[The textbook pictures]
+\label{ex:areacentroid}
+For triangles under the rigid motions of the plane (translations, rotations,
+reflections): the \emph{area} is invariant --- moving a triangle does not change its
+area. The \emph{centroid} is equivariant --- move the triangle and its centroid moves
+to exactly the image of the old centroid \citep{wiki_equivariant}. In statistics, the
+sample \emph{mean} is equivariant under rescaling of the data (change units, the mean
+changes units the same way), while the \emph{median} is equivariant under \emph{any}
+monotone relabelling. In machine learning the canonical pair is: image
+\emph{classification} is shift-invariant (a cat is a cat wherever it sits), whereas
+\emph{segmentation} is shift-equivariant (shift the image and the predicted mask shifts
+identically) \citep{groups_bronstein}.
+\end{example}
+
+\begin{remark}[A warning the old primer should have given]
+Convolutional layers are shift-\emph{equivariant}, not invariant; this is exactly the
+statement $S\,C_a x = C_a\,S x$ for a circulant $C_a$, which you already proved when you
+showed circulants commute with $S$ (Lemma~\ref{lem:polyS}). Invariance is only obtained
+at the \emph{end}, by a pooling/averaging step that collapses the orbit. Many
+signal-processing texts loosely call equivariance ``shift-invariance''; do not be
+fooled \citep{groups_bronstein}.
+\end{remark}
+
+\subsection{The Reynolds (group-averaging) operator}
+
+How does one \emph{manufacture} an invariant function from an arbitrary one? Average
+over the group. This idea is classical (Reynolds; Weyl and Hilbert in invariant theory)
+and is the symmetry layer's workhorse \citep{groups_bronstein}.
+
+\begin{definition}[Group average / Reynolds operator]
+\label{def:reynolds}
+For a finite group $G$ acting on a vector space, define the \emph{group-averaging
+operator} $R$ on functions (or, when $G$ acts linearly, on vectors) by
+\[
+  (R f)(x) \;=\; \frac{1}{|G|} \sum_{g \in G} f(g \cdot x),
+  \qquad\text{or for the linear action on vectors:}\quad
+  R \;=\; \frac{1}{|G|} \sum_{g \in G} \rho(g).
+\]
+For a finite group this finite sum is the exact counterpart of Bronstein et al.'s
+continuous average $\tfrac{1}{\mu(G)} \int_G f(g\cdot x)\,d\mu(g)$ over the group's
+Haar measure \citep{groups_bronstein}: for a finite group the Haar measure just counts
+elements.
+\end{definition}
+
+\begin{theorem}[The group average is invariant, idempotent, and (for an orthogonal
+action) an orthogonal projection onto the invariants]
+\label{thm:reynolds}
+Let $G$ be finite and act linearly. Then:
+\begin{enumerate}[label=\textup{(\roman*)}]
+  \item $R$ is \emph{invariant}: $R\,\rho(h) = R$ for every $h \in G$, i.e.\ $(Rf)(h\cdot
+        x) = (Rf)(x)$.
+  \item $R$ is \emph{idempotent}: $R^2 = R$. Its range is exactly the invariant
+        subspace $V_{\mathrm{inv}} = \{v : \rho(g)v = v\ \forall g\}$.
+  \item If every $\rho(g)$ is \emph{orthogonal} (or unitary), $\rho(g)^\ast =
+        \rho(g)^{-1}$, then $R$ is also self-adjoint, hence by
+        Theorem~\ref{thm:orthoproj} the \emph{orthogonal} projection onto
+        $V_{\mathrm{inv}}$ --- the closest invariant vector to any given $v$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\emph{(i) Invariance, by re-indexing the group.} Fix $h \in G$ and compute, using
+compatibility $\rho(g)\rho(h) = \rho(gh)$:
+\begin{align*}
+  R\,\rho(h)
+    \;&=\; \frac{1}{|G|}\sum_{g \in G} \rho(g)\rho(h)
+    \;=\; \frac{1}{|G|}\sum_{g \in G} \rho(g h)
+    \;=\; \frac{1}{|G|}\sum_{g' \in G} \rho(g')
+    \;=\; R .
+\end{align*}
+The middle step is the only subtlety: as $g$ runs once through all of $G$, the product
+$g' = g h$ also runs \emph{once} through all of $G$ (right multiplication by the fixed
+$h$ is a bijection of $G$, with inverse right multiplication by $h^{-1}$). So we are
+summing the same $|G|$ terms in a different order. Hence $R$ is unchanged by any group
+element on its input.
+
+\emph{(ii) Idempotence and range.} First, $R$ fixes every invariant vector: if
+$\rho(g)v = v$ for all $g$, then $Rv = \tfrac{1}{|G|}\sum_g \rho(g) v =
+\tfrac{1}{|G|}\sum_g v = v$. Second, every output $Rv$ \emph{is} invariant: by part
+(i), $\rho(h)\,Rv = R v$ would follow from $\rho(h) R = R$; let us verify that form too,
+\[
+  \rho(h) R = \frac{1}{|G|}\sum_g \rho(h)\rho(g) = \frac{1}{|G|}\sum_g \rho(hg)
+            = \frac{1}{|G|}\sum_{g'} \rho(g') = R ,
+\]
+the same re-indexing as in (i) but with \emph{left} multiplication. So $Rv \in
+V_{\mathrm{inv}}$ for every $v$, and $R$ fixes $V_{\mathrm{inv}}$ pointwise; therefore
+$R(Rv) = Rv$, i.e.\ $R^2 = R$, and the range of $R$ is exactly $V_{\mathrm{inv}}$.
+
+\emph{(iii) Self-adjointness for an orthogonal action.} Compute the adjoint of the sum,
+using $(\rho(g))^\ast = \rho(g)^{-1} = \rho(g^{-1})$:
+\[
+  R^\ast = \frac{1}{|G|}\sum_g \rho(g)^\ast
+         = \frac{1}{|G|}\sum_g \rho(g^{-1})
+         = \frac{1}{|G|}\sum_{g'} \rho(g')
+         = R ,
+\]
+where again $g' = g^{-1}$ ranges over all of $G$ as $g$ does (inversion is a bijection
+of $G$). So $R = R^\ast$. Now $R$ is idempotent (part ii) and self-adjoint, so
+Theorem~\ref{thm:orthoproj} applies: $R$ is the orthogonal projection onto its range
+$V_{\mathrm{inv}}$, the unique nearest invariant vector. This is the rigorous content of
+the slogan ``averaging over the symmetry returns the closest symmetric thing.''
+\end{proof}
+
+\subsection{The cyclic case, and why linear invariants are too weak}
+
+\begin{example}[Shift-averaging returns the mean]
+\label{ex:shiftavg}
+Apply Theorem~\ref{thm:reynolds} to $G = \Z_N$ acting on $\mathbb{C}^N$ by shifts,
+$\rho(u) = S^u$. The group average is
+\[
+  (R x)_k = \frac{1}{N}\sum_{u=0}^{N-1} (S^u x)_k
+          = \frac{1}{N}\sum_{u=0}^{N-1} x_{k-u}
+          = \frac{1}{N}\sum_{j=0}^{N-1} x_j
+          = \text{mean}(x),
+\]
+the constant vector all of whose entries equal the average of $x$. Each $S^u$ is a
+permutation matrix, hence orthogonal, so by part~(iii) this $R$ is the orthogonal
+projection onto the one-dimensional invariant subspace spanned by $(1,1,\dots,1)$ ---
+which is exactly the orbit of fixed points from Example~\ref{ex:orbits4}. Connecting to
+Section~\ref{sec:dft}: $R = \tfrac1N\sum_u S^u$ is a circulant, and by
+Theorem~\ref{thm:circdiag} its eigenvalues are the DFT of its first column
+$\tfrac1N(1,1,\dots,1)$, which is $(1,0,0,\dots,0)$ --- it keeps only the ``zero
+frequency'' (the mean) and kills everything else.
+\end{example}
+
+The example carries a moral that motivates the entire next section. The \emph{only}
+linear shift-invariant feature of a signal is its mean (any other shift-invariant linear
+functional must be a multiple of the sum, by the same averaging argument). Bronstein et
+al.\ make the same point vividly: for images under translation, a linear invariant can
+see nothing but the \emph{average colour} \citep{groups_bronstein}. To get richer
+invariants --- ones that can actually tell two signals apart while ignoring their
+position --- we must go \emph{nonlinear}. That is precisely what the power spectrum and
+bispectrum do.
+
+\begin{problem}
+\label{prob:reynolds}
+Show that under $\Z_N$ the group average of any vector equals the constant vector whose
+entries are the mean; verify directly that $R^2 = R$ on a length-$3$ example; and argue
+that the only shift-invariant \emph{linear} functionals $x \mapsto \langle w, x\rangle$
+are the multiples of the sum $\sum_k x_k$ (hint: invariance forces $S^\ast w = w$, so
+$w$ is itself shift-invariant). Conclude that nontrivial shift-invariants must be
+nonlinear.
+\end{problem}
+
+
+% =====================================================================
+\section{Shift-invariant descriptors: the power spectrum and the bispectrum}
+\label{sec:invariants}
+
+We now build the two nonlinear shift-invariants that the project actually uses. Both
+are computed from the DFT, both throw away absolute position, and the difference between
+them --- one discards phase, the other keeps relative phase --- is the punchline. The
+sources are the MIT~6.011 notes on power spectral density \citep{invariants_mit6011},
+de~Buyl's Wiener--Khinchin derivation \citep{invariants_wienerkhinchin}, Kakarala's
+introduction to bispectral invariants \citep{invariants_kakarala}, and Chen, Zehni and
+Zhao's discrete treatment \citep{invariants_chen}.
+
+\subsection{The DFT shift theorem: shifting only rotates phase}
+
+\begin{lemma}[Shift theorem]
+\label{lem:shifttheorem}
+Let $R_\tau$ shift a signal by $\tau$, $(R_\tau x)_n = x_{n-\tau}$. Then
+\[
+  \mathrm{DFT}(R_\tau x)_k \;=\; \widehat{x}_k\, \omega^{k\tau}
+                          \;=\; \widehat{x}_k\, e^{-2\pi i k \tau / N}.
+\]
+A shift leaves the \emph{magnitude} $|\widehat x_k|$ of every Fourier coefficient
+untouched and only multiplies it by a \emph{unit-modulus phase} $e^{-2\pi i k\tau/N}$
+(a complex number of absolute value $1$).
+\end{lemma}
+
+\begin{proof}
+Compute from the definition, substituting $m = n - \tau$ and using periodicity:
+\begin{align*}
+  \mathrm{DFT}(R_\tau x)_k
+    \;&=\; \sum_{n=0}^{N-1} (R_\tau x)_n\, \omega^{kn}
+    \;=\; \sum_{n=0}^{N-1} x_{n-\tau}\, \omega^{kn}
+    \;=\; \sum_{m=0}^{N-1} x_{m}\, \omega^{k(m+\tau)} \\
+    \;&=\; \omega^{k\tau}\sum_{m=0}^{N-1} x_m\,\omega^{km}
+    \;=\; \omega^{k\tau}\,\widehat x_k. \qedhere
+\end{align*}
+\end{proof}
+
+Everything below is a consequence of one observation: \emph{position lives entirely in
+the phase}. Any quantity built from the $\widehat x_k$ that cannot detect a
+phase-rotation $e^{-2\pi i k\tau/N}$ will be shift-invariant.
+
+\subsection{Power spectrum and Wiener--Khinchin}
+
+\begin{definition}[Autocorrelation and power spectrum]
+\label{def:powerspec}
+The \emph{circular autocorrelation} of $x$ is $r_\tau = \sum_{t=0}^{N-1} x_t\,
+x_{t+\tau}$ (for real signals; conjugate the second factor for complex ones), measuring
+how much $x$ resembles its own shift by $\tau$. The \emph{power spectrum} is the squared
+magnitude of the DFT,
+\[
+  P_k \;=\; |\widehat x_k|^2 \;=\; \widehat x_k\,\overline{\widehat x_k}.
+\]
+It is real, nonnegative, and (for real $x$) symmetric \citep{invariants_mit6011}.
+\end{definition}
+
+\begin{theorem}[Power spectrum is shift-invariant]
+\label{thm:psinv}
+For every shift $\tau$, $\ |\mathrm{DFT}(R_\tau x)_k|^2 = |\widehat x_k|^2$.
+\end{theorem}
+
+\begin{proof}
+Using the shift theorem (Lemma~\ref{lem:shifttheorem}) and $|e^{-2\pi i k\tau/N}| = 1$:
+\[
+  |\mathrm{DFT}(R_\tau x)_k|^2
+    = \bigl|\,\widehat x_k\, e^{-2\pi i k\tau/N}\,\bigr|^2
+    = |\widehat x_k|^2 \cdot \bigl|e^{-2\pi i k\tau/N}\bigr|^2
+    = |\widehat x_k|^2 \cdot 1
+    = |\widehat x_k|^2 .
+\]
+The phase, which is where the position information sat, is annihilated by the
+absolute-value square. Hence the power spectrum is the same for $x$ and every shift of
+$x$: it is a shift-invariant descriptor.
+\end{proof}
+
+\begin{theorem}[Wiener--Khinchin: power spectrum $=$ transform of autocorrelation]
+\label{thm:wk}
+The power spectrum is the DFT of the autocorrelation: $\widehat r = P$, equivalently the
+autocorrelation is the inverse DFT of the power spectrum.
+\end{theorem}
+
+\begin{proof}[Proof skeleton (continuous version, following de~Buyl
+\citep{invariants_wienerkhinchin})]
+Start from the autocorrelation
+\[
+  C(\tau) = \lim_{T\to\infty} \tfrac1T \int_0^T x(t)\, x(t+\tau)\,dt
+\]
+and replace each $x$ by its inverse Fourier transform. After exchanging
+the order of integration one is left with a time-average of $e^{i(\omega+\omega')t}$:
+that average is $0$ unless $\omega + \omega' = 0$ (the oscillations cancel to order
+$1/T$) and equals $1$ when $\omega + \omega' = 0$. Keeping only the surviving
+$\omega' = -\omega$ terms and using realness $\widetilde x(-\omega) =
+\overline{\widetilde x(\omega)}$ gives
+\[
+  C(\tau) = \frac{1}{2\pi}\int e^{i\omega\tau}\,\widetilde x(\omega)\,
+            \overline{\widetilde x(\omega)}\,d\omega
+          = \frac{1}{2\pi}\int e^{i\omega\tau}\,|\widetilde x(\omega)|^2\,d\omega,
+\]
+i.e.\ the autocorrelation is the inverse transform of $|\widetilde x|^2$, the power
+spectrum. The discrete version replaces the integrals by the length-$N$ DFT; the random
+(noisy) version is handled by MIT~6.011's periodogram argument
+\citep{invariants_mit6011}.
+\end{proof}
+
+Why does this matter? Because it shows the power spectrum is a \emph{complete summary of
+the second-order structure} of a signal --- but \emph{only} the second order. By
+discarding all phase it cannot tell apart two signals whose Fourier magnitudes agree;
+Kakarala's Figure~1 shows two genuinely different shapes with identical power spectra,
+the power spectrum ``fooled'' \citep{invariants_kakarala}. To recover the lost
+discriminative power without giving up shift-invariance, we keep \emph{relative} phase.
+
+\subsection{The bispectrum: a shift-invariant that remembers relative phase}
+
+\begin{definition}[Triple correlation and bispectrum]
+\label{def:bispec}
+The \emph{triple correlation} is the autocorrelation with one extra shift,
+$a_3(s_1,s_2) = \sum_t \overline{x_t}\, x_{t+s_1}\, x_{t+s_2}$. Its DFT is the
+\emph{bispectrum}, which in frequency variables is the triple product
+\[
+  B_{k_1,k_2} \;=\; \widehat x_{k_1}\,\widehat x_{k_2}\,\overline{\widehat x_{k_1+k_2}}
+\]
+\citep{invariants_kakarala,wiki_bispectrum}. Chen--Zehni--Zhao write the equivalent form
+\[
+  B_{k_1,k_2} \;=\; \widehat x_{k_1}\,\overline{\widehat x_{k_2}}\,\widehat x_{k_2-k_1}
+\]
+\citep{invariants_chen}; the two differ only by a relabelling of the frequency axes. Setting
+$k_2 = 0$ recovers the power spectrum: $B_{k,0} = \widehat x_k\,\widehat x_0\,
+\overline{\widehat x_k} = \widehat x_0\,|\widehat x_k|^2$, so the bispectrum
+\emph{contains} the power spectrum \citep{invariants_kakarala}.
+\end{definition}
+
+\begin{theorem}[Bispectrum is shift-invariant, by explicit phase cancellation]
+\label{thm:bispecinv}
+For every shift $\tau$, $\ B^{(R_\tau x)}_{k_1,k_2} = B^{(x)}_{k_1,k_2}$.
+\end{theorem}
+
+\begin{proof}
+Apply the shift theorem (Lemma~\ref{lem:shifttheorem}) to each of the three Fourier
+coefficients in the triple product. Write $\zeta = e^{-2\pi i \tau/N}$, so a shift
+multiplies $\widehat x_k$ by $\zeta^{k}$, and \emph{conjugating} $\widehat x_{k_1+k_2}$
+multiplies by $\overline{\zeta^{\,k_1+k_2}} = \zeta^{-(k_1+k_2)}$:
+\begin{align*}
+  B^{(R_\tau x)}_{k_1,k_2}
+    \;&=\; \mathrm{DFT}(R_\tau x)_{k_1}\;
+           \mathrm{DFT}(R_\tau x)_{k_2}\;
+           \overline{\mathrm{DFT}(R_\tau x)_{k_1+k_2}} \\
+    \;&=\; \bigl(\zeta^{k_1}\widehat x_{k_1}\bigr)\,
+           \bigl(\zeta^{k_2}\widehat x_{k_2}\bigr)\,
+           \overline{\bigl(\zeta^{k_1+k_2}\widehat x_{k_1+k_2}\bigr)}
+        &&\text{(shift theorem on each factor)} \\
+    \;&=\; \zeta^{k_1}\,\zeta^{k_2}\,\zeta^{-(k_1+k_2)}\;
+           \widehat x_{k_1}\,\widehat x_{k_2}\,\overline{\widehat x_{k_1+k_2}}
+        &&\text{(conjugation flips the phase)} \\
+    \;&=\; \zeta^{\,k_1 + k_2 - (k_1 + k_2)}\;
+           \widehat x_{k_1}\,\widehat x_{k_2}\,\overline{\widehat x_{k_1+k_2}} \\
+    \;&=\; \zeta^{0}\; B^{(x)}_{k_1,k_2}
+        \;=\; B^{(x)}_{k_1,k_2} .
+\end{align*}
+The three shift-phases cancel exactly: $k_1 + k_2 - (k_1+k_2) = 0$, so $\zeta^0 = 1$.
+That cancellation is the whole point --- it is why the bispectrum is shift-invariant
+\citep{invariants_kakarala,invariants_chen}. Unlike the power spectrum, though, the
+bispectrum did \emph{not} have to take an absolute value to achieve invariance: it kept
+the \emph{relative} phase among the three coefficients (the part of the phase that a
+global shift cannot touch), and that retained phase is exactly the extra information
+that lets it separate signals the power spectrum confuses.
+\end{proof}
+
+\subsection{Worked examples at {\boldmath$N=4$}}
+
+\begin{example}[A shift leaves $|\mathrm{DFT}|^2$ unchanged]
+\label{ex:psn4}
+Take $x = (1,0,0,0)$. Then $\widehat x = F_4 x = (1,1,1,1)$, so $P = (1,1,1,1)$. Now
+shift to $x' = (0,1,0,0)$: $\widehat{x'} = (1,-i,-1,i)$, and $|\widehat{x'}|^2 =
+(1,1,1,1)$ again --- identical power spectrum, even though every phase changed.
+\end{example}
+
+\begin{example}[Discrete Wiener--Khinchin by hand]
+\label{ex:wkn4}
+Take $x = (2,1,0,1)$. Its circular autocorrelation $r_\tau = \sum_t x_t x_{t+\tau}$ is
+$r = (6,4,2,4)$ (e.g.\ $r_0 = 4+1+0+1 = 6$). Its DFT is $\widehat r = F_4 r =
+(16,4,0,4)$. Independently, $\widehat x = F_4 x = (4,2,0,2)$, so the power spectrum is
+$|\widehat x|^2 = (16,4,0,4)$. The two agree: $\widehat r = |\widehat x|^2$, exactly
+Theorem~\ref{thm:wk}.
+\end{example}
+
+\begin{example}[Same power spectrum, different bispectrum --- the disambiguation]
+\label{ex:bispecn4}
+Build two real length-$4$ signals
+\[
+  x_A = (1.25,\ 0.25,\ 0.25,\ 0.25), \qquad
+  x_B = (0.75,\ -0.25,\ 0.75,\ 0.75).
+\]
+Their DFTs are $\widehat{x}_A = (2,1,1,1)$ and $\widehat{x}_B = (2,\,i,\,1,\,-i)$, so
+both have the \emph{identical} magnitude spectrum $|\widehat x| = (2,1,1,1)$ and hence
+the identical power spectrum $(4,1,1,1)$. The power spectrum cannot tell them apart. The
+bispectrum can: with $B_{k_1,k_2} = \widehat x_{k_1}\widehat x_{k_2}
+\overline{\widehat x_{k_1+k_2}}$,
+\[
+  B^{(A)}_{1,1} = \widehat{x}_{A,1}\,\widehat{x}_{A,1}\,\overline{\widehat{x}_{A,2}}
+               = 1\cdot 1 \cdot 1 = +1,
+  \qquad
+  B^{(B)}_{1,1} = \widehat{x}_{B,1}\,\widehat{x}_{B,1}\,\overline{\widehat{x}_{B,2}}
+               = i\cdot i \cdot 1 = -1 .
+\]
+The two differ ($+1$ versus $-1$), entirely because of the relative phase on the first
+coefficient. And since both are shift-invariant, this distinction survives every shift:
+shifting $x_B$ to $(0.75,0.75,-0.25,0.75)$ leaves $|\widehat x|^2 = (4,1,1,1)$ and
+$B_{1,1} = -1$ unchanged. This is the discrete analogue of Kakarala's ``two shapes the
+power spectrum confuses but the bispectrum separates'' \citep{invariants_kakarala}.
+\end{example}
+
+\begin{problem}
+\label{prob:bispec}
+For $x = (2,1,0,1)$: (a) verify the discrete Wiener--Khinchin identity $\widehat r =
+|\widehat x|^2$ as in Example~\ref{ex:wkn4}; (b) shift $x$ by $2$ and confirm
+$|\widehat x|^2$ is unchanged while the individual phases rotate; (c) construct a second
+signal with the same $|\widehat x|$ but a flipped phase on one coefficient, and show
+that some bispectrum entry $B_{k_1,k_2}$ differs --- so the bispectrum distinguishes
+what the power spectrum cannot, even up to shift.
+\end{problem}
+
+\paragraph{Where this leaves us.} The four sections fit together as one thread. A
+shift-invariant feature is what you get by averaging away the symmetry
+(Section~\ref{sec:groups}); doing it \emph{linearly} keeps only the mean, so useful
+invariants are nonlinear (Section~\ref{sec:invariants}); the natural nonlinear ones live
+in the Fourier domain, where shifting is just a phase rotation (Section~\ref{sec:dft}),
+and the whole averaging-is-projection story rests on the one projector theorem of
+Section~\ref{sec:projectors}. The power spectrum is the phase-blind invariant; the
+bispectrum is the phase-retaining one; both are exactly what the project measures when
+it asks whether a network has learned to ignore position.
+
+% =====================================================================
+% \citep KEYS USED IN THIS FILE (for the assembler's bibliography):
+%   Section 1 (projectors):
+%     projectors_garrett   -- Garrett, UMN, "Projectors, projection maps,
+%                             orthogonal projections" (central theorem proof)
+%     projectors_tamu      -- TAMU MATH423 lecture 36 (numeric examples)
+%     wiki_projection      -- Wikipedia, "Projection (linear algebra)"
+%                             (oblique counterexample, eigenvalues in {0,1})
+%     fourier_rutgers      -- Goodman, Rutgers Math357 (Pythagorean law,
+%                             inner-product / Parseval machinery)
+%   Section 2 (DFT / circulants):
+%     fourier_bamieh       -- Bamieh, "Discovering Transforms" (arXiv:1805.05533)
+%     fourier_mit1806      -- Johnson, MIT 18.06 circulant-matrices notes
+%     fourier_rutgers      -- Goodman, Rutgers Math357 (diagonalization,
+%                             convolution theorem, Parseval proofs)
+%     wiki_convolution     -- Wikipedia, "Convolution theorem"
+%     groups_bronstein     -- Bronstein-Bruna-Cohen-Velickovic 2021
+%   Section 3 (groups / actions / Reynolds):
+%     wiki_groupaction     -- Wikipedia, "Group action"
+%     wiki_equivariant     -- Wikipedia, "Equivariant map"
+%     groups_bronstein     -- Bronstein-Bruna-Cohen-Velickovic 2021 (GDL book)
+%       (also attribute classically: Reynolds; Weyl/Hilbert invariant theory;
+%        Cohen-Welling 2016; Zaheer et al. 2017 -- prose attributions only)
+%   Section 4 (power spectrum / bispectrum):
+%     invariants_mit6011        -- MIT 6.011 power spectral density notes
+%     invariants_wienerkhinchin -- de Buyl, Wiener-Khinchin derivation
+%     invariants_kakarala       -- Kakarala 2012, bispectral Fourier descriptors
+%     invariants_chen           -- Chen, Zehni & Zhao 2018 (the file mislabeled
+%                                  "bendory"); genuine Bendory et al. is its ref
+%     wiki_bispectrum           -- Wikipedia, "Bispectrum"
+%       (also attribute classically: Wiener; Khinchin; Einstein 1914;
+%        Tukey/Brillinger polyspectra -- prose attributions only)
+%
+%  FULL \citep KEY LIST:
+%    projectors_garrett, projectors_tamu, wiki_projection,
+%    fourier_bamieh, fourier_mit1806, fourier_rutgers, wiki_convolution,
+%    groups_bronstein, wiki_groupaction, wiki_equivariant,
+%    invariants_mit6011, invariants_wienerkhinchin, invariants_kakarala,
+%    invariants_chen, wiki_bispectrum
+% =====================================================================

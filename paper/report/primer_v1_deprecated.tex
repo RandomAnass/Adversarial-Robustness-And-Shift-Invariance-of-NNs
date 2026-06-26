@@ -1,0 +1,864 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+
+% ---- theorem-like environments ----
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Worked example}
+\newtheorem{problem}{Problem}[section]
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ---- problem / hint / solution / discovery styling (printable, no external boxes) ----
+\definecolor{hintc}{rgb}{0.35,0.35,0.35}
+\definecolor{movec}{rgb}{0.0,0.30,0.55}
+\definecolor{discc}{rgb}{0.55,0.20,0.0}
+\newenvironment{hints}{\par\smallskip\noindent\textbf{\color{hintc}Hints (peek one at a time):}\begin{itemize}}{\end{itemize}\par\smallskip}
+\newenvironment{solution}{\par\smallskip\noindent\textit{Solution.}\;}{\hfill$\square$\par\smallskip}
+\newcommand{\researchmove}[2]{\par\smallskip\noindent{\color{movec}\rule{\linewidth}{0.4pt}}\par\nobreak
+  \noindent{\color{movec}\textbf{Research move: #1}}\par\nobreak\noindent #2\par
+  \noindent{\color{movec}\rule{\linewidth}{0.4pt}}\par\smallskip}
+\newcommand{\discover}[2]{\par\smallskip\noindent{\color{discc}\textbf{Find-the-question: #1}}\;#2\par\smallskip}
+
+% ---- shared macros (match the technical report) ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\fdc}{f_{\mathrm{dc}}}
+\newcommand{\Vinv}{V_{\mathrm{inv}}}
+\newcommand{\Vac}{V_{\mathrm{ac}}}
+\newcommand{\Sep}{\mathrm{Sep}}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\Piinv}{\Pi_{\mathrm{inv}}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\Lip}{\operatorname{Lip}}
+\newcommand{\Orb}{\mathcal O}
+
+\title{\textbf{Shift-Invariance and Adversarial Robustness}\\[3pt]
+\large A Collaborator Primer: background, problem-style proofs, and how to find the next question\\[4pt]
+\normalsize companion to the paper and the technical report; for a new theory collaborator}
+\author{Anass Al Ammiri}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{center}\small\itshape
+A guided path that takes a strong undergraduate or new graduate student from zero to (i) reading the paper and
+the technical report end to end, (ii) reconstructing every proof as a sequence of problems they solve themselves,
+and (iii) learning the harder skill: how to find the questions, not only follow the steps. Plan three to four weeks
+of focused study. Companion to \texttt{paper/report/main.tex} (the paper) and \texttt{paper/report/theory\_full\_checked\_v2.tex}
+(the technical report, every proof in full).
+\end{center}
+
+\medskip\hrule\medskip
+
+\section*{Preface}
+\addcontentsline{toc}{section}{Preface}
+
+\paragraph{Who this is for.} A new collaborator joining the shift-invariance/adversarial-robustness project,
+mostly on the theory side and a little on the experiments. We assume one undergraduate course each in linear
+algebra, real analysis or advanced calculus, and probability, plus some exposure to machine learning. You do
+\emph{not} need prior background in adversarial robustness, Fourier analysis on groups, or implicit-bias theory;
+all three are built from first principles in Part~I.
+
+\paragraph{What this is, and what makes it different.} Most primers decompose each proof into steps and ask you to
+follow them. Following steps is the easy half of mathematics. The hard half, the half that actually produces
+research, is \emph{coming up with the steps yourself}: knowing which question to ask, which object to define,
+which special case to test first. This document trains both. Every result appears first as a \textbf{Problem} you
+attempt cold, then a graded ladder of \textbf{Hints} you uncover only when stuck, then a full \textbf{Solution}.
+Interleaved are two recurring devices:
+\begin{itemize}[leftmargin=1.4em,nosep]
+\item \textbf{Research move} boxes that name the general technique a proof secretly used (``quotient out the
+nuisance,'' ``diagonalize the symmetry,'' ``find the degenerate case''), so you can reuse it.
+\item \textbf{Find-the-question} prompts that hand you a situation with \emph{no question attached} and ask you to
+generate the right one before reading on. This is the skill that does not come from following steps.
+\end{itemize}
+
+\paragraph{How to use it.} Read Part~I in order; do the problems before reading their solutions, and give each at
+least fifteen honest minutes before the first hint. Part~II is the paper's theory, result by result; by the end
+you should be able to state and prove each result with the book closed. Part~III is the discovery layer; do it
+\emph{after} Part~II, because it reflects on how the Part~II results were found. Part~IV points at the open
+problems where you can contribute and how to run the experiments.
+
+\paragraph{House writing rules (we follow them, so should you).} Plain language. Define every term on first use.
+No em-dashes, no ``win''/``beat'' as verbs, no AI-tell filler (``delve,'' ``leverage,'' ``crucial''), one spelling
+convention per document, captions that match figures, honest scoped claims. A claim you cannot verify against the
+paper, the technical report, or a results file is a claim to verify, not to repeat.
+
+\paragraph{One running thread.} A single object recurs from Part~I to Part~III: the cyclic group of circular shifts
+acting on a length-$d$ signal, its \emph{orbit} (the set of all shifts of one signal), and the split of $\R^d$ into
+the constant ``DC'' line and its zero-sum complement. If you understand that one picture deeply, everything else is
+commentary on it.
+
+\newpage
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section{Master notation table}
+The symbols below are used throughout. Section references point to where each is introduced.
+
+\begin{center}\small
+\begin{tabular}{ll}
+\toprule
+Symbol & Meaning \\
+\midrule
+$x\in\R^d$ & input signal or flattened image; $d$ coordinates (\S\ref{sec:rob}) \\
+$y\in\{\pm1\}$ & binary label; multiclass uses the active margin $M$ (\S\ref{sec:rob}) \\
+$f:\R^d\to\R$ & score; prediction $\sign f(x)$ (\S\ref{sec:rob}) \\
+$M(x)=F_y(x)-\max_{c\ne y}F_c(x)$ & active logit margin (positive iff correct) (\S\ref{sec:rob}) \\
+$B_p(\varepsilon)$, $r_p(f,x)$ & threat ball of radius $\varepsilon$; robust radius (distance to boundary) (\S\ref{sec:rob}) \\
+$L$, $\alpha$, $\kappa=L/\alpha$ & upper-Lipschitz, co-Lipschitz constants; their ratio (\S\ref{sec:rob}, \S\ref{sec:etaL}) \\
+$\eta$ & feature-space margin of an invariant feature (\S\ref{sec:etaL}) \\
+$\eta/L$ & margin-to-Lipschitz ratio; the certificate scalar (\S\ref{sec:etaL}) \\
+$G=\Z_d$, $S_s$ & cyclic group of circular shifts; the shift-by-$s$ operator (\S\ref{sec:group}) \\
+$\Orb(x)=\{S_sx\}$ & orbit of $x$ (all its shifts) (\S\ref{sec:group}) \\
+$\hat x_k$, $|\hat x_k|^2$ & unitary DFT coefficient; power spectrum (\S\ref{sec:group}) \\
+$B_{k_1,k_2}(x)$ & bispectrum, a degree-three shift invariant (\S\ref{sec:group}) \\
+$\Vinv=\mathrm{span}(\one)$, $\Vac$ & DC (constant) line and its zero-sum complement (\S\ref{sec:group}) \\
+$\Piinv=ee^\top$, $e=d^{-1/2}\one$ & projector onto the DC line (\S\ref{sec:group}) \\
+$P_G=|G|^{-1}\sum_g R_g$ & group-average (Reynolds) projector onto the fixed subspace (\S\ref{sec:group}) \\
+$\fdc(x)=d^{-1/2}\sum_i x_i$ & unit DC functional (\S\ref{sec:group}) \\
+$\gamma_{\mathrm{inv}}$, $\Sep$ & invariant linear margin; separation of two sets (\S\ref{sec:margin}, \S\ref{sec:thmA}) \\
+$Q(x)=(|\hat x_k|^2)_k$ & power-spectrum feature map (\S\ref{sec:ps}) \\
+$f_\theta(x)=\sum_r a_r\sigma(w_r^\top x)$ & two-layer ReLU network, degree-2 homogeneous (\S\ref{sec:bias}) \\
+$\mathcal H_K$, $\Pi_G$ & RKHS of the tangent kernel; its orbit-averaging projection (\S\ref{sec:lazy}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% =====================================================================
+\part*{Part I: Background you need before the paper}
+\addcontentsline{toc}{section}{Part I: Background you need before the paper}
+
+This part assembles the three toolkits the paper rests on: adversarial robustness, Fourier analysis on the cyclic
+group, and margin/implicit-bias theory. Each subsection states the primitives, works a numerical example you can
+check by hand, and ends with problems. Skim a subsection if you already know it, but do its problems; they are
+chosen to expose the exact facts Part~II reuses.
+
+\section{Adversarial robustness from scratch}\label{sec:rob}
+
+\paragraph{The object of study.} A classifier is a score $f:\R^d\to\R$ predicting $\sign f(x)$ (multiclass: a vector
+$F$ predicting $\arg\max_c F_c$). Standard training maximizes clean accuracy. The robustness question asks something
+stricter: if an adversary may move $x$ by a small vector $\delta$, can it flip the prediction?
+
+\begin{definition}[Threat model, robust radius, robust accuracy]
+An $\ell_p$ threat of budget $\varepsilon$ allows $\delta\in B_p(\varepsilon)=\{\delta:\|\delta\|_p\le\varepsilon\}$.
+The two standard norms are $\ell_2$ (Euclidean) and $\ell_\infty$ (each pixel moves by at most $\varepsilon$). The
+\emph{robust radius} at a correctly classified $(x,y)$ is $r_p(f,x)=\inf\{\|\delta\|_p:\sign f(x+\delta)\ne y\}$,
+the distance to the decision boundary. The \emph{robust accuracy at $\varepsilon$} is the fraction of test points
+with $r_p>\varepsilon$.
+\end{definition}
+
+The radius is the finer quantity; robust accuracy is the radius thresholded at $\varepsilon$, and it shows floor
+effects (everything reads zero) when $\varepsilon$ is large relative to typical radii. The paper uses the radius
+as the dataset-comparable measure and robust accuracy only where a standard threshold makes it meaningful (after
+adversarial training).
+
+\paragraph{Attacks versus certificates.} An \emph{attack} (PGD, AutoAttack, the minimum-norm DDN attack) searches
+for a small $\delta$ and so \emph{upper bounds} the radius: it can only show the model is at least this weak. A
+\emph{certificate} \emph{lower bounds} the radius: it guarantees the model is at least this strong. The two bracket
+the truth from opposite sides. The single most important certificate is the next definition.
+
+\begin{definition}[Lipschitz--margin certificate]\label{def:lipmargin}
+A score $g$ is \emph{$L$-Lipschitz} toward the boundary if $|g(x)-g(z)|\le L\|x-z\|$ along the relevant paths. If
+$g$ is correct at $x$ with score margin $\mu=y\,g(x)>0$, then no $\delta$ with $\|\delta\|<\mu/L$ can drive $g$ to
+zero, so $r(g,x)\ge\mu/L$. For a differentiable score the first-order $L$ is the dual-norm gradient
+$\|\nabla_x M(x)\|_q$ ($q$ dual to the threat $p$: $\ell_\infty$ pairs with $\ell_1$, $\ell_2$ with $\ell_2$).
+\end{definition}
+
+\begin{example}[A one-line certificate]
+Let $g(x)=w^\top x$ be linear, correct at $x$ with $\mu=y\,w^\top x$. Then $g$ is exactly $\|w\|_2$-Lipschitz in
+$\ell_2$, so $r_2\ge\mu/\|w\|_2$. In fact for a linear score this is an equality: the distance from a point to a
+hyperplane is exactly $\mu/\|w\|_2$. Hold onto that ``equality for the linear case''; \S\ref{sec:etaL} shows it is
+the boundary case of a more general two-sided bound.
+\end{example}
+
+\begin{problem}[Why the dual norm]\label{pr:dual}
+Show that for a differentiable score the largest first-order change $|g(x+\delta)-g(x)|$ over $\|\delta\|_p\le\varepsilon$
+is $\varepsilon\,\|\nabla g(x)\|_q$ with $1/p+1/q=1$, and deduce the first-order radius $M(x)/\|\nabla M(x)\|_q$.
+\end{problem}
+\begin{hints}
+\item First order, $g(x+\delta)-g(x)\approx \nabla g(x)^\top\delta$.
+\item Maximizing a linear functional over an $\ell_p$ ball is the definition of the dual ($\ell_q$) norm.
+\item For $\ell_\infty$ the maximizer puts $\delta_i=\varepsilon\,\sign(\partial_i g)$, giving $\varepsilon\|\nabla g\|_1$.
+\end{hints}
+\begin{solution}
+By Cauchy--Schwarz's $\ell_p$/$\ell_q$ generalization (Hölder), $\sup_{\|\delta\|_p\le\varepsilon}\nabla g^\top\delta
+=\varepsilon\|\nabla g\|_q$, attained at the aligning $\delta$. The prediction flips when the change cancels the
+margin, i.e.\ at $\varepsilon=M(x)/\|\nabla M(x)\|_q$ to first order. The pairing $\ell_\infty\!\leftrightarrow\!\ell_1$
+is why an $\ell_\infty$ attack is read with the $\ell_1$ gradient norm, a fact the adversarial-training experiments
+lean on heavily.
+\end{solution}
+
+\researchmove{Match the dual to the threat}{A robustness statement is meaningless until the norm is fixed, and the
+right companion of an $\ell_p$ attack is the $\ell_q$ gradient. Whenever you see $\|\nabla M\|$ in this project, ask
+``in which norm, and dual to which threat?'' The paper's adversarial-training result lives or dies on this matching:
+the $\ell_1$ gradient predicts $\ell_\infty$ robustness, the $\ell_2$ gradient predicts $\ell_2$ robustness.}
+
+\section{Group actions, Fourier analysis, and invariance}\label{sec:group}
+
+\paragraph{Shifts as a group.} The cyclic group $G=\Z_d$ acts on $\R^d$ by circular shifts $(S_sx)_i=x_{(i-s)\bmod d}$.
+Each $S_s$ is an orthogonal permutation (it just renumbers coordinates). The \emph{orbit} of $x$ is
+$\Orb(x)=\{S_sx:s\in\Z_d\}$, the set of all $d$ shifts of $x$. A set is \emph{orbit-closed} if it contains the full
+orbit of each of its members; a function is \emph{$G$-invariant} if $f(S_sx)=f(x)$ for all $s$.
+
+\paragraph{Why Fourier.} All shift operators $S_s$ commute and are simultaneously diagonalized by the discrete
+Fourier transform (DFT). With the unitary convention $\hat x_k=d^{-1/2}\sum_j x_j e^{-2\pi ijk/d}$, a shift
+multiplies coefficient $k$ by the unit-modulus phase $e^{-2\pi isk/d}$. Two consequences run through the whole paper:
+\begin{itemize}[leftmargin=1.4em,nosep]
+\item The \emph{power spectrum} $|\hat x_k|^2$ is shift-invariant (the phase cancels in modulus) but \emph{phase-blind}.
+\item The \emph{bispectrum} $B_{k_1,k_2}(x)=\hat x_{k_1}\hat x_{k_2}\overline{\hat x_{k_1+k_2}}$ is also shift-invariant
+(the three shift phases cancel because $k_1+k_2-(k_1+k_2)=0$) and, unlike the power spectrum, keeps phase, so it
+separates signals the power spectrum confuses.
+\end{itemize}
+
+\begin{definition}[Fixed subspace and the group-average projector]
+The fixed subspace is $V^G=\{v:R_gv=v\ \forall g\}$ and the \emph{group-average (Reynolds) projector} is
+$P_G=|G|^{-1}\sum_g R_g$, the orthogonal projector onto $V^G$. For cyclic shifts the only vectors fixed by every
+shift are the constants, so $V^G=\Vinv=\mathrm{span}(\one)$ is the ``DC line,'' $P_G=\Piinv=ee^\top$ with
+$e=d^{-1/2}\one$, and $\Vac=\Vinv^\perp=\{v:\sum_i v_i=0\}$ is the zero-sum ``AC'' subspace.
+\end{definition}
+
+\begin{example}[Hand-check at $d=4$]
+Take $x=(1,0,0,0)$. Its orbit is the four standard basis vectors. $\fdc(x)=\tfrac12\sum_i x_i=\tfrac12$ for every
+orbit member, so the DC coordinate is constant on the orbit (it must be: it is shift-invariant). The power spectrum
+of $x$ is $|\hat x_k|^2=1/4$ for all $k$ (a spike is flat in frequency), so the power spectrum cannot tell $x$ from
+any other unit spike, and in particular not from $-x$ shifted. This single fact is why the localized ``dot'' example
+of the base paper is the hardest case for invariance.
+\end{example}
+
+\begin{problem}[The projector is the average and it cannot lengthen a vector]\label{pr:proj}
+Prove that $P_G=|G|^{-1}\sum_g R_g$ is (i) idempotent, (ii) self-adjoint, hence an orthogonal projector, and (iii)
+non-expansive: $\|P_Gv\|\le\|v\|$. Then specialize to cyclic shifts to show $P_G=ee^\top$.
+\end{problem}
+\begin{hints}
+\item For (i) use the group property: $R_gP_G=P_G$ because $g\mapsto gh$ permutes the group.
+\item For (ii) use that each $R_g$ is orthogonal, so $R_g^\top=R_{g^{-1}}$, and summing over the group is symmetric.
+\item An orthogonal projector never increases the norm by Pythagoras: $\|v\|^2=\|P_Gv\|^2+\|(I-P_G)v\|^2$.
+\item For cyclic shifts, $\frac1d\sum_s S_s$ sends every coordinate to the average, i.e.\ the matrix $\frac1d\one\one^\top=ee^\top$.
+\end{hints}
+\begin{solution}
+(i) $P_G^2=|G|^{-2}\sum_{g,h}R_gR_h=|G|^{-2}\sum_{g,h}R_{gh}=|G|^{-1}\sum_k R_k=P_G$, since for fixed $g$, $h\mapsto gh$
+is a bijection of $G$. (ii) $R_g^\top=R_g^{-1}=R_{g^{-1}}$, so $P_G^\top=|G|^{-1}\sum_g R_{g^{-1}}=P_G$. A self-adjoint
+idempotent is an orthogonal projector; its range is exactly $V^G$ because $P_Gv=v\Leftrightarrow R_gv=v\ \forall g$.
+(iii) Pythagoras gives $\|v\|^2=\|P_Gv\|^2+\|(I-P_G)v\|^2\ge\|P_Gv\|^2$. For cyclic shifts $\frac1d\sum_s S_s$ has
+every entry $1/d$, i.e.\ $ee^\top$, projecting onto $\mathrm{span}(\one)$.
+\end{solution}
+
+\researchmove{Diagonalize the symmetry}{Whenever one symmetry group acts, look for the basis that diagonalizes it
+all at once. For commuting shifts that basis is the Fourier basis, and ``invariant'' becomes ``depends only on
+magnitudes,'' ``equivariant'' becomes ``multiply each frequency by a phase.'' Half the theorems in this project are
+one line once you are in Fourier coordinates and three pages otherwise. The non-expansiveness in
+Problem~\ref{pr:proj}(iii) returns, unchanged, as the engine of the lazy-regime theorem in \S\ref{sec:lazy}.}
+
+\discover{a phase-blind invariant}{You are told the power spectrum is shift-invariant but cannot separate a spike
+from its reflection. Before reading \S\ref{sec:ps}, ask: \emph{is there a shift-invariant feature that does keep
+phase?} What is the lowest-degree polynomial in the $\hat x_k$ whose phase factors cancel under a shift? Write the
+condition $k_1+k_2-k_3=0$ and see what degree-three monomial it forces. You will have re-derived the bispectrum.}
+
+\section{Margins, convex hulls, and the max-margin classifier}\label{sec:margin}
+
+\paragraph{Geometric margin.} For a linear score $w^\top x+b$, the geometric margin at $x$ is
+$y(w^\top x+b)/\|w\|_2$, the signed Euclidean distance from $x$ to the hyperplane. The hard-margin classifier of two
+finite sets maximizes the smallest margin.
+
+\begin{theorem}[Convex-hull duality, classical]\label{thm:hull}
+The maximum margin separating two finite sets $X_+,X_-$ equals $\tfrac12\dist(\conv X_+,\conv X_-)$, half the
+distance between their convex hulls, attained by the hyperplane that perpendicularly bisects the closest pair of hull
+points.
+\end{theorem}
+
+We will not reprove this classical fact, but we will use it constantly: it turns ``what is the best linear
+separator'' into ``how far apart are the two clouds, after whatever transformation we applied.'' Every margin
+computation in Part~II is an application of Theorem~\ref{thm:hull} to a transformed dataset (projected onto the DC
+line, or pushed through the power-spectrum map).
+
+\begin{problem}[One-dimensional margins]\label{pr:1d}
+Two sets of real numbers, $X_+\subset[a_+,b_+]$ and $X_-\subset[a_-,b_-]$ with $b_-<a_+$. Show the max-margin
+threshold sits at $(a_++b_-)/2$ with margin $\tfrac12(a_+-b_-)$, i.e.\ half the gap between the nearer endpoints.
+\end{problem}
+\begin{hints}
+\item On the line, convex hulls are intervals; their distance is the gap between nearer endpoints.
+\item Apply Theorem~\ref{thm:hull} with $\dist([a_-,b_-],[a_+,b_+])=a_+-b_-$.
+\end{hints}
+\begin{solution}
+The hulls are $[a_-,b_-]$ and $[a_+,b_+]$; since $b_-<a_+$ they are disjoint with distance $a_+-b_-$, realized by the
+endpoints $b_-$ and $a_+$. Theorem~\ref{thm:hull} gives margin $\tfrac12(a_+-b_-)$ and threshold at the midpoint
+$(a_++b_-)/2$. This is the exact computation behind the invariant linear margin in \S\ref{sec:thmA}, where the line
+is the DC axis.
+\end{solution}
+
+\section{Implicit bias: homogeneous nets, NTK, rich versus lazy}\label{sec:bias}
+
+\paragraph{The selection problem.} On separable data, infinitely many parameter settings fit perfectly. Which one
+does gradient descent pick? For a linear model on separable data it converges in direction to the max-margin
+separator (Soudry et al.). For a positively homogeneous network ($f_{c\theta}=c^k f_\theta$; a bias-free two-layer
+ReLU net is degree-2), normalized gradient flow converges in direction to a Karush--Kuhn--Tucker (KKT) point of the
+margin program $\min\tfrac12\|\theta\|^2$ s.t.\ $y_if_\theta(x_i)\ge1$ (Lyu--Li, Ji--Telgarsky). These results say
+``some KKT point''; \emph{which} one when several exist is the open content the project's optimization section is about.
+
+\paragraph{Two training regimes.} A very wide network in the \emph{lazy} (neural-tangent-kernel, NTK) regime stays
+close to its linearization at initialization and behaves like a fixed kernel machine (Jacot et al.; Chizat et al.).
+In the \emph{rich} (small-initialization) regime it learns features. The lazy regime is where we can prove things
+cleanly (\S\ref{sec:lazy}); the rich regime is where the hardest open question lives.
+
+\paragraph{Feature averaging.} On data with many nearly orthogonal cluster centers, the gradient-descent max-margin
+solution aligns with a signed average of those centers (Frei et al.; Li et al.). That classifies cleanly but is
+fragile along the individual feature directions, giving a small robust radius. Keep this picture: it is the
+mechanism the project must either invoke or rule out on orbit-structured data.
+
+\begin{problem}[Homogeneity and the min-norm representation of one ReLU unit]\label{pr:relu}
+A single ReLU unit computes $a\,\sigma(w^\top x)$ with $\sigma(t)=\max(t,0)$. Show the function is unchanged under
+$(a,w)\mapsto(a/c,\,cw)$ for $c>0$, and that the representation cost $\tfrac12(a^2+\|w\|^2)$ is minimized at
+$c^2=|a|/\|w\|$, with minimum value $|a|\,\|w\|$.
+\end{problem}
+\begin{hints}
+\item $\sigma$ is positively homogeneous of degree one: $\sigma(c\,t)=c\,\sigma(t)$ for $c>0$.
+\item So $a\,\sigma(w^\top x)=(a/c)\,\sigma((cw)^\top x)$. The function is invariant; only the cost changes.
+\item Minimize $\tfrac12(a^2/c^2+c^2\|w\|^2)$ over $c$; set the derivative to zero.
+\end{hints}
+\begin{solution}
+By degree-one homogeneity $(a/c)\sigma((cw)^\top x)=(a/c)\,c\,\sigma(w^\top x)=a\sigma(w^\top x)$, so the function is
+unchanged. The cost $\tfrac12(a^2/c^2+c^2\|w\|^2)$ is convex in $c^2$ with minimum where
+$a^2/c^4=\|w\|^2$, i.e.\ $c^2=|a|/\|w\|$, giving value $\tfrac12\cdot2|a|\|w\|=|a|\,\|w\|$. This ``$|a|\,\|w\|$ per
+unit'' bookkeeping is the entire engine of the self-symmetrization theorem in \S\ref{sec:selfsym}; the proof there is
+this problem applied to a whole orbit of tied units.
+\end{solution}
+
+% =====================================================================
+\part*{Part II: The paper's theory, result by result}
+\addcontentsline{toc}{section}{Part II: The paper's theory, result by result}
+
+Each section states a result, hands it to you as a problem with a hint ladder, then gives the full solution. Do the
+problem first. The technical report \texttt{theory\_full\_checked\_v2.tex} has the same proofs in reference form; use
+it to check, not to substitute for the attempt.
+
+\section{The invariant linear margin equals a projection separation}\label{sec:thmA}
+
+The first structural result answers ``how much separation survives if the classifier must be shift-invariant?''
+
+\begin{theorem}[Invariant linear margin]\label{thm:A}
+A linear score $g(x)=w^\top x+b$ is shift-invariant for all $x$ iff $w\in\Vinv=\mathrm{span}(\one)$. Consequently,
+for any finite separable classes $X_+,X_-$, the invariant linear max-margin equals
+$\gamma_{\mathrm{inv}}=\tfrac12\dist(I_+,I_-)=\tfrac12\dist(\conv\Piinv X_+,\conv\Piinv X_-)$, where
+$I_\pm=[\min_{x\in X_\pm}\fdc(x),\,\max_{x\in X_\pm}\fdc(x)]$ are the intervals of DC values.
+\end{theorem}
+
+\begin{problem}[Prove Theorem~\ref{thm:A}]\label{pr:A}
+Two parts. (a) Characterize which $w$ give a shift-invariant linear score. (b) Reduce the invariant max-margin to a
+one-dimensional problem and evaluate it.
+\end{problem}
+\begin{hints}
+\item (a) Invariance for all $x$ means $w^\top S_sx=w^\top x$ for all $x,s$; turn ``for all $x$'' into a condition on $w$.
+\item (a) $w^\top S_s x=(S_s^\top w)^\top x$, so you need $S_s^\top w=w$ for all $s$. Which vectors are fixed by every shift?
+\item (b) With $w=c\one$, the score depends on $x$ only through $\fdc(x)$. The data collapse to scalars.
+\item (b) Now it is Problem~\ref{pr:1d} on the DC axis.
+\end{hints}
+\begin{solution}
+(a) Invariance $w^\top S_sx=w^\top x$ for all $x$ is equivalent to $(S_s^\top w-w)^\top x=0$ for all $x$, hence
+$S_s^\top w=w$ for every $s$; the only vectors fixed by all cyclic shifts are constants, so $w\in\mathrm{span}(\one)$.
+(b) Writing $w=c\one$, the score is a function of $\fdc(x)=\one^\top x/\sqrt d$ alone, so the classes reduce to the
+scalar sets $\fdc(X_\pm)$, whose hulls are the intervals $I_\pm$. By Problem~\ref{pr:1d} the max-margin is half the
+gap between the nearer endpoints, $\tfrac12\dist(I_+,I_-)$. Identifying the projected line with $\mathrm{span}(\one)$
+gives the convex-hull form.
+\end{solution}
+
+\begin{remark}[What this recovers]
+For the single white dot $\pm e_j$ of the base paper, $\fdc(\pm e_j)=\pm1/\sqrt d$, so the class gap is $2/\sqrt d$,
+equivalently the max-margin is $\gamma_{\mathrm{inv}}=1/\sqrt d$ under the half-gap convention of Theorem~\ref{thm:A}.
+The unconstrained margin on that two-image set is $1$, so the ratio is $1/\sqrt d$: invariance can cost a factor
+$\sqrt d$ in margin when the signal is purely localized.
+\end{remark}
+
+\researchmove{Quotient out the nuisance}{Imposing invariance is the same as projecting the data onto the invariant
+subspace and solving the ordinary problem there. The constraint did not make the problem harder; it made the data
+lower-dimensional. This ``invariant problem $=$ ordinary problem on the projected data'' move recurs for general
+finite groups (replace $\Piinv$ by $P_G$) and is the reason the convex-hull picture keeps working.}
+
+\begin{problem}[General finite group]\label{pr:finite}
+Generalize: for a finite orthogonal group $\{R_g\}$ with average projector $P_G$, show the invariant linear max-margin
+of $X_\pm$ equals $\tfrac12\dist(\conv P_GX_+,\conv P_GX_-)$.
+\end{problem}
+\begin{hints}
+\item Repeat Problem~\ref{pr:A}(a) with $R_g$ in place of $S_s$: invariance $\Leftrightarrow w\in V^G$.
+\item For $w\in V^G$, $w^\top x=w^\top P_Gx$ (since $w=P_Gw$ and $P_G$ is self-adjoint), so the classifier only sees $P_Gx$.
+\item Apply Theorem~\ref{thm:hull} to the projected sets.
+\end{hints}
+\begin{solution}
+Invariance of $w^\top x$ for all $x$ forces $R_g^\top w=w$ for all $g$, i.e.\ $w\in V^G$. For such $w$,
+$w^\top x=(P_Gw)^\top x=w^\top P_Gx$, so every invariant linear classifier on $X_\pm$ is an ordinary linear classifier
+on $P_GX_\pm$ with the same normal and signed margins. Theorem~\ref{thm:hull} on $A=P_GX_+,B=P_GX_-$ gives the result.
+The cyclic case is $P_G=\Piinv$.
+\end{solution}
+
+\section{\texorpdfstring{The $\eta/L$ certificate, its failure of converse, and the two-sided bracket}{The eta/L certificate, its failure of converse, and the two-sided bracket}}\label{sec:etaL}
+
+The governing scalar of the whole project is $\eta/L$: the margin $\eta$ of an invariant feature divided by its
+Lipschitz constant $L$. By Definition~\ref{def:lipmargin} it certifies $r_2\ge\eta/L$. The subtle and important
+point is how tight that is.
+
+\begin{problem}[No universal converse]\label{pr:noconv}
+Exhibit an invariant feature and a data point where the true robust radius is arbitrarily larger than $\eta/L$, so
+no inequality $r_2\le C\,\eta/L$ can hold with a universal constant. (Hint: use a feature that depends only on the
+DC coordinate but is very flat near the boundary.)
+\end{problem}
+\begin{hints}
+\item Work on the DC line $t=\fdc(x)$; take the invariant feature $\Psi_n(x)=t^{2n+1}$.
+\item Put $x_\pm=\pm e$ with $e=d^{-1/2}\one$, labels $\pm1$. Compute the feature margin $\eta$ and the Lipschitz
+constant of $t\mapsto t^{2n+1}$ on $[-1,1]$.
+\item The decision boundary is $t=0$, at Euclidean distance $1$ from $e$. Compare to $\eta/L$.
+\end{hints}
+\begin{solution}
+With $g_n=\Psi_n$ and $x_\pm=\pm e$, the feature margin is $\eta=1$. On $[-1,1]$, $|\Psi_n'(t)|=(2n+1)t^{2n}$ peaks at
+$L_n=2n+1$, so $\eta/L_n=1/(2n+1)\to0$. But the boundary $t=0$ is at Euclidean distance $\|e-0\|_2=1$ from $e$, and
+moving within $\Vac$ does not change $t$ at all, so $r_2(g_n,e)=1$. The ratio $r_2/(\eta/L_n)=2n+1$ is unbounded.
+Hence $\eta/L$ is a certificate and a predictor, not a characterization, in general.
+\end{solution}
+
+\discover{when a converse could hold}{The counterexample worked because the feature went \emph{flat} near the boundary
+(its slope, the lower Lipschitz rate, fell to zero). Before reading on, ask: \emph{what extra quantity would prevent
+this?} If the score were guaranteed to change at least at rate $\alpha$ along the path to the boundary, what radius
+upper bound would follow? You are about to invent the co-Lipschitz constant.}
+
+\begin{theorem}[Two-sided bracket: a conditional converse]\label{thm:sandwich}
+Suppose $g$ is correct at $x$ with $\mu=y\,g(x)>0$, is $L$-Lipschitz toward the boundary, and admits a path $\gamma$
+to the boundary along which $|g(\gamma(t))-g(x)|\ge\alpha\|\gamma(t)-x\|$ (a \emph{co-Lipschitz}, or lower-Lipschitz,
+bound). Then $\mu/L\le r_2\le\mu/\alpha$ (the score margin $\mu$ here plays the role of the feature margin $\eta$, so
+this is the $\eta/L$ certificate completed to a bracket), with condition number $\kappa=L/\alpha\ge1$; the certificate
+is exact ($r_2=\mu/L$, $\kappa=1$) for linear invariant features.
+\end{theorem}
+
+\begin{problem}[Prove the bracket]\label{pr:sandwich}
+Prove both arms, show $\kappa\ge1$, and check the linear case gives $\kappa=1$. Then reconcile with
+Problem~\ref{pr:noconv}: which constant blows up there?
+\end{problem}
+\begin{hints}
+\item Lower arm is Definition~\ref{def:lipmargin}.
+\item Upper arm: at the first boundary hit $\gamma(T)$, $g=0$, so $\mu=|g(x)-g(\gamma(T))|\ge\alpha\|\gamma(T)-x\|$.
+\item The boundary point is a witness, so $r_2\le\|\gamma(T)-x\|\le\mu/\alpha$.
+\item Linear $g=w^\top x$: along $\pm w$ the secant slope equals $\|w\|_2$, so $L=\alpha=\|w\|_2$.
+\item In Problem~\ref{pr:noconv}, the secant co-Lipschitz is $\alpha=1$ but $L=2n+1$, so $\kappa=2n+1$ is what is unbounded.
+\end{hints}
+\begin{solution}
+Lower arm: no perturbation under $\mu/L$ flips the sign, so $r_2\ge\mu/L$. Upper arm: at the boundary hit
+$g(\gamma(T))=0$, so $\mu=|g(x)|=|g(x)-g(\gamma(T))|\ge\alpha\|\gamma(T)-x\|$, giving $\|\gamma(T)-x\|\le\mu/\alpha$;
+since $\gamma(T)$ flips the prediction, $r_2\le\mu/\alpha$. The secant slope cannot exceed the Lipschitz bound, so
+$\alpha\le L$ and $\kappa\ge1$. For linear $g$ the straight path to the hyperplane has $L=\alpha=\|w\|_2$, so $\kappa=1$
+and $r_2=\mu/\|w\|_2$ exactly. In the cubic example the straight DC path has $\alpha=1$ (the feature drops from $1$ to
+$0$ over distance $1$) while $L=2n+1$; the bracket $[1/(2n+1),1]$ correctly contains $r_2=1$, at the $\mu/\alpha$ end,
+and the failure of a universal converse is exactly the unboundedness of $\kappa$ over the model class.
+\end{solution}
+
+\researchmove{Bracket, do not chase equality}{When an inequality has no converse, the move is not to give up but to
+name the missing ingredient and bound the gap by it. Here the gap is a condition number $\kappa=L/\alpha$. This both
+rescues $\eta/L$ as an approximate characterization and explains the counterexample as the $\kappa\to\infty$ corner.
+The same instinct, ``what one constant controls the gap,'' recurs in the lazy-regime theorem, where the gap is the
+orbit-variance.}
+
+\section{A convolution-square-pool layer computes the power spectrum}\label{sec:ps}
+
+Linear invariance is weak (Theorem~\ref{thm:A}). The escape is a nonlinear invariant feature an actual network can
+compute.
+
+\begin{lemma}[Power-spectrum span]\label{lem:ps}
+A single layer of circular convolution, pointwise squaring, and global sum-pooling realizes exactly the
+shift-invariant quadratic features, and these span the power-spectrum coordinates $|\hat x_k|^2$. On the ball
+$\|x\|_2\le B$ the map $Q(x)=(|\hat x_k|^2)_k$ is $2B$-Lipschitz.
+\end{lemma}
+
+\begin{problem}[Prove the span and the Lipschitz bound]\label{pr:ps}
+(a) Show $\sum_j (w\star x)_j^2$, with $w\star x$ the circular cross-correlation, is shift-invariant and equals a
+weighted sum of $|\hat x_k|^2$. (b) Show $\|Q(x)-Q(y)\|_2\le 2B\|x-y\|_2$ on the ball.
+\end{problem}
+\begin{hints}
+\item (a) Circular correlation is diagonal in Fourier: $\widehat{w\star x}_k=\overline{\hat w_k}\,\hat x_k$. Use Parseval.
+\item (a) $\sum_j(w\star x)_j^2=\sum_k|\hat w_k|^2|\hat x_k|^2$, a nonnegative combination of power coordinates; varying $w$ sweeps the coordinates.
+\item (b) For complex $z,z'$, $\big||z|^2-|z'|^2\big|\le|z-z'|(|z|+|z'|)$; apply coordinatewise to $\hat x,\hat y$ and use unitarity.
+\end{hints}
+\begin{solution}
+(a) By the convolution theorem and Parseval, $\sum_j(w\star x)_j^2=\sum_k|\widehat{w\star x}_k|^2=\sum_k|\hat w_k|^2|\hat x_k|^2$;
+this is shift-invariant (each $|\hat x_k|^2$ is) and is a nonnegative-weighted sum of power coordinates, so a bank of
+such units spans the power spectrum. (b) Coordinatewise $\big||\hat x_k|^2-|\hat y_k|^2\big|\le|\hat x_k-\hat y_k|(|\hat x_k|+|\hat y_k|)$;
+summing, Cauchy--Schwarz and unitarity of the DFT give $\|Q(x)-Q(y)\|_2\le\|x-y\|_2(\|x\|_2+\|y\|_2)\le2B\|x-y\|_2$.
+\end{solution}
+
+\begin{remark}[Phase-blindness and the bispectrum escape]
+The power spectrum is invariant but cannot separate signals that differ only in phase, such as a spike from its
+reflection (both have flat $|\hat x_k|^2$). The degree-three bispectrum $B_{k_1,k_2}=\hat x_{k_1}\hat x_{k_2}\overline{\hat x_{k_1+k_2}}$
+is shift-invariant and phase-retaining, and separates the $\pm e_j$ dot with margin of order $d^{-3/2}$ in a single
+bispectrum coordinate (the full bispectrum vector in Euclidean norm scales differently), at the cost of a larger
+Lipschitz constant, hence a smaller certified $\eta/L$. This is the ``go to higher degree'' answer to the
+find-the-question prompt in \S\ref{sec:group}.
+\end{remark}
+
+\section{Orbit-bundle form, orbit rank, and the degeneracy correction}\label{sec:orbit}
+
+Two structural facts make the optimization analysis possible and also explain why the textbook examples mislead.
+
+\begin{lemma}[Orbit-bundle form]\label{lem:bundle}
+A convolution-plus-global-pooling channel equals a two-layer network whose hidden units are tied into a shift orbit
+with an orbit-averaged readout: $f(x)=\sum_r a_r\frac1d\sum_s\sigma(\langle w_r,S_sx\rangle)$. Imposing exact
+shift-invariance on a two-layer ReLU network is exactly this weight-tying.
+\end{lemma}
+
+\begin{lemma}[Rank of an orbit]\label{lem:rank}
+The cyclic orbit $\{S_su\}_s$ spans a subspace of dimension equal to the number of nonzero Fourier coefficients of
+the base $u$.
+\end{lemma}
+
+\begin{problem}[Prove the rank formula and find the two degenerate bases]\label{pr:rank}
+(a) Prove Lemma~\ref{lem:rank}. (b) Show that the two ``natural'' single-orbit constructions are each degenerate in
+opposite ways: a single cosine of frequency $k$, and a localized spike $e_j$.
+\end{problem}
+\begin{hints}
+\item (a) In Fourier coordinates a shift multiplies coordinate $k$ by a phase; the orbit lives in the span of the
+frequencies where $\hat u_k\ne0$, and the distinct phase vectors are linearly independent there.
+\item (b) A pure cosine has only two nonzero Fourier coefficients (at $\pm k$): orbit rank $2$, and its signed mean is zero.
+\item (b) A spike has all coefficients nonzero (full rank, orthonormal orbit) but flat power spectrum, so the
+power-spectrum invariant cannot separate two spike orbits.
+\end{hints}
+\begin{solution}
+(a) Write $u=\sum_{k:\hat u_k\ne0}\hat u_k v_k$ with $v_k$ the Fourier modes; $S_su=\sum_k \hat u_k e^{-2\pi isk/d}v_k$.
+The vectors $\{S_su\}_s$ therefore lie in $\mathrm{span}\{v_k:\hat u_k\ne0\}$, and the Vandermonde structure of the
+phases makes them span it, so the rank is $\#\{k:\hat u_k\ne0\}$. (b) A cosine $\cos(2\pi kj/d)$ has nonzero
+coefficients only at $\pm k$: rank $2$, far from the near-orthogonal $\Omega(d)$-cluster geometry the
+feature-averaging theorems assume, and its signed orbit mean (the direction those theorems use) is zero. A spike has
+all nonzero coefficients, so its orbit is full rank and orthonormal (the cluster assumption holds), but its power
+spectrum is flat, so $\Sep(Q)=0$ and the power-spectrum (quadratic) invariant classifier cannot separate two spike classes (a
+higher-degree invariant such as the bispectrum still can; see \S\ref{sec:ps}). Neither
+base is a valid test of ``does invariance re-point the implicit bias''; generic full-rank, phase-rich bases are.
+\end{solution}
+
+\researchmove{Find the degenerate case before you trust the example}{The textbook constructions are exactly the
+measure-zero cases where the premise quietly fails. Before importing a theorem (here, feature-averaging
+non-robustness), check that your data satisfies its hypotheses; the rank formula is the cheap diagnostic that the
+single-orbit examples do not.}
+
+\section{Self-symmetrization: invariance is margin-free on orbit-closed data}\label{sec:selfsym}
+
+Now the first optimization-side theorem. It is a clean, surprising negative result: on orbit-closed data, hard-wiring
+shift-invariance does not change the achievable margin at all.
+
+\begin{theorem}[Self-symmetrization]\label{thm:selfsym}
+Let the data be orbit-closed with labels constant on orbits. For two-layer ReLU networks
+$f(x)=\sum_r a_r\sigma(w_r^\top x)$ (bias-free, degree-2 homogeneous), the minimum parameter norm
+$\tfrac12\sum_r(a_r^2+\|w_r\|^2)$ achieving unit margin is the same for the unconstrained class and the
+shift-invariant (orbit-tied) class. Imposing exact shift-invariance changes neither the max-margin value nor the
+achievable margin.
+\end{theorem}
+
+\begin{problem}[Prove self-symmetrization]\label{pr:selfsym}
+Two inequalities. (a) The easy direction. (b) The reverse: take any unconstrained solution, symmetrize it, and show
+the parameter norm does not grow. Use Problem~\ref{pr:relu}.
+\end{problem}
+\begin{hints}
+\item (a) The tied class is a subset of the unconstrained class, so its min-norm is at least as large.
+\item (b) Given an unconstrained $f^\star$ with margin $\ge1$, define $f_{\mathrm{sym}}(x)=\frac1d\sum_s f^\star(S_sx)$. Why is it invariant, in the tied class, and still margin $\ge1$?
+\item (b) Margin: orbit-closure means each $S_sx_i$ is a training point of the same label, so the average stays $\ge1$.
+\item (b) Norm: $f_{\mathrm{sym}}$ is a bundle of units $\{(a_r/d,\,S_{-s}w_r)\}$; sum the per-unit min-norm $|a_r/d|\,\|w_r\|$ over the $d$ shifts using Problem~\ref{pr:relu}.
+\end{hints}
+\begin{solution}
+(a) Tied $\subseteq$ unconstrained, so $\min$-norm$_{\mathrm{tied}}\ge\min$-norm$_{\mathrm{unc}}$. (b) Let $f^\star$ be
+unconstrained with margin $\ge1$. Its orbit average $f_{\mathrm{sym}}(x)=\frac1d\sum_s f^\star(S_sx)$ is
+shift-invariant (reindex the pooling sum) and lies in the tied class by Lemma~\ref{lem:bundle}. Orbit-closure with
+constant labels gives $y_if^\star(S_sx_i)\ge1$ for all $s$, so $y_if_{\mathrm{sym}}(x_i)\ge1$: margin preserved. By
+Problem~\ref{pr:relu} each unit's min-norm is $|a|\,\|w\|$. The bundle realizing $f_{\mathrm{sym}}$ has units
+$\{(a_r/d,S_{-s}w_r)\}_{r,s}$ whose total min-norm is $\sum_r\sum_s \frac{|a_r|}{d}\|w_r\|=\sum_r|a_r|\|w_r\|$
+(each of the $d$ shifts contributes $\frac{|a_r|}{d}\|w_r\|$, and shifts preserve $\|w_r\|$), equal to the min-norm of
+$f^\star$. Hence
+$\min$-norm$_{\mathrm{tied}}\le\min$-norm$_{\mathrm{unc}}$, and the two are equal.
+\end{solution}
+
+\begin{remark}[What it does and does not give]
+Self-symmetrization explains the experimental finding that on generic orbit data the unconstrained and tied networks
+reach the same robustness: gradient descent ``self-symmetrizes.'' It does \emph{not} fix which max-margin solution is
+selected, and the certified radius $\eta/L$ depends on the Lipschitz term $L$, not only the margin. That selection is
+where invariance can still help, on cluster geometry; see \S\ref{sec:lazy}.
+\end{remark}
+
+\section{The two-orbit quadratic surrogate has an exact margin}\label{sec:quad}
+
+\begin{theorem}[Two-orbit quadratic surrogate]\label{thm:quad}
+For two-orbit data $X_+=\Orb(u)$, $X_-=\Orb(v)$ with distinct power spectra $Q(u)\ne Q(v)$, the shift-invariant
+quadratic surrogate has max-margin $\eta_Q=\tfrac12\|Q(u)-Q(v)\|_2$ and, on $\|x\|_2\le B$, certified radius
+$\ge\eta_Q/(2B)$.
+\end{theorem}
+
+\begin{problem}[Derive the exact margin]\label{pr:quad}
+Show that in power-spectrum feature space each class collapses to a single point, and apply convex-hull duality and
+Lemma~\ref{lem:ps}.
+\end{problem}
+\begin{hints}
+\item The power spectrum is shift-invariant, so every member of $\Orb(u)$ maps to the same point $Q(u)$.
+\item Two single points: the max-margin is half their distance (Theorem~\ref{thm:hull}).
+\item The radius certificate is Lemma~\ref{lem:ps}'s $2B$-Lipschitz bound through Definition~\ref{def:lipmargin}.
+\end{hints}
+\begin{solution}
+By shift-invariance $Q(S_su)=Q(u)$, so $X_+$ and $X_-$ map to the singletons $\{Q(u)\}$ and $\{Q(v)\}$. The maximum
+margin between two distinct points is half their Euclidean distance, $\eta_Q=\tfrac12\|Q(u)-Q(v)\|_2$, attained by the
+bisecting hyperplane. Lemma~\ref{lem:ps} gives the feature map Lipschitz constant $2B$ on the ball, so
+Definition~\ref{def:lipmargin} yields radius $\ge\eta_Q/(2B)$. (One checks the optimal head lies in the real-filter
+span, so the surrogate is realizable.)
+\end{solution}
+
+\section{The lazy-regime cluster theorem}\label{sec:lazy}
+
+This is the positive optimization result: in the lazy regime, on cluster-geometry data, the invariant network reaches
+an $\eta/L$ at least as large as the unconstrained one, and strictly larger when the unconstrained interpolant carries
+non-invariant energy. The proof is the non-expansiveness of Problem~\ref{pr:proj} transported to the tangent kernel's
+function space.
+
+\begin{theorem}[Invariance lowers the Lipschitz constant in the lazy regime]\label{thm:lazy}
+In the lazy/NTK regime, with a smooth activation so the tangent feature map $\Phi$ is $L_\Phi$-Lipschitz, on
+orbit-closed orbit-labeled data with a $G$-invariant tangent kernel: the orbit-averaging operator $\Pi_G$ is the
+orthogonal projection of the tangent RKHS $\mathcal H_K$ onto its invariant subspace, hence non-expansive; the
+invariant min-norm interpolant satisfies $\|f_{\mathrm{inv}}\|_K\le\|f_{\mathrm{unc}}\|_K$ at equal margin; therefore
+its RKHS-norm-based Lipschitz bound, hence the certified $\eta/L$, is no worse, and strictly better when the
+RKHS-norm-squared gap $\|(I-\Pi_G)f_{\mathrm{unc}}\|_K^2$ (the orbit-variance) is positive. This gap is the RKHS-norm
+gap; it bounds, but need not equal, the exact robust-radius or $\eta/L$ gap.
+\end{theorem}
+
+\begin{problem}[Assemble the lazy-regime proof]\label{pr:lazy}
+You are given: (i) lazy $\Rightarrow$ the trained net is the min-RKHS-norm interpolant of a fixed kernel; (ii) the RKHS
+Lipschitz bound $|f(x)-f(y)|\le\|f\|_K\|\Phi(x)-\Phi(y)\|$. Build the theorem in three steps, then state the one place
+the smooth-activation hypothesis is load-bearing.
+\end{problem}
+\begin{hints}
+\item Step 1: $\Pi_G$ is self-adjoint and idempotent on $\mathcal H_K$ (it is the Reynolds projector, Problem~\ref{pr:proj}), so it is an orthogonal projection: $\|f\|_K^2=\|\Pi_Gf\|_K^2+\|(I-\Pi_G)f\|_K^2$.
+\item Step 2: orbit-constant labels make $\Pi_Gf_{\mathrm{unc}}$ still interpolate with the same margin, so it is feasible for the invariant min-norm problem; hence $\|f_{\mathrm{inv}}\|_K\le\|\Pi_Gf_{\mathrm{unc}}\|_K\le\|f_{\mathrm{unc}}\|_K$.
+\item Step 3: smaller RKHS norm gives smaller Lipschitz constant via (ii) and the $L_\Phi$-Lipschitz feature map; at equal margin $\eta/L$ improves.
+\item Load-bearing: step 3 needs $\Phi$ Lipschitz. The bare two-layer ReLU NTK feature map is \emph{not} Lipschitz (its RKHS has unit-norm functions of unbounded Lipschitz constant), so the clean statement needs a smooth activation.
+\end{hints}
+\begin{solution}
+Step 1: a $G$-invariant kernel makes $\Pi_G$ self-adjoint and idempotent on $\mathcal H_K$ with spectrum $\{0,1\}$,
+hence the orthogonal projection onto the invariant subspace, with the Pythagorean identity. Step 2: orbit-constancy
+gives $y_if_{\mathrm{unc}}(g\cdot x_i)\ge1$ for all $g$, so $y_i(\Pi_Gf_{\mathrm{unc}})(x_i)\ge1$; thus
+$\Pi_Gf_{\mathrm{unc}}$ is feasible for the invariant min-norm problem, giving $\|f_{\mathrm{inv}}\|_K\le\|\Pi_Gf_{\mathrm{unc}}\|_K$,
+which Pythagoras bounds by $\|f_{\mathrm{unc}}\|_K$. Step 3: the RKHS Lipschitz bound with an $L_\Phi$-Lipschitz $\Phi$
+gives $\mathrm{Lip}(f)\le L_\Phi\|f\|_K$; substituting the norm inequality, $L_{\mathrm{inv}}\le L_{\mathrm{unc}}$ at
+equal margin, so $\eta/L$ does not decrease, and the gap is the discarded non-invariant energy
+$\|(I-\Pi_G)f_{\mathrm{unc}}\|_K^2$, the orbit-variance. The smoothness is needed only in step 3; for bare ReLU the
+feature map is non-Lipschitz, so one restricts to smooth activations or carries $\sup\|\nabla\Phi\|$ explicitly. The
+rich-regime ReLU trajectory remains open.
+\end{solution}
+
+\researchmove{Transport a finite-dimensional lemma to function space}{The whole theorem is Problem~\ref{pr:proj}(iii)
+``a projection cannot lengthen a vector'' moved from $\R^d$ to the RKHS, plus the dictionary norm $\to$ Lipschitz. When
+a clean linear-algebra fact stalls because the objects are now functions, look for the Hilbert space where the same
+words are true. The honest scoping (smooth activation, lazy regime) is part of the result, not an apology.}
+
+\section{The open problem: which solution does rich-regime training select?}\label{sec:open}
+
+Self-symmetrization (\S\ref{sec:selfsym}) says invariance is margin-free on generic orbit data; the lazy-regime
+theorem (\S\ref{sec:lazy}) says it lowers $L$ on cluster geometry. The gap between them is the live research question.
+
+\begin{conjecture}[Trajectory-level selection]\label{conj:opt}
+On nondegenerate cluster-geometry orbit data there is a regime (initialization scale, width) where rich-regime
+gradient flow on the shift-invariant network reaches a KKT point of strictly larger $\eta/L$ than the unconstrained
+network, even though both attain perfect clean margin.
+\end{conjecture}
+
+The checklist to attack it (the project's ``what to prove''):
+\begin{itemize}[leftmargin=1.4em,nosep]
+\item[(P1)] Write the invariant max-margin (KKT) program on two-orbit data and characterize the selected $\eta/L$.
+\item[(P2)] Show the unconstrained gradient flow reaches a strictly smaller $\eta/L$ on the same data, \emph{or}
+exhibit the minimal orbit model where the feature-averaging premise provably holds.
+\item[(P3)] Combine into Conjecture~\ref{conj:opt}: weight-sharing re-points the bias toward larger $\eta/L$.
+\item[(P4)] Decide whether the non-robust-selection premise holds on \emph{any} full-rank orbit model at all.
+\end{itemize}
+
+\discover{the right minimal model}{The experiments show invariance helps on ``near-orthogonal cluster geometry'' but
+not on generic single orbits. Before reading the project notes, ask: \emph{what is the smallest data model that is
+simultaneously (a) full-rank/phase-rich enough for the invariant feature to separate the classes and (b) cluster-like
+enough for the feature-averaging non-robustness to bite?} The two requirements pull in opposite directions; finding
+the model where both hold is most of the open problem.}
+
+% =====================================================================
+\part*{Part III: How to find the questions yourself}
+\addcontentsline{toc}{section}{Part III: How to find the questions yourself}
+
+Parts I and II trained you to follow and reconstruct. This part trains the harder skill: generating the question.
+We do it by reverse-engineering how each Part~II result was actually found, then giving you open prompts with no
+stated question.
+
+\section{The anatomy of the project's results}
+
+Every result in Part~II came from one of a small number of moves. Naming them lets you reuse them.
+
+\begin{enumerate}[leftmargin=1.6em]
+\item \textbf{Quotient out the nuisance} (\S\ref{sec:thmA}). The question ``how much margin survives invariance?'' became
+``solve the ordinary problem on the projected data.'' Whenever a constraint is a symmetry, project and re-ask.
+\item \textbf{Diagonalize the symmetry} (\S\ref{sec:group}, \S\ref{sec:ps}). Hard statements about shifts became one-liners
+in Fourier coordinates. When one group acts, change to its eigenbasis before doing anything else.
+\item \textbf{Bracket what has no converse} (\S\ref{sec:etaL}). A one-sided certificate with no converse was rescued by
+naming the missing constant ($\alpha$) and bounding the gap by $\kappa=L/\alpha$.
+\item \textbf{Find the degenerate case} (\S\ref{sec:orbit}). The textbook examples were exactly where the premise failed;
+the rank formula is the diagnostic that exposes it.
+\item \textbf{Reduce to the per-unit atom} (\S\ref{sec:selfsym}). A theorem about whole networks was the one-unit
+homogeneity identity (Problem~\ref{pr:relu}) summed over an orbit.
+\item \textbf{Transport a finite lemma to function space} (\S\ref{sec:lazy}). ``A projection cannot lengthen a vector''
+became the entire lazy-regime theorem once moved to the RKHS.
+\end{enumerate}
+
+\section{Two modes of solving, and why the second is rare}
+
+There is a real difference between \emph{following} a decomposition someone hands you and \emph{producing} it. The
+first is pattern-completion; the second needs you to (i) notice that a question is even there, (ii) guess the right
+object to introduce, and (iii) test it on the smallest example before investing in a proof. The hint ladders in
+Part~II quietly performed (ii) and (iii) for you. The exercises below withhold them.
+
+\begin{problem}[Generate the question, then answer it: a new group]\label{pr:newgroup}
+We did everything for cyclic shifts. Consider instead the group of \emph{horizontal and vertical} circular shifts on a
+$d_1\times d_2$ image, $\Z_{d_1}\times\Z_{d_2}$. No sub-question is stated. Decide what the right analogues of the DC
+line, the orbit rank, and the power spectrum are, state the version of Theorem~\ref{thm:A} you expect, and prove the
+one you are most confident about.
+\end{problem}
+\begin{hints}
+\item Which move applies first? (Diagonalize: the 2D DFT diagonalizes both shift directions at once.)
+\item The fixed subspace of all 2D shifts is still the constants; the orbit rank is the number of nonzero 2D Fourier
+coefficients; the power spectrum is $|\hat x_{k_1,k_2}|^2$.
+\item Theorem~\ref{thm:A} goes through verbatim with $\Piinv$ the 2D DC projector; the proof is unchanged because it
+only used that $P_G$ projects onto the constants.
+\end{hints}
+
+\begin{problem}[Generate the question: a different threat]\label{pr:newthreat}
+The bracket theorem (\S\ref{sec:etaL}) was stated for $\ell_2$. Without being told what to prove, work out what changes
+under an $\ell_\infty$ threat, what the right co-Lipschitz constant is, and whether the linear case is still exact.
+State a conjecture and test it on $g(x)=w^\top x$.
+\end{problem}
+\begin{hints}
+\item The certificate uses the dual norm (Problem~\ref{pr:dual}); for $\ell_\infty$ that is the $\ell_1$ gradient.
+\item The linear exact case becomes $r_\infty=\mu/\|w\|_1$; check this is the point-to-hyperplane distance in $\ell_\infty$.
+\end{hints}
+
+\begin{problem}[Generate the question: where could invariance \emph{help} robustness more?]\label{pr:help}
+Self-symmetrization says invariance is margin-free on generic orbit data, and the lazy theorem says it helps via $L$
+on cluster geometry. Pose the sharpest experiment you can that would distinguish ``invariance helps through margin''
+from ``through Lipschitz,'' design its arms, and predict the outcome from the theory before any run.
+\end{problem}
+
+\section{Taste: which questions are worth asking}
+
+Not every well-posed question is worth a month. The ones that paid off here shared three features: they had a
+\emph{small testable instance} (a $d=4$ orbit, a two-image set), they sat at a \emph{contradiction in the literature}
+(invariance reported as both helping and hurting robustness), and their answer \emph{changed a decision} (which
+architecture to trust, which certificate to report). When you generate questions in Part~III, score each on those
+three before committing. A question with no small instance is usually premature; a question whose answer changes
+nothing is usually not worth the proof.
+
+% =====================================================================
+\part*{Part IV: Experiments and where to contribute}
+\addcontentsline{toc}{section}{Part IV: Experiments and where to contribute}
+
+\section{The experimental backbone (the part of the project you can run)}
+
+The theory is tested by a capacity-matched architectural dissection. Four architectures share a parameter count and
+differ only in the shift-invariance operator: a \emph{standard} network, an \emph{anti-aliased} network (a fixed
+low-pass filter before each subsampling), an \emph{exactly invariant} network (adaptive polyphase sampling, invariant
+to all integer shifts), and a \emph{shift-augmented} network (invariance learned from data, not built in). The
+measured quantities are the ones from Part~II: shift-consistency, the $\ell_2$ robust radius (a minimum-norm attack),
+and the $\eta/L$ decomposition into margin and Lipschitz terms.
+
+The headline empirical facts, which you should be able to predict from the theory:
+\begin{itemize}[leftmargin=1.4em,nosep]
+\item Under standard training, $\eta/L$ predicts the robust radius while shift-consistency does not.
+\item Under adversarial training, shift-consistency \emph{anti}-predicts robustness, and the threat-matched ratio
+$\eta/\|\nabla M\|_1$ predicts it; the exactly invariant arm is the least robust, through reduced margin.
+\end{itemize}
+A new collaborator's natural first experimental task is to reproduce one cell of this dissection and read its results
+file, then re-derive which Part~II result each number tests.
+
+\section{Open problems ranked by accessibility}
+\begin{enumerate}[leftmargin=1.6em]
+\item \textbf{(P1) Two-orbit invariant KKT in closed form} (\S\ref{sec:open}). Self-contained, frequency-domain,
+a good first theory contribution. Start from Theorem~\ref{thm:quad} and replace the quadratic surrogate by ReLU.
+\item \textbf{The minimal cluster-orbit model} (find-the-question, \S\ref{sec:open}). Decide whether the
+feature-averaging premise can hold on any full-rank orbit model; if not, the conjecture must be restricted.
+\item \textbf{Rich-regime selection} (Conjecture~\ref{conj:opt}). The hardest: track which KKT point gradient flow
+selects when several exist. Needs trajectory information, not just the variational limit.
+\item \textbf{$\ell_\infty$ bracket and tighter $\kappa$ estimates} (Problem~\ref{pr:newthreat}). Extend the
+two-sided certificate and estimate $\kappa$ for the power-spectrum model.
+\end{enumerate}
+
+\section{Reading roadmap}
+\begin{enumerate}[leftmargin=1.6em,nosep]
+\item This primer, Parts I--II, with the problems done closed-book.
+\item The paper \texttt{main.tex} end to end; you should recognize every theorem from Part~II.
+\item The technical report \texttt{theory\_full\_checked\_v2.tex} for the reference proofs and the optimization
+roadmap section.
+\item One experimental cell reproduced; one open problem from Part~IV attempted for two weeks before proposing.
+\end{enumerate}
+
+\section*{Glossary}
+\addcontentsline{toc}{section}{Glossary}
+\begin{description}[leftmargin=1.2em,style=nextline]
+\item[Robust radius $r_p(f,x)$] distance from $x$ to the nearest point of opposite prediction, in $\ell_p$.
+\item[Certificate] a guaranteed lower bound on the robust radius (versus an attack, an upper bound).
+\item[$\eta/L$] invariant-feature margin divided by its Lipschitz constant; certifies $r_2\ge\eta/L$.
+\item[Co-Lipschitz constant $\alpha$] a guaranteed lower rate of change toward the boundary; gives the converse arm.
+\item[Condition number $\kappa=L/\alpha$] controls how far $\eta/L$ is from the true radius; $\kappa=1$ is exact.
+\item[Orbit] the set of all shifts of a signal; orbit-closed means closed under all shifts.
+\item[DC / AC subspace] the constant line $\mathrm{span}(\one)$ and its zero-sum complement.
+\item[Power spectrum / bispectrum] degree-two phase-blind, and degree-three phase-retaining, shift invariants.
+\item[Reynolds projector $P_G$] the group average $|G|^{-1}\sum_g R_g$; the orthogonal projector onto the invariants.
+\item[Self-symmetrization] on orbit-closed data, gradient descent reaches an invariant max-margin solution on its own.
+\item[Lazy / rich regime] very-wide fixed-kernel training versus small-init feature-learning training.
+\item[Feature averaging] the implicit-bias mechanism by which max-margin solutions become non-robust on cluster data.
+\end{description}
+
+\section*{References}
+\addcontentsline{toc}{section}{References}
+The primer names these works in prose; full details below. The project paper and technical report carry the complete
+bibliography.
+\sloppy
+\begin{description}[leftmargin=1.2em,style=nextline]
+\item[Ge, Singla, Basri, Jacobs (2021)] Shift invariance can reduce adversarial robustness. arXiv:2103.02695. (The base paper.)
+\item[Kamath, Deshpande, Subrahmanyam, Balasubramanian (2021)] Can we have it all? On the trade-off between spatial and adversarial robustness. arXiv:2002.11318.
+\item[Tram\`er, Behrmann, Carlini, Papernot, Jacobsen (2020)] Fundamental tradeoffs between invariance and sensitivity to adversarial perturbations. arXiv:2002.04599.
+\item[Zhang (2019)] Making convolutional networks shift-invariant again (anti-aliasing / BlurPool). arXiv:1904.11486.
+\item[Chaman, Dokmani\'c (2021)] Truly shift-invariant convolutional neural networks (adaptive polyphase sampling). arXiv:2011.14214.
+\item[Soudry, Hoffer, Nacson, Gunasekar, Srebro (2018)] The implicit bias of gradient descent on separable data. arXiv:1710.10345.
+\item[Lyu, Li (2020)] Gradient descent maximizes the margin of homogeneous neural networks. arXiv:1906.05890.
+\item[Ji, Telgarsky (2020)] Directional convergence and alignment in deep learning. arXiv:2006.06657.
+\item[Jacot, Gabriel, Hongler (2018)] Neural tangent kernel: convergence and generalization in neural networks. arXiv:1806.07572.
+\item[Chizat, Oyallon, Bach (2019)] On lazy training in differentiable programming. arXiv:1812.07956.
+\item[Frei, Vardi, Bartlett, Srebro (2023)] The double-edged sword of implicit bias: generalization vs.\ robustness in ReLU networks. arXiv:2303.01456.
+\item[Li, Pan, Lyu, Li (2024)] Feature averaging: an implicit bias of gradient descent leading to non-robustness. arXiv:2410.10322.
+\item[Elesedy (2021)] Provably strict generalisation benefit for invariance in kernel methods. arXiv:2106.02346.
+\item[Bietti, Mairal (2019)] On the inductive bias of neural tangent kernels. arXiv:1905.12173.
+\item[Hein, Andriushchenko (2017)] Formal guarantees on the robustness of a classifier against adversarial manipulation. arXiv:1705.08475.
+\item[Tsuzuku, Sato, Sugiyama (2018)] Lipschitz-margin training. arXiv:1802.04034.
+\item[Croce, Hein (2020)] Reliable evaluation of adversarial robustness with an ensemble of diverse parameter-free attacks (AutoAttack). arXiv:2003.01690.
+\item[Rony et al.\ (2019)] Decoupling direction and norm for efficient gradient-based $\ell_2$ adversarial attacks (DDN). arXiv:1811.09600.
+\item[Madry, Makelov, Schmidt, Tsipras, Vladu (2018)] Towards deep learning models resistant to adversarial attacks (PGD adversarial training). arXiv:1706.06083.
+\item[Rice, Wong, Kolter (2020)] Overfitting in adversarially robust deep learning. arXiv:2002.11569.
+\item[Kakarala (2012)] The bispectrum as a source of phase-sensitive invariants for Fourier descriptors. arXiv:0902.0196.
+\end{description}
+\fussy
+
+\section*{Colophon}
+\addcontentsline{toc}{section}{Colophon}
+This primer is a teaching companion to the paper and the technical report; all theorem statements and proofs are the
+verified versions in \texttt{theory\_full\_checked\_v2.tex}. It follows the project's house writing rules. Corrections
+and better worked examples are welcome and should be checked against the technical report before they are added.
+
+\end{document}

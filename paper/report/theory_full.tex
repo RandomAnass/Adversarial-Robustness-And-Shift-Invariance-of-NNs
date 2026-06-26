@@ -1,0 +1,248 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[numbers]{natbib}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{conjecture}{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{question}{Open question}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\fdc}{f_{\mathrm{dc}}}
+\newcommand{\Vinv}{V_{\mathrm{inv}}}
+\newcommand{\Vac}{V_{\mathrm{ac}}}
+\newcommand{\Sep}{\mathrm{Sep}}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\Piinv}{\Pi_{\mathrm{inv}}}
+\newcommand{\inv}{\mathrm{inv}}
+\newcommand{\sign}{\mathrm{sign}}
+
+\title{\textbf{When Does Shift-Invariance Permit Adversarial Robustness?}\\[2pt]
+\large A margin-preservation theory: proofs, open problems, and directions\\[2pt]
+\normalsize (standalone theory document for external review --- v1, \today)}
+\author{Anass Al Ammiri \\ \small Technical University of Munich}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent This document collects, in full and with proofs, the current theory for when an emergent shift-invariance and $\ell_p$ adversarial robustness can co-exist in a classifier. It is written for external review: every claim is labelled by status (proved / verified numerically / empirical-only / conjecture / open / \emph{retracted}). The established part is structural: the achievable robustness of a shift-invariant classifier is governed by the margin of the data in the invariant feature space divided by the Lipschitz constant of that feature, $\eta/L$ (Section~\ref{sec:struct}); this recovers the collapse of \citet{ge2021shift} exactly and reconciles \citet{kamath2021canwehaveitall} and \citet{tramer2020fundamental}. The optimization part --- whether gradient descent \emph{reaches} the robust invariant solution --- is \textbf{open}; an earlier ``architecture re-points the implicit bias'' claim was found wrong and is retracted (Section~\ref{sec:opt}), but the failure is informative and points to a concrete next data model. Section~\ref{sec:open} lists conjectures, open questions, and directions, with the hints the experiments currently give. Section~\ref{sec:audit} is an overclaim audit and Section~\ref{sec:requests} lists what I would most like a reviewer to check or prove.
+\end{abstract}
+
+\tableofcontents
+
+\section{Setting and preliminaries}\label{sec:prelim}
+We use one-dimensional signals $x\in\R^{d}$. Everything extends verbatim to $2$D images by replacing the cyclic group $\Z_d$ with $\Z_{d_1}\times\Z_{d_2}$ and the cyclic DFT by its $2$D analogue; the cyclic, $1$D case is where \citet{ge2021shift} and \citet{kamath2021canwehaveitall} both work, so we keep it.
+
+The cyclic group $G=\Z_d$ acts by the circular shift $(S_s x)_i = x_{(i-s)\bmod d}$. Each $S_s\in\R^{d\times d}$ is an orthogonal permutation, $S_s^\top=S_s^{-1}=S_{-s}$, and $S_aS_b=S_{a+b}$. The \emph{orbit} of $x$ is $\mathcal O(x)=\{S_sx:s\in G\}$. A class support is \emph{orbit-closed} if it is a union of orbits.
+
+\begin{definition}[Invariant and AC subspaces]
+$\Vinv=\{v\in\R^d: S_sv=v\ \forall s\in G\}$ and $\Vac=\Vinv^{\perp}$. Write $\Piinv$ for the orthogonal projector onto $\Vinv$ and $\fdc(x)=\tfrac1{\sqrt d}\sum_i x_i$ for the unit ``DC'' functional ($\|\tfrac1{\sqrt d}\one\|_2=1$).
+\end{definition}
+
+\begin{definition}[Robustness, consistency]
+For a score $f:\R^d\to\R$ correct at $(x,y)$ ($y\,f(x)>0$), the $\ell_p$ \emph{robust radius} is $r_p(f,x)=\inf\{\|\delta\|_p:\sign f(x+\delta)\neq y\}$. For a linear score $f(x)=w^\top x+b$, $r_p(f,x)=y\,f(x)/\|w\|_q$ with $1/p+1/q=1$. The \emph{shift-consistency} is $\mathrm{SC}(f)=\Pr_{x\sim\mathcal D,\,s\sim\mathrm{Unif}(G)}[\sign f(S_sx)=\sign f(x)]$; an exactly invariant $f$ has $\mathrm{SC}=1$.
+\end{definition}
+
+\begin{lemma}[Invariant subspace is the DC line]\label{lem:proj}
+$\Vinv=\mathrm{span}(\one)$, $\Piinv=\tfrac1d\one\one^\top$ (so $(\Piinv x)_i=\bar x:=\tfrac1d\sum_j x_j$), and $\Vac=\{v:\sum_i v_i=0\}$. The shifts are simultaneously diagonalized by the unitary DFT $F$ ($F S_s F^\ast=\mathrm{diag}(\omega^{sk})_k$, $\omega=e^{2\pi i/d}$); a shift multiplies Fourier coefficient $k$ by a unit-modulus phase, so the power-spectrum coordinates $|\hat x_k|^2$ are shift-invariant, with $k=0$ the DC line and $k\neq0$ spanning $\Vac$.
+\end{lemma}
+\begin{proof}
+If $S_sv=v$ for all $s$ then in particular $S_1v=v$ gives $v_i=v_{i-1}$ for all $i$, so $v$ is constant, $v\in\mathrm{span}(\one)$; conversely $S_s\one=\one$. The projector onto a line $\mathrm{span}(\one)$ is $\one\one^\top/\|\one\|^2=\tfrac1d\one\one^\top$. Its complement is $\{v:\one^\top v=0\}$. Diagonalization by $F$ is the standard fact that circulant matrices (the shifts are circulant permutations) are diagonalized by the DFT; $S_s$ has eigenvalues $\omega^{sk}$ on the Fourier basis $\phi_k$, and $|\widehat{S_sx}_k|=|\omega^{sk}\hat x_k|=|\hat x_k|$. \emph{Status: proved.}
+\end{proof}
+
+\section{Structural theory: when invariance permits robustness}\label{sec:struct}
+
+\subsection{The exact invariant linear margin}
+\begin{theorem}[Invariant linear margin {=} projection separation]\label{thm:A}
+A linear score $g(x)=w^\top x+b$ satisfies $g(S_sx)=g(x)$ for all $x,s$ if and only if $w\in\Vinv=\mathrm{span}(\one)$. Consequently, for orbit-closed classes $X_+,X_-$ that are invariant-linearly separable, the maximum $\ell_2$ margin achievable by an invariant linear classifier is exactly
+\begin{equation}\label{eq:A}
+\gamma_\inv \;=\; \tfrac12\Big(\min_{x\in X_+}\fdc(x)\,-\,\max_{x\in X_-}\fdc(x)\Big)_{+}\;=\;\Sep\big(\Piinv X\big),
+\end{equation}
+attained by $w=\tfrac1{\sqrt d}\one$ (up to scale). Here $\Sep(\cdot)$ is the hard-margin (half the gap between the projected classes) and $(\cdot)_+=\max(\cdot,0)$. The identity holds for \emph{any} finite separable orbit-closed dataset, not only the single-image case of \citet{ge2021shift}.
+\end{theorem}
+\begin{proof}
+\emph{Invariance $\Leftrightarrow w\in\Vinv$.} $g(S_sx)=g(x)$ for all $x$ means $w^\top S_sx=w^\top x$ for all $x$, i.e.\ $(S_s^\top w-w)^\top x=0$ for all $x$, i.e.\ $S_{-s}w=w$. Requiring this for all $s$ gives $w\in\Vinv=\mathrm{span}(\one)$ by Lemma~\ref{lem:proj}; conversely $w=c\one$ gives $w^\top S_sx=c\one^\top S_sx=c\one^\top x=w^\top x$ since $S_s$ permutes coordinates.
+
+\emph{Margin.} Write $w=c\one$, $c\neq0$. Then $w^\top x=c\sum_i x_i=c\sqrt d\,\fdc(x)$ and $\|w\|_2=|c|\sqrt d$. For a correctly classified point the geometric margin is
+\[
+\frac{y(w^\top x+b)}{\|w\|_2}=\frac{y\big(c\sqrt d\,\fdc(x)+b\big)}{|c|\sqrt d}=y\Big(\sign(c)\,\fdc(x)+t\Big),\qquad t:=\frac{b}{|c|\sqrt d}\in\R\ \text{free.}
+\]
+Orient $\sign(c)=+1$ (otherwise the classes are mislabeled and the margin is negative). The classifier depends on $x$ only through the scalar $\fdc(x)$, so this is a one-dimensional threshold problem on the values $\{\fdc(x):x\in X_+\cup X_-\}$. Maximizing $\min_x [\text{margin}]$ over the threshold $t$ gives the symmetric placement $t^\star=-\tfrac12(\min_{X_+}\fdc+\max_{X_-}\fdc)$ and common value $\tfrac12(\min_{X_+}\fdc-\max_{X_-}\fdc)$, which is positive exactly when the projected classes are separated; the $(\cdot)_+$ records the overlap case. Since $\Piinv x=\fdc(x)\cdot\tfrac1{\sqrt d}\one$ (Lemma~\ref{lem:proj}), this half-gap is the hard-margin of the projected data $\Piinv X$. \emph{Status: proved (verified numerically against a 1D SVM and against Ge's $2/\sqrt d$, Section~\ref{sec:recover}).}
+\end{proof}
+
+\begin{corollary}[Invariance never beats the unconstrained margin; the ratio is the diagnostic]\label{cor:ratio}
+Let $\gamma_{\mathrm{full}}=\Sep(\mathrm{Id}\cdot X)$ be the unconstrained linear max-margin. Then $\gamma_\inv\le\gamma_{\mathrm{full}}$ and $\kappa:=\gamma_\inv/\gamma_{\mathrm{full}}\in[0,1]$. Moreover, writing $e=\tfrac1{\sqrt d}\one$ and $d_{\min}=\mathrm{dist}(\mathrm{conv}\,X_+,\mathrm{conv}\,X_-)$,
+\[
+\sqrt d\,\big(\min_{X_+}\fdc-\max_{X_-}\fdc\big)=\min_{u\in\mathrm{conv}X_+,\,v\in\mathrm{conv}X_-} e^\top(u-v)\ \le\ d_{\min},
+\]
+with equality iff the closest opposite pair is parallel to $\one$.
+\end{corollary}
+\begin{proof}
+An invariant linear classifier is a feasible (DC-direction) unconstrained linear classifier, so the constrained max is $\le$ the unconstrained max. For the inequality, a linear functional over convex hulls attains its min at vertices, and by Cauchy--Schwarz $e^\top(u-v)\le\|e\|\,\|u-v\|=\|u-v\|$ with equality iff $u-v\parallel e$. \emph{Status: proved.}
+\end{proof}
+
+\subsection{The co-existence/trade-off dichotomy and the $\eta/L$ criterion}\label{sec:dich}
+Theorem~\ref{thm:A} turns ``does invariance hurt robustness?'' into ``does the discriminative signal survive projection onto the invariant feature space?''. If it does, with margin $\eta$ and the invariant feature having Lipschitz constant $L$, the invariant classifier is simultaneously fully shift-consistent and robust with radius $\ge\eta/L$. We therefore propose the governing scalar
+\[
+\boxed{\ \eta/L\ }\qquad(\text{margin of the invariant feature}\ /\ \text{its Lipschitz constant}).
+\]
+We stress $\eta/L$ and \emph{not} $\eta>0$: a signal can survive projection yet have vanishing margin, in which case invariance and robustness still trade off. This is exactly the regime of \citet{kamath2021canwehaveitall} (Section~\ref{sec:recover}). \emph{Status: the inequality $r_2\ge\eta/L$ is proved (Corollary~\ref{cor:radius}); ``$\eta/L$ is the right predictor for trained models'' is an empirical claim (Section~\ref{sec:open}), not a theorem.}
+
+\subsection{Nonlinear escape: one convolution-plus-pooling layer computes the power spectrum}
+The invariant \emph{linear} family is one-dimensional ($\fdc$ only, Theorem~\ref{thm:A}). The nonlinearity in a convolutional layer makes the invariant feature family much larger.
+\begin{lemma}[Power-spectrum span]\label{lem:ps}
+Let $\Phi_w(x)=\tfrac1d\sum_{s\in G}\big((w\star x)_s\big)^2$ be a circular cross-correlation with filter $w$, followed by a quadratic activation and global average pooling. Then
+\[
+\Phi_w(x)=\tfrac1d\sum_{k=0}^{d-1}|\hat w_k|^2\,|\hat x_k|^2,
+\]
+and as $w$ ranges over $\R^d$ the maps $\{\Phi_w\}$ span exactly the power-spectrum features $\{|\hat x_k|^2\}_k$, which are shift-invariant; for $k\neq0$ they are supported on $\Vac$.
+\end{lemma}
+\begin{proof}
+The circular cross-correlation has DFT $\widehat{(w\star x)}_k=\overline{\hat w_k}\,\hat x_k$. By Parseval (unitary DFT), $\tfrac1d\sum_s (w\star x)_s^2=\tfrac1d\sum_k|\overline{\hat w_k}\hat x_k|^2=\tfrac1d\sum_k|\hat w_k|^2|\hat x_k|^2$. Choosing $|\hat w_k|^2$ a unit spike at frequency $k_0$ isolates $|\hat x_{k_0}|^2$; linear combinations recover all $k$. Shift-invariance is Lemma~\ref{lem:proj}. \emph{Status: proved (verified numerically).} (The power spectrum is a \emph{second-order} invariant; it is blind to phase, hence cannot separate sign- or location-coded classes; recovering phase needs the bispectrum, whose Lipschitz constant we do not control.)
+\end{proof}
+
+\begin{corollary}[Conditional robust radius]\label{cor:radius}
+Let $\Psi:\R^d\to\R^m$ be a shift-invariant feature map that is $L$-Lipschitz on a neighbourhood of the data, and let a unit-norm linear head separate $\Psi(X_+),\Psi(X_-)$ with margin $\eta:=\tfrac12\,\mathrm{dist}\big(\mathrm{conv}\,\Psi(X_+),\mathrm{conv}\,\Psi(X_-)\big)$. Then the classifier $g=\langle a,\Psi(\cdot)\rangle+\beta$ has $\mathrm{SC}=1$ and $r_2(g,x)\ge\eta/L$ for every data point.
+\end{corollary}
+\begin{proof}
+Invariance of $\Psi$ gives $g(S_sx)=g(x)$, so $\mathrm{SC}=1$. For the radius, $|g(x+\delta)-g(x)|=|\langle a,\Psi(x+\delta)-\Psi(x)\rangle|\le\|a\|\,L\,\|\delta\|=L\|\delta\|$; if $\|\delta\|<\eta/L$ this is $<\eta\le y\,g(x)$, so the sign cannot change. \emph{Status: proved, but it is the standard Lipschitz--margin bound; its content is which $\Psi$ a shift-invariant architecture can realize (Lemma~\ref{lem:ps}), not the inequality. We flag the novelty question in Section~\ref{sec:requests}.}
+\end{proof}
+
+\begin{lemma}[Orbit-gradient suppression, continuous group]\label{lem:orbitgrad}
+Let $\{T_a\}_{a\in\R}$ be the continuous circular-shift group with generator $Gx:=\tfrac{d}{da}T_ax\big|_{a=0}$. If $g$ is invariant under $\{T_a\}$ and differentiable, then $\langle\nabla g(x),Gx\rangle=0$ for all $x$: the input gradient is orthogonal to the orbit tangent, so first-order perturbations along the orbit do not change the score.
+\end{lemma}
+\begin{proof}
+Differentiate $g(T_ax)=g(x)$ at $a=0$: $\langle\nabla g(x),Gx\rangle=0$. \emph{Status: proved (verified, $\approx10^{-9}$). Caveat: this is the \emph{continuous} orbit tangent. The \emph{discrete} chord $S_1x-x$ is a finite secant, not a tangent, and is in general not protected ($\langle\nabla g,S_1x-x\rangle\neq0$); for the discrete threat model the protection is only first-order along the continuous orbit.}
+\end{proof}
+
+\subsection{Recoveries and reconciliations}\label{sec:recover}
+\paragraph{\citet{ge2021shift} (recovered exactly).} For the single white/black dot, $X_+=\mathcal O(e_j)$, $X_-=\mathcal O(-e_j)$: $\fdc(\pm e_j)=\pm1/\sqrt d$, so \eqref{eq:A} gives $\gamma_\inv=1/\sqrt d$; in Ge's one-sided convention the gap is $2/\sqrt d$ (their Cor.~1), while the unconstrained margin is $1$, so $\kappa=1/\sqrt d\to0$ (the forced-trade-off corner). The power spectrum is sign-blind, $|\widehat{+e_j}_k|^2=|\widehat{-e_j}_k|^2$, so $\eta_{\mathrm{PS}}=0$: even the nonlinear invariant cannot separate the dot. \emph{Status: proved/verified.}
+
+\paragraph{\citet{kamath2021canwehaveitall} (corrected reconciliation).} Their data places the label on a coordinate $x_0$ that their shift \emph{fixes}, i.e.\ $x_0\in\Vinv$. Hence an invariant classifier reads $x_0$ and attains high clean accuracy (their Prop.~1, $\ge97\%$), so $\eta>0$. The trade-off (their Thm.~2) arises because $x_0$ has $\ell_\infty$ margin of order $1/\sqrt d$: this is the \emph{small-}$\eta/L$ corner of our criterion, not a case where invariance discards the signal. Their impossibility is therefore an \emph{instance} of the criterion, not a counterexample. \emph{Status: verified against their construction (read firsthand).} \textbf{This corrects an earlier draft that claimed Kamath's signal lives outside $\Vinv$; it does not.}
+
+\paragraph{\citet{tramer2020fundamental} (recovered as a corollary).} They show that \emph{too much} invariance creates ``invariance-based'' adversarial examples: a perturbation that changes the oracle (true) class while the model keeps its prediction. In our language this is exactly the regime where the orbit of the imposed invariance crosses an oracle decision boundary, i.e.\ where projecting onto $\Vinv$ (or onto $\Psi$) collapses the class signal ($\eta\to0$, equivalently $\kappa\to0$). Their negative result is the same forced-trade-off corner; co-existence is the complementary $\eta/L=\Theta(1)$ regime. \emph{Status: argued, not formalized into a single statement; see Section~\ref{sec:requests}, item~5.}
+
+\paragraph{An illustrative nonlinear case (toy).}
+Let each class be the orbit (phases) of a single cosine at distinct frequencies $k_+\neq k_-$, amplitude $a$. The invariant score $f(x)=|\hat x_{k_+}|^2-|\hat x_{k_-}|^2$ separates with exact $\ell_2$ robust radius $a/\sqrt2$ (minimize $|p|^2+|q|^2$ s.t.\ $|a+p|^2\le|q|^2$; optimum $p=-a/2$), while any \emph{linear} classifier has margin $0$ (each class is a circle through the origin in an orthogonal $2$-plane). So invariance strictly helps. \emph{Status: exact for this toy; \textbf{not} the quantitative statement for \citet{ge2021shift}'s Section 5.2 data, whose classes are spans of many frequencies (clouds in power-spectrum space), where the qualitative reversal survives but the exact $a/\sqrt2$ does not. Confirmed training-free: on the multi-frequency span data, $\Sep(\mathrm{Id})=\Sep(\Piinv)=0$ but the power-spectrum margin is positive (Section~\ref{sec:open}).}
+
+\section{Optimization: does gradient descent reach the robust invariant solution?}\label{sec:opt}
+Theorem~\ref{thm:A} and Corollary~\ref{cor:radius} say robust shift-invariant classifiers \emph{exist}. They do not say gradient descent \emph{finds} them. This is the same existence-vs-trajectory gap as \citet{frei2023double} (robust two-layer ReLU nets exist, but gradient flow selects a non-robust max-margin KKT point) and \citet{li2025feature} (the non-robust selection is \emph{feature averaging}); \citet{min2024can} conjecture that an architectural change re-points the bias.
+
+\begin{lemma}[Orbit-bundle form]\label{lem:bundle}
+A circular-convolution-plus-global-average-pooling network equals a two-layer network whose hidden neurons are tied into shift-orbit bundles (one filter induces all $d$ of its shifts, sharing a single output weight), and whose pre-head feature is an average over the orbit. \emph{Status: proved (exact, structural; verified $\approx10^{-9}$).}
+\end{lemma}
+
+\paragraph{Retraction.} An earlier draft claimed that this orbit-bundle structure \emph{convexifies} the margin program and \emph{annihilates} the feature-averaging direction of \citet{frei2023double,li2025feature}, thereby turning the \citet{min2024can} conjecture into a theorem for the quadratic head. \textbf{This is wrong and is retracted.} The error, shared by four independent derivations, is the next proposition.
+
+\begin{proposition}[Single-orbit data is a degenerate corner of the implicit-bias models]\label{prop:rank}
+Let each class be the shift orbit of a single base pattern.
+\begin{enumerate}[leftmargin=1.4em,topsep=2pt,itemsep=1pt]
+\item If the base is a cosine at frequency $k$, its orbit (all phases) spans only $\{\cos,\sin\}$ at frequency $k$, so the per-class data has \textbf{rank $2$}, violating the near-orthogonal $\Omega(d)$-cluster assumptions of \citet{frei2023double,li2025feature}. Moreover the signed mean of the orbit, which is the direction carrying the non-robustness conclusion in those works, is $\mathbf 0$.
+\item If the base is a localized spike $e_j$, the orbit is orthonormal (so those assumptions hold), but the power spectrum is phase-blind, so $\eta_{\mathrm{PS}}=0$ and the invariant nonlinear classifier cannot separate the two classes.
+\end{enumerate}
+Hence no single orbit base pattern simultaneously satisfies the non-robustness premise of \citet{frei2023double,li2025feature} and admits an invariant-feature separation: the contrast ``unconstrained net non-robust, invariant net robust, along the same threat direction'' is self-cancelling.
+\end{proposition}
+\begin{proof}
+(i) All circular shifts of $\cos(2\pi k\,\cdot/d)$ are linear combinations of $\cos(2\pi k\,\cdot/d)$ and $\sin(2\pi k\,\cdot/d)$ (shift is a phase rotation of a single frequency), so the orbit lies in a $2$-dimensional space; numerically the orbit matrix for $d=64,k=5$ has rank $2$. The orbit mean is $\tfrac1d\sum_s S_s u=(\tfrac1d\one\one^\top)u=\fdc(u)\tfrac1{\sqrt d}\one=\mathbf 0$ for a zero-mean cosine; numerically $\|\text{mean}\|=1.7\times10^{-16}$. (ii) Shifts of $e_j$ are the standard basis, orthonormal; $|\widehat{e_j}_k|^2=1/d$ for all $k$ independent of $j$ and of sign, so the two classes coincide in power-spectrum space, $\eta_{\mathrm{PS}}=0$ (numerically the power-spectrum gap is $0$). \emph{Status: proved and verified numerically.}
+\end{proof}
+
+\begin{remark}[What survives, and why the failure is informative]
+Proposition~\ref{prop:rank} is a correct, modest \emph{structural} observation: single-orbit-per-class data sits in a rank-deficient degenerate corner of the cluster models used to prove implicit-bias non-robustness, a corner where the non-robustness mechanism has no content. This explains both why an unconstrained network is already competitive on such data and why a naive ``invariance re-points the bias'' argument dissolves. It does \emph{not} close the optimization gap; it tells us the gap must be studied on data where the non-robustness premise genuinely holds (Section~\ref{sec:open}, Direction~\ref{dir:multiorbit}).
+\end{remark}
+
+\section{Open problems, conjectures, and directions (with empirical hints)}\label{sec:open}
+
+\paragraph{Empirical hints currently available.}
+\begin{itemize}[leftmargin=1.4em,topsep=2pt,itemsep=1pt]
+\item \textbf{Training-free structural test (confirmed).} With $d=64$: the dot has $\Sep(\mathrm{Id})=1$, $\Sep(\Piinv)=1/\sqrt d=0.125$, $\eta_{\mathrm{PS}}=0$; the orthogonal-frequency \emph{span} data of \citet{ge2021shift} has $\Sep(\mathrm{Id})=\Sep(\Piinv)=0$ but power-spectrum margin $>0$. So the right invariant feature, not invariance per se, preserves the margin.
+\item \textbf{MNIST architectural dissection (suggestive, under cross-dataset re-test).} Across seven architectures, $\eta/L$ (estimated as mean logit margin over mean input-gradient norm) tracked $\ell_2$ robustness with Pearson $r\approx0.97$, while shift-consistency did not ($r\approx-0.29$); the fully shift-invariant single-layer model had consistency $1$ but was the least robust. Batch-normalization raised clean accuracy and lowered robustness (consistent with \citet{galloway2019batchnorm}). \emph{Caveat: on Fashion-MNIST the fixed-$\epsilon$ version did not replicate (robust accuracies near the floor; metric artifact); a dataset-comparable robust-radius re-test is in progress. The cross-dataset status of ``$\eta/L$ predicts robustness'' is therefore currently open.}
+\end{itemize}
+
+\begin{question}[Cross-dataset validity of the $\eta/L$ predictor]\label{q:etaL}
+Is ``$\eta/L$ predicts the robust radius of trained models, better than shift-consistency'' a robust empirical law across datasets, attacks (PGD, AutoAttack), and capacity-matched architectures? If it is dataset-dependent, which data property (intrinsic dimension, frequency content, margin distribution) decides it? A natural decomposition to measure: does an architecture's robustness advantage come from larger margin $\eta$, smaller Lipschitz $L$, or both?
+\end{question}
+
+\begin{conjecture}[Multi-orbit implicit bias --- the salvageable optimization claim]\label{dir:multiorbit}
+Take data where each class is a union of \emph{many} orbits of \emph{distinct} base patterns, so the data is high-rank (the \citet{frei2023double,li2025feature} premise can hold) \emph{and} carries genuine shift structure. Conjecture: in this regime the orbit-bundle constraint (Lemma~\ref{lem:bundle}) makes gradient flow average over the within-orbit (nuisance) directions while an unconstrained network averages over class-discriminative directions, so the convolutional network reaches a strictly larger $\eta/L$. This is the version of the retracted idea that is not self-cancelling, because the rank-deficiency of Proposition~\ref{prop:rank} no longer holds. \emph{Status: conjecture; the right next theorem to attempt.}
+\end{conjecture}
+
+\begin{question}[Implicit bias of the orbit-bundle constraint]
+Analyse the max-margin / KKT limit (Lyu--Li, Ji--Telgarsky) of the weight-shared conv-plus-pool network on the multi-orbit data of Conjecture~\ref{dir:multiorbit}. Does weight-sharing change the \emph{reachable} set of KKT points relative to the unconstrained net, in the direction of higher margin? This is precisely where \citet{min2024can} leave a conjecture (for the activation lever); the shift constraint is a different, deployable lever.
+\end{question}
+
+\begin{question}[Is $\eta/L$ a genuinely new robustness quantity?]
+Corollary~\ref{cor:radius} is a standard Lipschitz--margin bound specialized to invariant features. What is the novel content beyond (a) Theorem~\ref{thm:A}'s exact projection identity and (b) the architectural realizability of the power spectrum (Lemma~\ref{lem:ps})? Is there a converse (an upper bound on $r_2$ in terms of $\eta/L$) that would make $\eta/L$ a characterization rather than a one-sided proxy?
+\end{question}
+
+\begin{question}[Beyond cyclic shifts]
+Does the criterion generalize to other compact groups (rotations, scalings; the equivariance setting of \citet{kamath2021canwehaveitall} and follow-ups)? The invariant subspace generalizes by Peter--Weyl; the open part is the analogue of the power-spectrum escape (which invariant nonlinear features a given equivariant architecture realizes) and whether $\eta/L$ still governs.
+\end{question}
+
+\begin{question}[Certified robustness]
+$\eta/L$ is a \emph{certified} lower bound (Corollary~\ref{cor:radius}). Can a shift-invariant architecture with a controlled-Lipschitz invariant feature give certified robustness competitive with empirical AutoAttack robustness, and does the certificate explain the Galloway batch-norm effect through the $L$ term?
+\end{question}
+
+\begin{question}[The Tramèr trade-off, formalized]
+Make the recovery of \citet{tramer2020fundamental} a single statement: an inequality whose two sides are the sensitivity-based robust radius and an invariance-based (oracle-flipping) radius, with $\eta/L$ (and the orbit-to-oracle-boundary distance) as the control, so that co-existence and the invariance-based attack are the two regimes of one bound.
+\end{question}
+
+\section{Overclaim audit (status of every claim)}\label{sec:audit}
+\begin{center}\small
+\begin{tabular}{p{0.62\textwidth}l}
+\toprule
+Claim & Status \\
+\midrule
+Lemma~\ref{lem:proj} ($\Vinv=\mathrm{span}\one$, DFT diagonalization) & proved \\
+Theorem~\ref{thm:A} (invariant linear margin $=$ projection separation) & proved + verified \\
+Corollary~\ref{cor:ratio} ($\kappa\in[0,1]$; $\sqrt d\,\Delta_{\mathrm{DC}}\le d_{\min}$) & proved \\
+Lemma~\ref{lem:ps} (conv+sq+GAP spans the power spectrum) & proved + verified \\
+Corollary~\ref{cor:radius} ($r_2\ge\eta/L$) & proved; standard Lipschitz--margin; conditional on $\eta,L$ \\
+Lemma~\ref{lem:orbitgrad} (orbit-gradient $=0$) & proved for the \emph{continuous} group only \\
+Ge $2/\sqrt d$ recovery & proved + verified \\
+Kamath $=$ small-$\eta/L$ corner & verified against the source \\
+Tramèr $=$ forced-trade-off corner & argued, not yet a single formal statement \\
+Toy $a/\sqrt2$ nonlinear radius & exact for the single-frequency toy only; \emph{not} Ge's span data \\
+``$\eta/L$ predicts trained-model robustness'' & empirical: MNIST yes, cross-dataset \emph{open} \\
+``architecture re-points the implicit bias / Min\&Vidal becomes a theorem'' & \textbf{RETRACTED} \\
+Proposition~\ref{prop:rank} (single-orbit data is a degenerate corner) & proved + verified \\
+Conjecture~\ref{dir:multiorbit} (multi-orbit implicit bias) & conjecture (open) \\
+A trajectory-level implicit-bias theorem for shift-invariant nets & \textbf{open} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{What I would most like a reviewer to check or prove}\label{sec:requests}
+\begin{enumerate}[leftmargin=1.4em,topsep=2pt,itemsep=2pt]
+\item \textbf{Theorem~\ref{thm:A} proof}, in particular the step ``invariance $\Leftrightarrow w\in\mathrm{span}(\one)$'' and the one-dimensional margin maximization; and whether the convex-hull form (used in Corollary~\ref{cor:radius}) should replace $\Sep(\Piinv X)$ everywhere (they coincide only for single-orbit-per-class data).
+\item \textbf{Lemma~\ref{lem:ps}} normalization (the unitary-DFT factor $1/d$) and the ``spans exactly'' claim.
+\item \textbf{Kamath reconciliation:} confirm against \citet{kamath2021canwehaveitall} that $x_0$ is shift-fixed and has $\ell_\infty$ margin $O(1/\sqrt d)$, so their impossibility is our small-$\eta/L$ corner.
+\item \textbf{Novelty of $\eta/L$} (the question in Section~\ref{sec:open}): is Corollary~\ref{cor:radius} more than a specialized Lipschitz--margin bound? Is there a matching converse? This most affects whether the structural part is a ``contribution'' or a ``clarification''.
+\item \textbf{Tramèr formalization} (Section~\ref{sec:open}): is the proposed single inequality correct and provable?
+\item \textbf{Conjecture~\ref{dir:multiorbit}} (the open optimization theorem): is the multi-orbit setting the right one, is it tractable, and is there prior work (equivariant implicit bias) that already settles part of it?
+\item \textbf{Discrete vs continuous orbit-gradient} (Lemma~\ref{lem:orbitgrad}): does the continuous-tangent protection matter for the discrete (integer-shift) threat model, or is it cosmetic?
+\end{enumerate}
+
+\paragraph{Honest assessment of where this stands.} The structural theory is correct and clean but, on its own, is close to ``recover \citet{ge2021shift} and state a margin/Lipschitz criterion''. To be a strong paper rather than an exercise it needs at least one of: (a) the optimization theorem of Conjecture~\ref{dir:multiorbit}; (b) a robust, cross-dataset, AutoAttack-validated empirical law for $\eta/L$ (Open question~\ref{q:etaL}) with a capacity-matched dissection; or (c) the certified-robustness or general-group extension. These are the levers; the experiments in progress target (b).
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}

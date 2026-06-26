@@ -1,0 +1,315 @@
+\documentclass{article}
+\usepackage[preprint]{neurips_2026}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts,amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\fdc}{f_{\mathrm{dc}}}
+\newcommand{\Vinv}{V_{\mathrm{inv}}}
+\newcommand{\Vac}{V_{\mathrm{ac}}}
+\newcommand{\Sep}{\mathrm{Sep}}
+\newcommand{\dd}{d}
+
+\title{When Does Shift-Invariance Permit Adversarial Robustness?\\
+A Margin-Preservation Theory}
+
+\author{%
+  Anass Al Ammiri \\
+  Technical University of Munich \\
+  \texttt{anass.al-ammiri@tum.de} \\
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Shift-invariance is a defining inductive bias of convolutional networks, yet its effect on adversarial robustness is contested: \citet{ge2021shift} prove that a fully shift-invariant classifier can be far less robust than a fully connected one, while a recent line of architectural work reports that better shift-invariance correlates with \emph{better} robustness \citep{saha2024improving}. We argue these are two regimes of one question: whether the discriminative signal survives projection onto the invariant feature space, and with what margin relative to the feature's sensitivity. A shift-invariant linear classifier separates classes only through their projection onto the invariant subspace, with an exact margin identity (the separation of the data projected onto the constant, or DC, component) that recovers the $2/\sqrt{\dd}$ collapse of \citet{ge2021shift} as one orientation; a single convolution-plus-global-pooling layer with a nonlinearity instead computes power-spectrum features, which separate frequency-coded classes that no linear classifier separates, and a degree-three bispectrum invariant separates even the localized, phase-coded case (at the cost of a larger Lipschitz constant), so invariance can help. We summarize the surviving robustness by a margin-to-Lipschitz ratio $\eta/L$: a Lipschitz--margin certificate $r_2\ge\eta/L$ that we complete to a two-sided bracket $\eta/L\le r_2\le\eta/\alpha$ under an explicit co-Lipschitz constant (condition number $\kappa=L/\alpha$, exact for linear features), and that also reconciles the apparent counterexample of \citet{kamath2021canwehaveitall}, whose construction places the label on a shift-fixed coordinate of small margin (small $\eta/L$), not on a coordinate invariance discards. On the optimization side we give the exact rank of a shift orbit (the number of nonzero Fourier coefficients of its base) and use it to delimit a trajectory-level result: the two canonical orbit constructions are each degenerate (a single-frequency base has a rank-$2$ orbit with zero signed mean, a localized base has a phase-blind power spectrum), so neither tests an ``invariance re-points the implicit bias'' argument, while generic orbits are full-rank and separable, leaving the question open on nondegenerate data. Empirically, a training-free test confirms the structural predictions, and a controlled architectural dissection confirms that $\eta/L$ predicts the adversarial robust radius (Spearman $\rho=+0.96$ on MNIST, $+0.71$ on Fashion-MNIST; Pearson $0.998$ on a capacity-matched CIFAR-10 sweep) while shift-consistency does not; on CIFAR-10 the decomposition separates each invariance operator's effect into a margin term and a Lipschitz term, with anti-aliasing acting on the Lipschitz term and exact invariance costing margin. Under PGD adversarial training the same anti-prediction holds across three datasets and two threat models (CIFAR-10, MNIST, Fashion-MNIST; $\ell_\infty$ and $\ell_2$): shift-consistency anti-predicts AutoAttack robust accuracy (Pearson $-0.60$ to $-0.88$) and a threat-matched $\eta/L$ predicts it (up to $0.90$). On the optimization side we prove that shift-invariance is \emph{margin-free} on orbit-closed data, so it cannot raise the margin there and gradient descent self-symmetrizes; on near-orthogonal cluster-geometry data the invariant architecture does reach a larger margin-to-Lipschitz ratio, which we prove in the lazy/NTK regime (orbit-averaging is a non-expansive projection in the tangent RKHS), leaving the rich-regime trajectory open.
+\end{abstract}
+
+\section{Introduction}
+Let an image classifier be \emph{shift-invariant} if its prediction is unchanged by circular translations of the input. \citet{ge2021shift} showed, for a binary problem in which each class is a single image and all its shifts, that a fully shift-invariant convolutional network needs an $\ell_2$ perturbation of order $1/\sqrt{\dd}$ to be fooled while a fully connected network needs order $1$, and that this gap appears on real datasets. Subsequent architectural work on anti-aliased pooling reports the opposite-signed correlation on natural images: operators that increase shift-invariance also increase robustness \citep{zhang2019making,saha2024improving}. A parallel line proves a trade-off between \emph{spatial} (geometric) and adversarial robustness \citep{kamath2021canwehaveitall,tramer2020fundamental}.
+
+These statements are not contradictory; they are different regimes of one quantity. Our contributions:
+\begin{itemize}[leftmargin=1.2em]
+\item \textbf{Structural theory (\S\ref{sec:struct}, Figure~\ref{fig:concept}).} An exact identity for the invariant linear margin as the separation of the data projected onto the invariant subspace (Theorem~\ref{thm:A}); a co-existence/trade-off dichotomy governed by the margin-to-Lipschitz ratio $\eta/L$, which, under an explicit co-Lipschitz condition, completes to a two-sided bracket $\eta/L\le r_2\le\eta/\alpha$ (a characterization up to a condition number, \S\ref{sec:dich}); a lemma that a single convolution-plus-pooling layer computes power-spectrum features and so can separate signal that linear invariance discards (Lemma~\ref{lem:ps}); and recoveries of \citet{ge2021shift} and a corrected reconciliation of \citet{kamath2021canwehaveitall}.
+\item \textbf{Optimization: a margin-free theorem and the open selection problem (\S\ref{sec:opt}).} The structural theory establishes that robust shift-invariant classifiers exist; whether gradient descent reaches them is separate. We give the exact rank of a shift orbit (its number of nonzero Fourier coefficients), and prove that on orbit-closed data shift-invariance is \emph{margin-free}: the invariant and unconstrained two-layer-ReLU max-margin values coincide, so weight sharing cannot raise the margin and gradient descent self-symmetrizes (the trained network becomes shift-invariant on its own). A direct synthetic test confirms this on generic orbit data (the invariant and unconstrained networks reach the same robustness), while on near-orthogonal cluster-geometry data the invariant architecture does reach a larger $\eta/L$, which we prove in the lazy/NTK regime (orbit-averaging is a non-expansive projection in the tangent RKHS), leaving the rich-regime trajectory open.
+\item \textbf{Experiments (\S\ref{sec:exp}).} A training-free test confirms the structural predictions; a controlled, capacity-matched architectural dissection on MNIST, Fashion-MNIST, and CIFAR-10 confirms that $\eta/L$, not shift-consistency, predicts the robust radius, and decomposes each invariance operator's effect into a margin term and a Lipschitz term.
+\end{itemize}
+This is a consolidation document in a technical-report register; full proofs are in Appendix~\ref{app:proofs}.
+
+\section{Preliminaries}\label{sec:prelim}
+We work with one-dimensional signals $x\in\R^{\dd}$; the two-dimensional case replaces $\Z_{\dd}$ by $\Z_{d_1}\times\Z_{d_2}$ and the cyclic DFT by its two-dimensional analogue, without change to the statements. The cyclic group $G=\Z_{\dd}$ acts by the circular shift $(S_s x)_i = x_{(i-s)\bmod \dd}$; each $S_s$ is an orthogonal permutation. The \emph{orbit} of $x$ is $\mathcal{O}(x)=\{S_s x\}_{s\in G}$, the set of all its shifts, and a class set is \emph{orbit-closed} if it is closed under all shifts.
+
+\paragraph{Invariant and AC subspaces.} Let $\Vinv=\{v: S_s v=v\ \forall s\}$ and $\Vac=\Vinv^{\perp}$. The orthogonal projector onto $\Vinv$ is $\Pi_{\mathrm{inv}}=\tfrac1\dd \mathbf 1\mathbf 1^\top$, so $\Vinv=\mathrm{span}(\mathbf 1)$ is the constant (DC) line and $\Vac=\{v:\sum_i v_i=0\}$. Write $\fdc(x)=\tfrac{1}{\sqrt\dd}\sum_i x_i$ for the unit DC functional. All $S_s$ are simultaneously diagonalized by the DFT; a shift multiplies Fourier coefficient $k$ by a unit-modulus phase, so $|\hat x_k|^2$ is shift-invariant.
+
+\paragraph{Robustness and consistency.} For a score $f$ correct on $(x,y)$, the $\ell_p$ robust radius is $r_p(f,x)=\inf\{\|\delta\|_p:\ \mathrm{sign}\,f(x+\delta)\neq y\}$; for a linear score $w^\top x+b$ this is $y(w^\top x+b)/\|w\|_q$. The shift-consistency is $\mathrm{SC}(f)=\Pr_{x,s}[\mathrm{sign}\,f(S_s x)=\mathrm{sign}\,f(x)]$; exact invariance gives $\mathrm{SC}=1$.
+
+\section{Structural theory: when invariance permits robustness}\label{sec:struct}
+
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{figures/concept.pdf}
+\caption{The central criterion. \textbf{(a)} A shift-invariant linear classifier sees the data only through its projection onto the invariant subspace $\Vinv$ (the DC line for cyclic shift); the surviving separation is the invariant margin $\gamma_{\mathrm{inv}}$, the distance between the two projected class hulls (Theorem~\ref{thm:A}). Discriminative signal that lives in the orthogonal AC subspace $\Vac$ is invisible to invariance, where the classes overlap. \textbf{(b)} A margin $\eta$ in an invariant feature space certifies an $\ell_2$ robust radius $r_2\ge\eta/L$, with $L$ the Lipschitz constant of the invariant feature map $\Psi$ (\S\ref{sec:dich}); here $\eta=\gamma_{\mathrm{inv}}$ for the linear case. Invariance helps robustness only when the discriminative signal survives the projection with margin.}
+\label{fig:concept}
+\end{figure}
+
+\subsection{The exact invariant linear margin}
+\begin{theorem}[Invariant linear margin equals projection separation]\label{thm:A}
+A linear score $g(x)=w^\top x+b$ is shift-invariant for all $x$ if and only if $w\in\Vinv$, i.e.\ $w=c\mathbf 1$. Consequently, for any finite separable classes $X_+,X_-$, the invariant $\ell_2$ max-margin equals the separation of the DC-projected data,
+\[
+\gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}\big(I_+,I_-\big)
+=\tfrac12\,\mathrm{dist}\big(\mathrm{conv}\,\Pi_{\mathrm{inv}}X_+,\ \mathrm{conv}\,\Pi_{\mathrm{inv}}X_-\big),
+\]
+where $I_\pm=\big[\min_{x\in X_\pm}\fdc(x),\ \max_{x\in X_\pm}\fdc(x)\big]$ are the intervals of DC values, with maximizing direction $\pm\mathbf 1/\sqrt\dd$ oriented toward the positive class. This holds for any finite separable dataset, not only the single-image case, and does not require orbit-closure.
+\end{theorem}
+\emph{Proof sketch.} Invariance forces $(S_{-s}w-w)^\top x=0$ for all $x,s$, hence $w\in\Vinv=\mathrm{span}(\mathbf 1)$ (only constant vectors are shift-fixed). With $w=c\mathbf 1$ the score depends on $x$ only through $\fdc(x)$, reducing the problem to one-dimensional thresholding of the DC values; the max-margin separator of two point sets on a line is the midpoint of the gap between their convex hulls (here the two intervals $I_\pm$), so the geometric margin is half the inter-interval distance. The one-sided form $\tfrac12(\min_{X_+}\fdc-\max_{X_-}\fdc)_+$ is the special case where $X_+$ lies above $X_-$ in DC coordinate. Full proof in Appendix~\ref{app:proofs}. \hfill$\square$
+
+The same accounting holds for any finite symmetry group, with the DC projector replaced by the group-average projector.
+\begin{theorem}[General finite-group invariant margin]\label{thm:finite-group}
+Let a finite group $G$ act orthogonally on $\R^\dd$ by matrices $\{R_g\}$, with fixed subspace $V^G=\{v:R_gv=v\ \forall g\}$ and group-average projector $P_G=\tfrac1{|G|}\sum_{g\in G}R_g$, which is the orthogonal projector onto $V^G$. A linear score $w^\top x+b$ is exactly $G$-invariant if and only if $w\in V^G$, and the maximum invariant $\ell_2$ margin for finite separable classes is
+\[
+\gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}\big(\mathrm{conv}\,P_GX_+,\ \mathrm{conv}\,P_GX_-\big).
+\]
+Theorem~\ref{thm:A} is the cyclic case $P_G=\Pi_{\mathrm{inv}}$. (Proof in Appendix~\ref{app:proofs}.)
+\end{theorem}
+
+\subsection{The co-existence / trade-off dichotomy and the $\eta/L$ criterion}\label{sec:dich}
+Theorem~\ref{thm:A} reduces ``does invariance hurt robustness?'' to ``does the discriminative signal survive projection onto the invariant subspace?''. If the projected classes overlap, $\gamma_{\mathrm{inv}}=0$ (forced trade-off); if they stay separated by $\eta>0$ with the invariant feature having Lipschitz constant $L$, the invariant classifier is simultaneously fully shift-consistent and robust with radius at least $\eta/L$. The governing scalar is therefore
+\[
+\boxed{\ \eta/L \;=\; \Sep_{\mathrm{inv}}/L\ } \qquad\text{(margin of the invariant feature, divided by its Lipschitz constant).}
+\]
+We stress $\eta/L$, not $\Sep_{\mathrm{inv}}>0$: a class signal can survive projection yet have vanishing margin, in which case invariance and robustness still trade off (this is exactly the \citet{kamath2021canwehaveitall} construction, \S\ref{sec:recover}). The bound $r_2\ge\eta/L$ is a Lipschitz--margin certificate: there is no \emph{universal} converse, and the true robust radius can be arbitrarily larger than $\eta/L$ (for the invariant feature $t\mapsto t^{2n+1}$ on the DC line $t=\fdc(x)$, $\eta/L=1/(2n+1)$ while $r_2=1$, so the gap is unbounded). Under an explicit reachability condition, however, the certificate completes to a two-sided bracket.
+\begin{proposition}[Two-sided bracket: a conditional converse]\label{prop:sandwich}
+If the score is $L$-Lipschitz toward the boundary and admits a co-Lipschitz (lower-Lipschitz) constant $\alpha$ along a path reaching it, then $\eta/L\le r_2\le\eta/\alpha$ with condition number $\kappa:=L/\alpha\ge1$, so $\eta/L$ determines the robust radius up to $\kappa$. The bracket is exact ($r_2=\eta/\|w\|_2$, $\kappa=1$) for linear invariant features \citep{hein2017formal}; the $t^{2n+1}$ example above is the large-$\kappa$ regime, and for the power-spectrum surrogate both arms are explicit (verified numerically, realized $\kappa\approx1.6$--$2.4$). This completes the upper arm of the certificate chain of \citet{tsuzuku2018lipschitz}; the full proof is in the companion technical report.
+\end{proposition}
+We therefore read $\eta/L$ as a certificate and empirical predictor of robustness (\S\ref{sec:exp}) and, up to $\kappa$, as a characterization.
+
+\paragraph{The excessive-invariance side.} The ratio $\eta/L$ lower-bounds model-score stability; a second quantity bounds whether the imposed invariance is semantically valid at the same radius. Let $y_\star$ be an oracle label and $g$ a $G$-invariant classifier correct at $x$, and define the orbit-flip radius $\rho_G(x)=\inf\{\|R_h x-x\|_2:\ y_\star(R_h x)\neq y_\star(x)\}$.
+\begin{proposition}[Orbit-flip upper bound]\label{prop:rhoG}
+If the set in the infimum is nonempty, the oracle-robust radius of $g$ at $x$ is at most $\rho_G(x)$: the orbit point $R_h x$ attaining it is correctly classified by $g$ yet wrong under the oracle, an invariance-based adversarial example. (Proof in Appendix~\ref{app:proofs}.)
+\end{proposition}
+A perturbation budget $\epsilon$ therefore admits a robust invariant classifier only if $\epsilon\le\eta/L$ (score stability) and $\epsilon<\rho_G$ (the imposed invariance does not cross the oracle boundary). This is the formal core of the excessive-invariance failure of \citet{tramer2020fundamental}: $\eta/L$ controls sensitivity-based attacks, $\rho_G$ controls invariance-based ones, and a model needs room under both.
+
+\subsection{Nonlinear escape: a convolution-plus-pooling layer computes the power spectrum}
+The invariant \emph{linear} family is one-dimensional (only $\fdc$). Nonlinear invariants are richer.
+\begin{lemma}[Power-spectrum span]\label{lem:ps}
+A circular-convolution layer with a quadratic activation and global average pooling computes, for filter $w$, $\;\Phi_{w}(x)=\tfrac1\dd\sum_s\big((w\star x)_s\big)^2=\tfrac1\dd\sum_k |\hat w_k|^2\,|\hat x_k|^2$. Varying a \emph{real} filter $w$ spans the nonredundant power coordinates $|\hat x_0|^2$, $|\hat x_{\dd/2}|^2$ (when $\dd$ is even), and the conjugate-pair sums $|\hat x_k|^2+|\hat x_{\dd-k}|^2$ for $0<k<\dd/2$; since $x$ is real these exhaust its power spectrum. (A complex filter isolates each individual $|\hat x_k|^2$.) These features are shift-invariant and supported on $\Vac$ for $k\neq0$.
+\end{lemma}
+\emph{Proof.} Cross-correlation has DFT $\overline{\hat w_k}\hat x_k$; Parseval with the unitary DFT gives the displayed identity. A real filter satisfies $|\hat w_k|^2=|\hat w_{\dd-k}|^2$, so it can weight a conjugate pair $\{k,\dd-k\}$ but not split it; concentrating it on one pair isolates $|\hat x_k|^2+|\hat x_{\dd-k}|^2$, while a complex filter supported on a single frequency isolates $|\hat x_k|^2$. \hfill$\square$
+
+\begin{corollary}[Conditional robust radius]\label{cor:C}
+For an invariant feature map $\Psi$ with achievable head margin $\eta=\tfrac12\,\mathrm{dist}(\mathrm{conv}\,\Psi(X_+),\mathrm{conv}\,\Psi(X_-))$ and Lipschitz constant $L$, the induced classifier has $\mathrm{SC}=1$ and $r_2\ge \eta/L$.
+\end{corollary}
+This is the standard Lipschitz-margin bound; its content is which $\Psi$ a shift-invariant architecture can realize (Lemma~\ref{lem:ps}), not the inequality itself, and as noted in \S\ref{sec:dich} it is a lower-bound certificate with no general converse. Here $\eta=\tfrac12\,\mathrm{dist}(\mathrm{conv}\,\Psi(X_+),\mathrm{conv}\,\Psi(X_-))$ is the exact hard-margin separation of the feature sets. On a ball $\|x\|_2\le B$ the power-spectrum feature is $2B$-Lipschitz, which makes the certificate explicit, and Appendix~\ref{app:proofs} works out an exactly solvable two-subspace model whose every point has robust radius $a/\sqrt2$ under a quadratic invariant that no linear classifier can match. A complementary first-order fact: for the continuous shift generator, an invariant score has gradient orthogonal to the orbit tangent, so first-order perturbations along the continuous orbit do not change the score; the discrete shift is a finite secant and is not protected exactly.
+
+\subsection{Recoveries and a corrected reconciliation}\label{sec:recover}
+\textbf{\citet{ge2021shift}.} For the single white/black dot, $\fdc(\pm e_j)=\pm1/\sqrt\dd$, so Theorem~\ref{thm:A} gives $\gamma_{\mathrm{inv}}=1/\sqrt\dd$; in their one-sided convention the gap is $2/\sqrt\dd$ (their Corollary~1). The contrast ``unconstrained margin $1$ vs invariant $1/\sqrt\dd$'' is the two-image protocol: it compares the unshifted pair $\{e_j\},\{-e_j\}$ (unconstrained margin $1$) against the invariant classifier. On the orbit-closed dataset $\mathcal O(e_j)$ vs $\mathcal O(-e_j)$ the unconstrained linear max-margin is itself $1/\sqrt\dd$, so the gap is a property of that protocol, not of invariance alone. The power spectrum is sign-blind ($|\widehat{+e_j}_k|^2=|\widehat{-e_j}_k|^2$), so even the power-spectrum invariant cannot separate the dot, while the linear DC invariant separates it only at the weak margin $1/\sqrt\dd$: localized, phase-coded signal is the small-$\eta/L$ corner for both. A higher-order invariant escapes it, however: the bispectrum $\hat x_{k_1}\hat x_{k_2}\overline{\hat x_{k_1+k_2}}$ is also shift-invariant and separates $\pm e_j$ with margin $d^{-3/2}$ (it determines a generic signal up to shift), at the cost of a larger Lipschitz constant, hence a smaller certified $\eta/L$.
+
+\textbf{\citet{kamath2021canwehaveitall}.} Conditional on their data model, their construction places the label on a coordinate $x_0$ that their shift \emph{fixes}; $x_0$ is therefore an invariant feature, and an invariant classifier reaches high clean accuracy (their Proposition~1). Robustness still fails because $x_0$ has margin of order $1/\sqrt\dd$. In our terms this is the small-$\eta/L$ corner, not a case where invariance discards the signal; their impossibility is then an instance of our criterion rather than a counterexample. We state this as an interpretation: a self-contained restatement of their exact distribution would be needed to make it a theorem in our framework.
+
+\section{Optimization: does gradient descent reach the robust invariant solution?}\label{sec:opt}
+The structural theory says robust shift-invariant classifiers exist; it does not say gradient descent finds them. For unconstrained two-layer ReLU networks on near-orthogonal cluster data, the implicit bias selects a non-robust max-margin solution even though robust ones exist \citep{frei2023double}, via \emph{feature averaging} \citep{li2025feature}; \citet{min2024can} conjecture that changing the architecture re-points this bias, and a natural hope is that hard-wired shift-invariance is such a lever. Testing that hope needs orbit-structured data on which the non-robustness premise genuinely holds. We characterize exactly when it can, via the rank of an orbit, and find that the two canonical orbit constructions both fail to, in opposite ways.
+
+\begin{lemma}[Orbit-bundle form]\label{lem:bundle}
+A circular-convolution-plus-global-pooling network equals a two-layer network whose neurons are tied into shift-orbit bundles (one filter spawns all $\dd$ of its shifts, sharing one output weight) and whose feature is an orbit average. (Exact; structural.)
+\end{lemma}
+
+\begin{lemma}[Rank of a shift orbit]\label{lem:rank}
+For a base pattern $u\in\R^\dd$, the cyclic orbit $\{S_s u\}_{s\in\Z_\dd}$ has rank exactly $\#\{k:\hat u_k\neq0\}$, the number of nonzero Fourier coefficients of $u$.
+\end{lemma}
+\emph{Proof.} The matrix of orbit columns is circulant, hence diagonalized by the DFT with eigenvalues $\propto\hat u_k$; the rank is the number of nonzero eigenvalues. \hfill$\square$
+
+\begin{proposition}[The canonical orbit bases are degenerate, in opposite ways]\label{prop:rank}
+Let each class be the shift orbit of a single base pattern. (i) For a single cosine of frequency $k$, Lemma~\ref{lem:rank} gives orbit rank $2$ (it spans $\{\cos,\sin\}$ at frequency $k$), violating the near-orthogonal $\Omega(\dd)$-cluster assumption of \citet{frei2023double,li2025feature}; moreover the signed orbit mean, the direction that carries the non-robustness conclusion in those works, is $\mathbf 0$. (ii) For a localized spike $e_j$, the orbit is full-rank and orthonormal (the cluster assumption holds) but the power spectrum is phase-blind, so $\Sep(\Psi)=0$ and the invariant nonlinear classifier cannot separate the two classes. Thus neither canonical base is a valid testbed for the re-pointing hope: in (i) the non-robustness premise fails, in (ii) the invariant-separation conclusion fails.
+\end{proposition}
+\emph{Verification.} For $\dd=64$, $k=5$: the cosine orbit has numerical rank $2$ and signed mean of norm $1.7\times10^{-16}$; the spike orbit has rank $\dd$ and power-spectrum gap $0$. \hfill$\square$
+
+\begin{proposition}[The degeneracy is non-generic]\label{prop:generic}
+If a base $u$ has all Fourier coefficients nonzero, its orbit is full-rank (Lemma~\ref{lem:rank}); and two such bases with distinct power spectra are power-spectrum separable. Hence generic single-orbit data is simultaneously full-rank and invariant-separable, so the degenerate corner of Proposition~\ref{prop:rank} does not cover single-orbit data in general.
+\end{proposition}
+
+Lemma~\ref{lem:rank} and Propositions~\ref{prop:rank}--\ref{prop:generic} are modest structural contributions: they pin down exactly which orbit data is degenerate and show the two textbook constructions are the degenerate cases (which explains why an unconstrained network is already competitive on them), while generic single-orbit data is not degenerate. They do \emph{not} close the optimization gap, but a direct test on synthetic orbit data sharpens it. Training unconstrained versus weight-tied shift-invariant ReLU networks on the same orbit data shows the effect is \emph{data-model-dependent}. On generic orbit data, shift-invariance is provably \emph{margin-free}: on orbit-closed data the invariant and unconstrained two-layer-ReLU max-margin values coincide, because orbit-averaging an unconstrained solution gives an invariant one of equal minimum norm; so weight sharing cannot raise the margin there, and indeed the unconstrained network self-symmetrizes with no feature-averaging collapse. But on near-orthogonal cluster-geometry data the invariant architecture reaches a substantially larger $\eta/L$ than the unconstrained one (a factor $1.2$ in the rich regime, up to $\sim$$4$ in the lazy regime, robust across $4$--$8$ orbits and $d\in\{64,128\}$), at equal margin: the gain is entirely a smaller Lipschitz constant, and it is largest exactly where the unconstrained network fails to self-symmetrize. So whether invariance re-points the implicit bias toward robustness depends on the data geometry. In the lazy/NTK regime the cluster-geometry case is now a theorem: orbit-averaging is the orthogonal projection onto the invariant subspace of the tangent RKHS \citep{elesedy2021provably}, so the invariant min-norm interpolant has a smaller Lipschitz constant at equal margin, with the gap equal to the unconstrained solution's orbit-variance \citep{jacot2018neural} (companion technical report). The rich (small-init) regime and the bare-ReLU trajectory remain open, on the same wall reached by \citet{frei2023double,min2024can,li2025feature}. Empirically (\S\ref{sec:exp}), $\eta/L$ predicts the robustness of trained models regardless.
+
+\section{Experiments}\label{sec:exp}
+\paragraph{Structural predictions, training-free (confirmed).} We compute, per dataset, the unconstrained linear margin $\Sep(\mathrm{Id})$, the invariant linear margin $\Sep(\Pi_{\mathrm{inv}})$ (Theorem~\ref{thm:A}), and the power-spectrum margin via a hard-margin SVM (Table~\ref{tab:struct}). The single dot is separable by an unconstrained classifier (margin $1$), only weakly by linear invariance ($1/\sqrt\dd$), and not at all by the power spectrum (sign-blind). The orthogonal-frequency data of \citet{ge2021shift} (each class the span of odd, resp.\ even, frequencies) is separable by \emph{neither} linear classifier yet separable by the power-spectrum invariant: invariance helps through the right nonlinear feature.
+
+\begin{table}[h]\centering
+\caption{Achievable separation by classifier family (training-free), $\dd=64$ so $1/\sqrt\dd=0.125$.}
+\label{tab:struct}
+\begin{tabular}{lcccc}
+\toprule
+dataset & $\Sep(\mathrm{Id})$ & $\Sep(\Pi_{\mathrm{inv}})$ & $\eta_{\Psi}$ (power spec.) & $\eta_\Psi/L$ \\
+\midrule
+dot ($+e_0/-e_0$) & $1.000$ & $0.125$ & $0.000$ & $0$ \\
+frequency, single & $0.000$ & $0.000$ & $361.9$ & $3.10$ \\
+frequency, spans (Ge) & $0.000$ & $0.000$ & $5.75$ & $0.378$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Architectural dissection ($\eta/L$ predicts robustness; shift-consistency does not).} We train seven architectures (a fully connected baseline; a single convolution-plus-global-pooling shift-invariant model; multi-layer convolutions with max/average pooling and an optional dense layer), each with and without batch-normalization where applicable, on $16{,}000$ images for $25$ epochs, three seeds, on GPU, for both MNIST and Fashion-MNIST. As the dataset-comparable robustness measure we use the per-sample \emph{robust radius} $r_2$ (the smallest $\ell_2$-PGD perturbation that flips the label), of which $\eta/L$ is a lower bound; fixed-$\epsilon$ robust accuracy is misleading across datasets because of floor effects. Table~\ref{tab:diss} reports the MNIST per-model means. Across the seven configurations, $\eta/L$ predicts the robust radius with Spearman $\rho=+0.96$ on MNIST and $+0.71$ on Fashion-MNIST, whereas shift-consistency predicts it on neither ($\rho=-0.31$ and $0.00$). The single shift-invariant model has consistency $1.0$ yet the smallest robust radius, the sharpest illustration that consistency does not imply robustness. Batch-normalization raises clean accuracy and lowers fixed-$\epsilon$ robust accuracy in both the fully connected and convolutional pairs, consistent with \citet{galloway2019batchnorm}; under the per-sample robust radius, however, the change reverses sign and is small, which is precisely why we treat the radius, not fixed-$\epsilon$ accuracy, as the dataset-comparable measure.
+
+\begin{table}[h]\centering
+\caption{MNIST dissection (means over 3 seeds, $n{=}16{,}000$, 25 epochs). Primary metric: per-sample $\ell_2$ robust radius $r_2$ (smallest label-flipping $\ell_2$-PGD perturbation), of which $\eta/L$ is a lower bound. Fixed-$\epsilon$ robust accuracy (rob$_\epsilon$, $\ell_2$ at $\epsilon{=}1.5$) is shown for comparison.}
+\label{tab:diss}
+\footnotesize
+\begin{tabular}{lrccccc}
+\toprule
+model & params & clean & consist. & $r_2$ & rob$_\epsilon\,\ell_2$ & $\eta/L$ \\
+\midrule
+FC (depth 2)            & 269k & 0.971 & 0.281 & 0.938 & 0.060 & 0.592 \\
+FC (depth 2) + BN       & 270k & 0.973 & 0.292 & 0.962 & 0.043 & 0.668 \\
+conv d1 k5 GAP          & 4.6k & 0.569 & 1.000 & 0.457 & 0.047 & 0.376 \\
+conv d1 k5 GAP + BN     & 4.9k & 0.647 & 1.000 & 0.486 & 0.022 & 0.557 \\
+conv d2 k3 max          & 212k & 0.987 & 0.473 & 1.846 & 0.477 & 1.443 \\
+conv d2 k3 avg          & 212k & 0.984 & 0.475 & 1.658 & 0.399 & 1.537 \\
+conv d2 k3 max + dense  & 953k & 0.986 & 0.487 & 1.944 & 0.570 & 1.627 \\
+\midrule
+\multicolumn{7}{l}{Spearman over 7 rows: $\eta/L$ vs $r_2 = +0.96$ (MNIST), $+0.71$ (Fashion); consist.\ vs $r_2 = -0.31$, $0.00$.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Capacity-matched CIFAR-10 dissection.} We repeat the test on CIFAR-10 with a controlled comparison along the shift-invariance axis at matched capacity. Four architectures share one channel schedule, hence an identical parameter count, and differ only in the shift-invariance operator: a \emph{standard} network (max-pooling, zero padding); an \emph{anti-aliased} network with blur-pooled downsampling \citep{zhang2019making}; an \emph{exact cyclic} network (circular padding, global pooling, no spatial subsampling) that is exactly invariant to integer circular shifts; and a \emph{shift-augmented} network, the standard architecture trained with random circular shifts so its invariance is learned rather than built in. We train three seeds at two widths and report clean accuracy, circular-shift consistency, the per-sample $\ell_2$ robust radius $r_2$ from the decoupled direction and norm (DDN) minimum-norm attack \citep{rony2019decoupling} (validated against the closed-form radius of a linear model to under one percent), and the active logit margin $M$ (the gap between the correct-class logit and the highest other logit), summarized by its mean $\eta=\mathbb{E}[M]$ and mean input-gradient norm $L=\mathbb{E}\|\nabla M\|_2$ (Table~\ref{tab:cifar}). The threat-matched ratio $\eta/\|\nabla M\|_q$ used under adversarial training takes $q$ the dual norm of the attack. Clean accuracy is comparable across arms, with the exactly invariant model slightly lower. AutoAttack \citep{croce2020reliable} at the standard CIFAR thresholds drives every model to zero robust accuracy, as expected for models that are not adversarially trained; this floor is the reason we use the per-sample radius as the comparable quantity. At smaller $\ell_2$ radii where AutoAttack is informative, the radius and AutoAttack agree: across arms the fraction of points with $r_2>\epsilon$ matches AutoAttack robust accuracy at $\epsilon\in\{0.05,0.10,0.15,0.25\}$ to a mean absolute gap of $0.014$ (maximum $0.025$), so the radius is not inflated by gradient masking.
+
+\begin{table}[h]\centering
+\caption{Capacity-matched CIFAR-10 dissection (means over 3 seeds). All four arms have identical parameter counts at each width ($288.7$k at $w{=}32$, $1.15$M at $w{=}64$). $r_2$ is the per-sample $\ell_2$ robust radius (DDN, on correctly classified points); $\eta$ and $L$ are the mean active logit margin and its mean input-gradient norm. AutoAttack at $\ell_\infty{=}8/255$ and $\ell_2{=}0.5$ is $0.000$ for every arm (the floor that motivates $r_2$).}
+\label{tab:cifar}
+\footnotesize
+\begin{tabular}{llcccccc}
+\toprule
+arm & $w$ & clean & consist. & $r_2$ & $\eta$ & $L$ & $\eta/L$ \\
+\midrule
+standard      & 32 & 0.888 & 0.854 & 0.099 & 7.85 & 81.9 & 0.096 \\
+anti-aliased  & 32 & 0.900 & 0.887 & 0.116 & 7.75 & 66.4 & 0.117 \\
+exact cyclic  & 32 & 0.871 & 1.000 & 0.080 & 5.06 & 64.5 & 0.079 \\
+shift-aug     & 32 & 0.903 & 0.928 & 0.106 & 6.99 & 67.2 & 0.104 \\
+\midrule
+standard      & 64 & 0.912 & 0.891 & 0.119 & 8.34 & 71.3 & 0.117 \\
+anti-aliased  & 64 & 0.919 & 0.909 & 0.141 & 8.57 & 59.4 & 0.144 \\
+exact cyclic  & 64 & 0.897 & 1.000 & 0.090 & 6.42 & 73.0 & 0.088 \\
+shift-aug     & 64 & 0.921 & 0.943 & 0.117 & 8.75 & 75.1 & 0.117 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{figures/cifar_etaL_vs_radius.pdf}
+\caption{CIFAR-10, eight capacity-matched architecture-by-width cells (bold markers) and their three seeds (faint). Left: $\eta/L$ tracks the $\ell_2$ robust radius (Pearson $0.998$, Spearman $0.98$; $0.997$ across individual seeds). Right: shift-consistency does not predict it; the exactly invariant model (red) has consistency $1.0$ and the smallest radius.}
+\label{fig:cifar-pred}
+\end{figure}
+
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{figures/cifar_decomposition.pdf}
+\caption{Margin/Lipschitz decomposition of the robust-radius change relative to the standard baseline, at each width ($\Delta\log(\eta/L)=\Delta\log\eta-\Delta\log L$; higher is more robust). Anti-aliasing raises $\eta/L$ by lowering the Lipschitz constant with the margin roughly unchanged; exact cyclic invariance lowers $\eta/L$ by shrinking the margin.}
+\label{fig:cifar-decomp}
+\end{figure}
+
+The CIFAR-10 dissection makes two points. First, $\eta/L$ predicts the robust radius across all eight capacity-matched cells (Pearson $0.998$), while shift-consistency does not: the exactly invariant model has perfect consistency yet the smallest radius, the clearest separation of the two. Second, the decomposition shows the two robustness-changing operators act through different terms (Figure~\ref{fig:cifar-decomp}). Anti-aliasing leaves the margin essentially unchanged and lowers the Lipschitz constant ($\Delta\log L\approx-0.2$), gaining robustness through reduced input sensitivity. Exact cyclic invariance instead shrinks the margin ($\Delta\log\eta\approx-0.3$ to $-0.4$) and loses robustness, the real-data form of the \citet{ge2021shift} collapse: forcing invariance costs discriminative margin even while it makes the model perfectly shift-consistent. This is the structural criterion of \S\ref{sec:dich} made operational: invariance helps robustness only when it does not cost margin.
+
+\paragraph{Under adversarial training.} To test whether the picture survives a strong standardized attack, we PGD-adversarially train \citep{madry2018towards} the same four arms ($\ell_\infty$, $\epsilon=8/255$, $7$ steps; two widths, two seeds) and evaluate with AutoAttack at the RobustBench thresholds (Table~\ref{tab:cifar-at}). Adversarial training makes AutoAttack informative: robust accuracy is now $27$--$41\%$ at $\ell_\infty=8/255$, with no gradient masking (AutoAttack stays below matched PGD for every arm). Three things hold. (i) Shift-consistency remains strongly \emph{anti}-correlated with robustness (Pearson $-0.88$ against AutoAttack); the exactly invariant model has consistency $1.0$ and the lowest robust accuracy of the four. (ii) The $\eta/L$ criterion still predicts robustness once its norm is matched to the threat: the $\ell_\infty$-matched ratio $\eta/\|\nabla M\|_1$, using the dual norm of the $\ell_\infty$ attack, tracks AutoAttack robust accuracy with Pearson $0.90$ (Figure~\ref{fig:cifar-at}), whereas the $\ell_2$ ratio ($0.62$) and the $\ell_2$ robust radius (near zero) do not, because adversarial training robustifies in $\ell_\infty$, not $\ell_2$. (iii) The robustness ordering is anti-aliased $\ge$ standard $\approx$ shift-augmented $>$ exact cyclic, the same direction as standard training. One confound: the exactly invariant arm reaches lower clean accuracy under adversarial training ($0.57$--$0.63$ vs.\ $0.69$--$0.77$), so part of its robustness deficit reflects reduced fitting rather than margin geometry alone; the consistency anti-prediction and the threat-matched $\eta/L$ law are not explained by clean accuracy.
+
+\begin{table}[h]\centering
+\caption{PGD-adversarially trained CIFAR-10 dissection (means over 2 seeds; $\ell_\infty$ training at $\epsilon=8/255$). AA$_\infty$ and AA$_2$ are AutoAttack robust accuracy at $\ell_\infty{=}8/255$ and $\ell_2{=}0.5$; $\eta/\|\nabla M\|_1$ is the $\ell_\infty$-matched margin-to-sensitivity ratio. Parameter counts per width are identical to Table~\ref{tab:cifar}.}
+\label{tab:cifar-at}
+\footnotesize
+\begin{tabular}{llcccccc}
+\toprule
+arm & $w$ & clean & consist. & AA$_\infty$ & AA$_2$ & $\eta/\|\nabla M\|_1$ & $\eta/L_2$ \\
+\midrule
+standard      & 32 & 0.711 & 0.792 & 0.370 & 0.518 & 0.0421 & 1.190 \\
+anti-aliased  & 32 & 0.722 & 0.798 & 0.392 & 0.511 & 0.0425 & 1.180 \\
+exact cyclic  & 32 & 0.566 & 1.000 & 0.273 & 0.400 & 0.0371 & 1.105 \\
+shift-aug     & 32 & 0.689 & 0.871 & 0.355 & 0.507 & 0.0419 & 1.147 \\
+\midrule
+standard      & 64 & 0.768 & 0.821 & 0.392 & 0.556 & 0.0410 & 1.124 \\
+anti-aliased  & 64 & 0.774 & 0.823 & 0.413 & 0.558 & 0.0426 & 1.169 \\
+exact cyclic  & 64 & 0.631 & 1.000 & 0.295 & 0.437 & 0.0363 & 1.072 \\
+shift-aug     & 64 & 0.750 & 0.890 & 0.396 & 0.566 & 0.0412 & 1.108 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{figures/cifar_at_predict.pdf}
+\caption{PGD-adversarially trained CIFAR-10 (eight cells, bold; two seeds, faint). Left: the $\ell_\infty$-matched ratio $\eta/\|\nabla M\|_1$ tracks AutoAttack robust accuracy at $\ell_\infty=8/255$ (Pearson $0.90$). Right: shift-consistency anti-predicts it (Pearson $-0.88$); the exactly invariant model (red) has consistency $1.0$ and the lowest robust accuracy.}
+\label{fig:cifar-at}
+\end{figure}
+
+\paragraph{Generality across datasets and threats.} The two laws hold when we repeat the adversarial-training dissection on MNIST and Fashion-MNIST ($\ell_\infty$) and on CIFAR-10 under an $\ell_2$ threat (Table~\ref{tab:at-general}). Across all four conditions shift-consistency \emph{anti}-predicts AutoAttack robust accuracy (Pearson $-0.60$ to $-0.88$), and the threat-matched ratio $\eta/\|\nabla M\|_q$ (with $q$ the dual norm of the attack) predicts it, exceeding the mismatched ratio in every $\ell_\infty$ condition. The one exception is $\ell_2$-CIFAR, where the $\ell_1$ and $\ell_2$ gradient norms run nearly proportional so the matched and mismatched ratios coincide ($+0.87$ vs.\ $+0.91$); there the threat-matching is better read at the metric level, where the $\ell_2$ robust radius predicts $\ell_2$ AutoAttack ($+0.79$) even though it had decoupled under $\ell_\infty$ training. No gradient masking appears in any condition (AutoAttack $\le$ matched PGD throughout), and the exact-cyclic arm has the lowest robust accuracy in every condition, again through a margin deficit ($\Delta\log\eta<0$ for circular on all datasets).
+
+\begin{table}[h]\centering
+\caption{Adversarial-training dissection across datasets and threat models (four arms $\times$ two widths $\times$ two seeds; Pearson computed over the sixteen per-seed points against AutoAttack robust accuracy at the threat threshold). Matched ${=}$ dual norm of the training threat ($\ell_1$ gradient for $\ell_\infty$, $\ell_2$ gradient for $\ell_2$). The consistency anti-prediction and threat-matched $\eta/L$ prediction hold throughout.}
+\label{tab:at-general}
+\footnotesize
+\begin{tabular}{llccc}
+\toprule
+dataset & threat & consist.\ vs AA & matched $\eta/\|\nabla M\|_q$ & mismatched \\
+\midrule
+CIFAR-10      & $\ell_\infty\ 8/255$ & $-0.88$ & $+0.90$ & $+0.62$ \\
+CIFAR-10      & $\ell_2\ 0.5$        & $-0.77$ & $+0.87$ & $+0.91$ \\
+MNIST         & $\ell_\infty\ 0.3$   & $-0.60$ & $+0.70$ & $+0.57$ \\
+Fashion-MNIST & $\ell_\infty\ 0.1$   & $-0.86$ & $+0.79$ & $+0.64$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Statistical power.} Because each condition above has eight cells, we repeat the CIFAR-10 dissection on denser grids and report bootstrap $95\%$ confidence intervals (resampling cells) with a two-sided permutation test. On a $24$-cell standard-training grid (six widths, four seeds) the $\eta/L$--radius correlation is Pearson $+0.998$ (CI $[+0.997,+0.999]$, $p<10^{-3}$), while shift-consistency is not a significant predictor of the radius ($-0.33$, CI $[-0.68,+0.09]$, $p=0.11$), consistent with the near-zero MNIST and Fashion-MNIST values: under standard training $\eta/L$ predicts and shift-consistency does not. On a $12$-cell adversarially trained grid (three widths, three seeds) the anti-prediction is significant: shift-consistency versus AutoAttack is $-0.75$ (CI $[-0.92,-0.02]$, $p=0.006$) and the threat-matched ratio is $+0.83$ (CI $[+0.49,+0.93]$, $p=0.002$), with the mismatched ratio not significant ($+0.27$, $p=0.39$) and no gradient masking. The strong consistency anti-prediction is thus specific to adversarial training.
+
+\section{Related work}\label{sec:related}
+\citet{ge2021shift} is the base result; \citet{kamath2021canwehaveitall} and \citet{tramer2020fundamental} establish trade-offs between geometric invariance and adversarial robustness; \citet{saha2024improving,zhang2019making,michaeli2023alias} design pooling operators that improve shift-invariance and report robustness gains. On the optimization side, \citet{frei2023double} and \citet{li2025feature} characterize the non-robust implicit bias, \citet{min2024can} conjecture an architectural fix, and \citet{melamed2023adversarial} tie non-robustness to off-manifold gradients. Architecture-versus-robustness studies \citep{huang2023revisiting} vary kernel, normalization, depth, and width under strong attacks but do not consider shift-consistency; our contribution is the shift-consistency axis, the $\eta/L$ criterion, and the exact orbit-rank characterization of when canonical orbit data is degenerate. \citet{tsipras2019robustness,madry2018towards,goodfellow2015explaining} are the robustness background.
+
+\section{Limitations and open problems}
+The central open problem is a trajectory-level implicit-bias theorem for shift-invariant convolution-plus-pooling networks on data where the non-robustness premise genuinely holds (Proposition~\ref{prop:rank} shows the canonical orbit constructions are degenerate, while Proposition~\ref{prop:generic} shows generic orbit data is not, so such data exists). The criterion $\eta/L$ is a lower-bound certificate with no general converse, so the true robust radius can exceed it; the power-spectrum Lipschitz constant grows with input norm, so the guarantee is normalization-dependent; for real filters the convolution-square-pool layer spans conjugate-pair power coordinates rather than individual frequencies; the orbit-gradient statement is exact only for the continuous group; and the empirical study covers standard and PGD-adversarial training across three datasets and two threat models at two widths, so larger backbones and the rich-regime trajectory analysis are left to future work.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\section{Proofs and additional results}\label{app:proofs}
+
+\begin{proof}[Proof of Theorem~\ref{thm:A}]
+Invariance of $g(x)=w^\top x+b$ under every shift means $w^\top S_s x=w^\top x$ for all $x,s$, i.e.\ $(S_{-s}w-w)^\top x=0$ for all $x$, so $S_{-s}w=w$ for all $s$; the only vectors fixed by every cyclic shift are the constants, hence $w\in\Vinv=\mathrm{span}(\mathbf 1)$. Writing $w=c\mathbf 1$, the score depends on $x$ only through $\fdc(x)=\mathbf 1^\top x/\sqrt\dd$, so the data reduce to the scalar DC values and the classes to the intervals $I_\pm$. The maximum-margin separator of two point sets on a line places the threshold midway between the nearer interval endpoints, with geometric margin half the distance between the intervals, giving $\gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}(I_+,I_-)$. Identifying the projected line with $\mathrm{span}(\mathbf 1)$ gives the convex-hull form.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:finite-group}]
+$P_G$ is the orthogonal projector onto $V^G$: by group closure $P_G^2=|G|^{-2}\sum_{g,h}R_gR_h=|G|^{-1}\sum_k R_k=P_G$; each $R_g$ is orthogonal so $R_g^\top=R_{g^{-1}}$ and $P_G^\top=P_G$; its range is exactly the fixed subspace $V^G$. Invariance of $w^\top x$ for all $x$ is equivalent to $R_g^\top w=w$ for all $g$, hence (as $G$ is a group) to $R_g w=w$, i.e.\ $w\in V^G$. For $w\in V^G$ we have $w=P_Gw$, so $w^\top x=w^\top P_Gx$: every invariant linear classifier on $X_\pm$ is an ordinary linear classifier on the projected sets $P_GX_\pm$, with the same normal and signed margins. The maximum unit-normal margin separating two finite sets $A,B$ equals $\tfrac12\,\mathrm{dist}(\mathrm{conv}\,A,\mathrm{conv}\,B)$, attained by the unit vector along the closest-points segment of the hulls; applying this to $A=P_GX_+$, $B=P_GX_-$ gives the claim. The cyclic case has $P_G=\Pi_{\mathrm{inv}}$.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:rhoG}]
+For any $h$ with $y_\star(R_hx)\neq y_\star(x)$, invariance gives $\mathrm{sign}\,g(R_hx)=\mathrm{sign}\,g(x)=y_\star(x)\neq y_\star(R_hx)$. Thus $R_hx$ is classified by $g$ as $y_\star(x)$ but the oracle label there is different, so $R_hx$ is an oracle-adversarial example at distance $\|R_hx-x\|_2$. Taking the infimum over such $h$ bounds the oracle-robust radius by $\rho_G(x)$.
+\end{proof}
+
+\begin{lemma}[Power-spectrum Lipschitz bound on a ball]\label{lem:ps-lip}
+Let $Q(x)=(|\hat x_k|^2)_{k}$ with the unitary DFT. On $\|x\|_2\le B$, $\|Q(x)-Q(y)\|_2\le 2B\,\|x-y\|_2$, and a scalar quadratic invariant $f_a(x)=\sum_k a_k|\hat x_k|^2$ has $\|\nabla f_a(x)\|_2\le 2B\|a\|_\infty$.
+\end{lemma}
+\begin{proof}
+For complex $z,z'$, $\big||z|^2-|z'|^2\big|\le|z-z'|\,(|z|+|z'|)$. Applying this coordinatewise to $Fx,Fy$ and using unitarity of $F$,
+\[
+\|Q(x)-Q(y)\|_2\le\|F(x-y)\|_2\big(\|Fx\|_2+\|Fy\|_2\big)=\|x-y\|_2\big(\|x\|_2+\|y\|_2\big)\le 2B\|x-y\|_2 .
+\]
+For the gradient, $\nabla f_a(x)=2F^{*}\mathrm{diag}(a)Fx$ in the real identification, so $\|\nabla f_a(x)\|_2\le 2\|a\|_\infty\|x\|_2\le 2B\|a\|_\infty$.
+\end{proof}
+
+\begin{theorem}[An exactly solvable nonlinear invariant model]\label{thm:toy}
+Let $U,V$ be orthogonal subspaces of $\R^\dd$ and let $X_+=\{u\in U:\|u\|_2=a\}$, $X_-=\{v\in V:\|v\|_2=a\}$ (or finite shift-orbit subsets whose hulls contain $0$). The quadratic invariant $f(x)=\|P_Ux\|_2^2-\|P_Vx\|_2^2$ classifies $X_+,X_-$ correctly, every point has exact $\ell_2$ robust radius $a/\sqrt2$, and no linear classifier separates the classes.
+\end{theorem}
+\begin{proof}
+For $x\in X_+$, $P_Vx=0$ and $\|x\|_2=a$, so $f(x)=a^2>0$. Decompose a perturbation as $\delta=\delta_U+\delta_V+\delta_W$ with $W=(U\oplus V)^\perp$. The boundary condition $f(x+\delta)\le0$ reads $\|x+\delta_U\|_2^2\le\|\delta_V\|_2^2$; $\delta_W$ cannot help, so set it to $0$. With $r=\|x+\delta_U\|_2$, the smallest $\|\delta_U\|_2$ is $|a-r|$ (move along the ray through $x$) and the smallest feasible $\|\delta_V\|_2$ is $r$, so $\|\delta\|_2^2\ge(a-r)^2+r^2$, minimized at $r=a/2$ with value $a^2/2$; hence the radius is $a/\sqrt2$, attained. The case $x\in X_-$ is symmetric. No affine hyperplane separates the classes because $0$ lies in both class convex hulls, so the hulls intersect.
+\end{proof}
+
+\end{document}

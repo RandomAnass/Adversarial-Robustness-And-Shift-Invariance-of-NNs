@@ -22,6 +22,19 @@ from cifar_dissection import (build, load_cifar, load_data, dataset_stats, in_ch
 
 RESDIR = os.path.join(os.path.dirname(__file__), "..", "results")
 
+# ---------------- progressive (per-job) save + resume ----------------
+# Each finished job is written atomically to its own file the moment it completes, so a kill/crash
+# never loses completed work (the all-or-nothing aggregate JSON was the failure mode). A re-run skips
+# jobs whose file already exists and re-assembles the aggregate from disk.
+def _partial_dir(A):
+    return os.path.join(RESDIR, "at_partial", f"{A['dataset']}_{A['norm']}_{A.get('tag','at')}")
+def _job_file(A, arm, w, seed):
+    return os.path.join(_partial_dir(A), f"{arm}_w{w}_s{seed}.json")
+def _save_job(A, out):
+    d = _partial_dir(A); os.makedirs(d, exist_ok=True)
+    p = _job_file(A, out["arm"], out["w"], out["seed"]); tmp = p + ".tmp"
+    json.dump(out, open(tmp, "w"), default=float); os.replace(tmp, p)   # atomic publish
+
 # ---------------- PGD-AT (Madry): replace each batch by its Linf PGD adversarial ----------------
 def pgd_linf(model, x, y, eps, alpha, steps):
     delta = torch.zeros_like(x).uniform_(-eps, eps)
@@ -98,6 +111,7 @@ def run_job_at(task):
                                    "linf" if norm == "Linf" else "l2", steps=A["pgd_steps"])
         out["aa_" + nm] = autoattack_acc(model, Xte, yte, dev, eps, norm,
                                          n=A["aa_n"], version=A["aa_version"])
+    _save_job(A, out)                                    # progressive save: publish this job before returning
     return out
 
 def _run_shard(shard, q):
@@ -141,25 +155,37 @@ def main():
     ng = min(args.gpus, torch.cuda.device_count()) if torch.cuda.is_available() else 0
     A = dict(dataset=args.dataset, norm=args.norm, flip=flip, n=args.n, ntest=args.ntest,
              epochs=args.epochs, eps=eps, alpha=alpha, steps=steps, rad_n=args.rad_n, aa_n=args.aa_n,
-             aa_version=args.aa_version, pgd_steps=args.pgd_steps, aa_specs=aa_specs)
+             aa_version=args.aa_version, pgd_steps=args.pgd_steps, aa_specs=aa_specs, tag=args.tag)
     load_data(args.dataset, 10, 10)
     jobs = sorted(product(arms, widths, range(args.seeds)),
                   key=lambda j: (16 if j[0] == "circular" else 1) * j[1] * j[1], reverse=True)
-    tasks = [((i % ng) if ng > 0 else None, arm, w, s, A) for i, (arm, w, s) in enumerate(jobs)]
-    print(f"{args.dataset} PGD-AT ({args.norm}, eps={eps:.4f}, {steps} steps): {len(tasks)} jobs over "
-          f"{ng or 'CPU'} GPU(s); arms={arms} widths={widths} epochs={args.epochs} seeds={args.seeds}\n", flush=True)
+    # resume: skip jobs already saved to disk (progressive save), re-balance the rest across GPUs
+    done_results, pending = [], []
+    for (arm, w, s) in jobs:
+        jf = _job_file(A, arm, w, s)
+        if os.path.exists(jf):
+            try: done_results.append(json.load(open(jf))); continue
+            except Exception: pass
+        pending.append((arm, w, s))
+    tasks = [((i % ng) if ng > 0 else None, arm, w, s, A) for i, (arm, w, s) in enumerate(pending)]
+    print(f"{args.dataset} PGD-AT ({args.norm}, eps={eps:.4f}, {steps} steps): {len(jobs)} jobs total, "
+          f"{len(done_results)} resumed from disk, {len(tasks)} to run over {ng or 'CPU'} GPU(s); "
+          f"arms={arms} widths={widths} epochs={args.epochs} seeds={args.seeds}\n", flush=True)
     t0 = time.time()
-    if args.serial or ng <= 1:
-        results = [run_job_at(t) for t in tasks]
-    else:
-        ctx = mp.get_context("spawn")
-        shards = [[t for t in tasks if t[0] == g] for g in range(ng)]
-        q = ctx.Queue()
-        procs = [ctx.Process(target=_run_shard, args=(shards[g], q)) for g in range(ng)]
-        for p in procs: p.start()
-        results = [q.get() for _ in range(len(tasks))]
-        for p in procs: p.join()
-    print(f"\nwall {time.time()-t0:.0f}s")
+    computed = []
+    if tasks:
+        if args.serial or ng <= 1:
+            computed = [run_job_at(t) for t in tasks]
+        else:
+            ctx = mp.get_context("spawn")
+            shards = [[t for t in tasks if t[0] == g] for g in range(ng)]
+            q = ctx.Queue()
+            procs = [ctx.Process(target=_run_shard, args=(shards[g], q)) for g in range(ng)]
+            for p in procs: p.start()
+            computed = [q.get() for _ in range(len(tasks))]
+            for p in procs: p.join()
+    results = done_results + computed     # full grid, re-assembled from disk + this run
+    print(f"\nwall {time.time()-t0:.0f}s", flush=True)
 
     agg = {}
     for r in results:

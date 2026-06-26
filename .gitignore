@@ -159,3 +159,33 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# ---- campaign: keep regenerable / huge / copyright artifacts OUT of git ----
+# datasets (redownload from torchvision source) and trained checkpoints (regenerate via the scripts + fixed seeds)
+paper/data/
+paper/results/**/ckpt/
+*.pt
+*.h5
+*.pkl
+# redundant build/export archives
+*.zip
+# local python venv
+paper/env/
+# reference PDFs kept locally (size + copyright) -- excluded from the public push
+literature/
+models/
+overleaf_export/
+# LaTeX build artifacts
+*.aux
+*.fls
+*.fdb_latexmk
+*.out
+*.synctex.gz
+*.bbl
+*.blg
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb

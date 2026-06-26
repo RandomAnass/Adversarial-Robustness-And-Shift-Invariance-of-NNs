@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage[round,authoryear]{natbib}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Worked example}
+\newtheorem{problem}{Problem}[section]
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% exercise-solution environment used in the fragments
+\newenvironment{solution}{\par\smallskip\noindent\textit{Solution.}\;}{\hfill$\square$\par\smallskip}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\Lip}{\operatorname{Lip}}
+\newcommand{\Orb}{\mathcal O}
+\newcommand{\fdc}{f_{\mathrm{dc}}}
+\newcommand{\Vinv}{V_{\mathrm{inv}}}
+\newcommand{\Vac}{V_{\mathrm{ac}}}
+\newcommand{\Sep}{\operatorname{Sep}}
+\newcommand{\Piinv}{\Pi_{\mathrm{inv}}}
+
+\title{\textbf{Shift-Invariance and Adversarial Robustness}\\[3pt]
+\large A Collaborator Primer\\[4pt]
+\normalsize background from first principles, the questions before the answers, and full proofs}
+\author{Anass Al Ammiri}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{center}\small\itshape
+A standalone booklet for a new collaborator. It assumes only undergraduate linear algebra, real analysis, basic
+calculus, and probability, and builds everything else from first principles. Part~I teaches the background, Part~II
+poses the open problems (before any answers), and Part~III proves the results. Do the exercises; attempt the
+Part~II problems before reading Part~III.
+\end{center}
+
+\medskip\hrule\medskip
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Why this project exists}
+\label{sec:why}
+Convolutional networks are built to be (approximately) invariant to small spatial shifts, and for ordinary accuracy
+this is a virtue. Whether it is a virtue for \emph{adversarial} robustness, the worst-case behaviour under tiny
+crafted perturbations, is genuinely unsettled: published work points both ways. \citet{ge2021shift} prove a fully
+shift-invariant classifier can be far less robust than a plain one; \citet{kamath2021} report a spatial-versus-adversarial
+trade-off; \citet{galloway2019} blame a standard invariance-promoting ingredient (batch normalisation) for
+vulnerability; while a line of architectural work \citep{zhang2019blurpool,sahagokhale2024} improves shift behaviour
+and reports robustness \emph{gains}. These are not all wrong; they are measuring different things. The thread of this
+project, and of this booklet, is that one scalar, the margin of the surviving invariant signal divided by its
+sensitivity, reconciles them, and that a careful capacity-matched experiment under a strong attack tells the rest of
+the story. The full chain that produced the project's questions, starting from a practical course that reproduced and
+then broke the clean story, is the subject of Part~II; the rest of this section just fixes expectations.
+
+\paragraph{How to read this.} Part~I is the background you need and nothing more, in dependency order, with a worked
+example and an exercise per topic. Part~II is the harder skill: given the situation, generating and choosing the
+research questions yourself, so it deliberately withholds the answers. Part~III gives the answers with full proofs,
+each labelled honestly as classical, a rephrasing, or a genuine new contribution, and each tied back to the question
+it settles.
+\newpage
+
+%==============================================================================
+\part*{Part I: Background from first principles}
+\addcontentsline{toc}{section}{Part I: Background from first principles}
+This part assumes only linear algebra, real analysis, basic calculus, and probability. It builds, in order, the
+robustness vocabulary, the invariance and Fourier machinery, and the learning theory the project rests on. Every
+term is defined on first use, every central claim is proved in full, and each topic ends with a worked example and
+an exercise. Read it in order; do the exercises.
+
+\input{primer_frag/part1_robustness.tex}
+\input{primer_frag/part1_invariance.tex}
+\input{primer_frag/part1_learning.tex}
+
+%==============================================================================
+\part*{Part II: Finding the questions}
+\addcontentsline{toc}{section}{Part II: Finding the questions}
+Part~I gave you the tools. This part gives you the situation that the project started from and asks you to generate
+the research questions yourself. Each problem is presented with candidate directions and their trade-offs, and no
+answer: commit to a direction before you read Part~III.
+
+\input{primer_frag/part2_questions.tex}
+
+%==============================================================================
+\part*{Part III: Results and proofs}
+\addcontentsline{toc}{section}{Part III: Results and proofs}
+Here are the answers to the Part~II problems, each motivated, labelled honestly (classical, clean rephrasing, or new
+contribution), and proved in full. Compare them against the directions you committed to.
+
+\input{primer_frag/part3_results.tex}
+
+%==============================================================================
+\bibliographystyle{plainnat}
+\bibliography{primer}
+
+\end{document}
