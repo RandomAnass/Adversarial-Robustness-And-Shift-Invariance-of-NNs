@@ -1,0 +1,5290 @@
+[
+ {
+  "forum": "HJxdTxHYvB",
+  "title": "BREAKING  CERTIFIED  DEFENSES:  SEMANTIC  ADVERSARIAL  EXAMPLES  WITH  SPOOFED  ROBUSTNESS  CERTIFICATES",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BkexaxBKPB",
+  "title": "Generative Adversarial Nets for Multiple Text Corpora",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Syx33erYwH",
+  "title": "ASYNCHRONOUS MULTI-AGENT GENERATIVE ADVERSARIAL IMITATION LEARNING",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Hyg53gSYPB",
+  "title": "Defense against Adversarial Examples by Encoder-Assisted Search in the Latent Coding Space",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1x-3xSKDr",
+  "title": "Batch Normalization is a Cause of Adversarial Vulnerability",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJxe3xSYDS",
+  "title": "Extreme Classification via Adversarial Softmax Approximation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "r1g6ogrtDr",
+  "title": "Co-Attentive Equivariant Neural Networks: Focusing Equivariance On Transformations Co-Occurring in Data",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HygPjlrYvB",
+  "title": "Learning from Positive and Unlabeled Data  with Adversarial Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rkeeoeHYvr",
+  "title": "AdvCodec: Towards A Unified Framework for Adversarial Text Generation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1lxKlSKPH",
+  "title": "Consistency Regularization for Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJgpugrKPS",
+  "title": "Scale-Equivariant Steerable Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Sye_OgHFwH",
+  "title": "Unrestricted Adversarial Examples via Semantic Manipulation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJe4_xSFDB",
+  "title": "Lipschitz constant estimation of Neural Networks via sparse polynomial optimization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJeQdeBtwB",
+  "title": "Adversarially learned anomaly detection for time series data",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Bke_DertPB",
+  "title": "Adversarial Lipschitz Regularization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJxSDxrKDr",
+  "title": "Adversarial Training and Provable Defenses: Bridging the Gap",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1ervgHFwS",
+  "title": "Adversarial Training Generalizes Data-dependent Spectral Norm Regularization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1eZweHFwr",
+  "title": "Statistical Verification of General Perturbations by Gaussian Smoothing",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJxkvlBtwH",
+  "title": "Certifying Neural Network Audio Classifiers",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1lQIgrFDS",
+  "title": "$\\ell_1$ Adversarial Robustness Certificates: a Randomized Smoothing Approach",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJeYSxHFDS",
+  "title": "Gauge Equivariant Spherical CNNs",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ryxOBgBFPH",
+  "title": "Preventing Imitation Learning with Adversarial Policy Ensembles",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1ecVlrtDr",
+  "title": "Symmetric-APL Activations: Training Insights and Robustness to Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1lBVgHYvr",
+  "title": "Towards Certified Defense for Unrestricted Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SylVNerFvr",
+  "title": "Permutation Equivariant Models for Compositional Generalization in Language",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "r1l-VeSKwS",
+  "title": "SemanticAdv: Generating Adversarial Examples via Attribute-Conditional Image Editing",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SyxD7lrFPH",
+  "title": "Frequency Pooling: Shift-Equivalent and Anti-Aliasing Down Sampling",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "r1gfQgSFDr",
+  "title": "High Fidelity Speech Synthesis with Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BygkQeHKwB",
+  "title": "Walking on the Edge: Fast, Low-Distortion Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Hkem-lrtvH",
+  "title": "BayesOpt Adversarial Attack",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJlzxgBtwH",
+  "title": "Minimally distorted Adversarial Examples with a Fast Adaptive Boundary Attack",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HkeryxBtPB",
+  "title": "MMA Training: Direct Input Space Margin Maximization through Adversarial Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJgNJgSFPS",
+  "title": "Building Deep Equivariant Capsule Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJguRyBYvr",
+  "title": "Improved Detection of Adversarial Attacks via Penetration Distortion Maximization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Bklr0kBKvB",
+  "title": "Geometry-aware Generation of Adversarial and Cooperative Point Clouds",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Hye1RJHKwB",
+  "title": "Training Generative Adversarial Networks from Incomplete Observations using Factorised Discriminators",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1xu6yStPH",
+  "title": "Using Explainabilty to Detect Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1g8p1BYvS",
+  "title": "Adversarial Filters of Dataset Biases",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJg46kHYwH",
+  "title": "Adaptive Generation of Unrestricted Adversarial Inputs",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HyeCnkHtwH",
+  "title": "Efficient generation of structured objects with Constrained Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJem3yHKwH",
+  "title": "EMPIR: Ensembles of Mixed Precision Deep Networks for Increased Robustness Against Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rklMnyBtPB",
+  "title": "Adversarial Robustness Against the Union of Multiple Perturbation Models",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJgyn1BFwS",
+  "title": "Global Adversarial Robustness Guarantees for Neural Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1eqj1SKvr",
+  "title": "TOWARDS FEATURE SPACE ADVERSARIAL ATTACK",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1eBoJStwr",
+  "title": "Semi-supervised semantic segmentation needs strong, high-dimensional perturbations",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rygEokBKPS",
+  "title": "Yet another but more efficient black-box adversarial attack: tiling and evolution strategies",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1xJikHtDH",
+  "title": "Improving Model Compatibility of Generative Adversarial Networks by Boundary Calibration",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HygS91rYvH",
+  "title": "Universal Adversarial Attack Using Very Few Test Examples",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rklr9kHFDB",
+  "title": "Rotation-invariant clustering of neuronal responses in primary visual cortex",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rygvFyrKwH",
+  "title": "Adversarial Robustness as a Prior for Learned Representations",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "r1eCukHYDH",
+  "title": "Manifold Learning and Alignment with Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1xtd1HtPS",
+  "title": "Quaternion Equivariant Capsule Networks for 3D Point Clouds",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJeU_1SFvr",
+  "title": "LOGAN:  Latent Optimisation for Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rklk_ySYPB",
+  "title": "Provable robustness against all adversarial $l_p$-perturbations for $p\\geq 1$",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HkxTwkrKDB",
+  "title": "On Universal Equivariant Set Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HylKvyHYwS",
+  "title": "Learning with Protection: Rejection of Suspicious Samples under Adversarial Environment",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJxwPJHFwS",
+  "title": "Robustness Verification for Transformers",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJlHwkBYDH",
+  "title": "Nesterov Accelerated Gradient and Scale Invariance for Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1eXvyHKwS",
+  "title": "THE EFFECT OF ADVERSARIAL TRAINING: A THEORETICAL CHARACTERIZATION",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BkeGPJrtwB",
+  "title": "Fairness with Wasserstein Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rygePJHYPH",
+  "title": "Towards trustworthy predictions from deep neural networks with fast adversarial calibration",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ByxdUySKvS",
+  "title": "Adversarial AutoAugment",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1gX8kBtPr",
+  "title": "Universal Approximation with Certified Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HyeaSkrYPH",
+  "title": "Certified Defenses for Adversarial Patches",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJg3HyStwB",
+  "title": "Perturbations are not Enough: Generating Adversarial Examples with Spatial Distortions",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJlKrkSFPH",
+  "title": "A FRAMEWORK  FOR ROBUSTNESS CERTIFICATION  OF SMOOTHED CLASSIFIERS USING  F-DIVERGENCES",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Hke0V1rKPS",
+  "title": "Jacobian Adversarially Regularized Networks for Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SyxhVkrYvr",
+  "title": "Towards Verified Robustness under Text Deletion Interventions",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ryefE1SYDr",
+  "title": "LIA: Latently Invertible Autoencoder with Adversarial Learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HkeZQJBKDB",
+  "title": "Universal approximations of permutation invariant/equivariant functions by deep neural networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HklvMJSYPB",
+  "title": "Adaptive Adversarial Imitation Learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BygzbyHFvB",
+  "title": "FreeLB: Enhanced Adversarial Training for Natural Language Understanding",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Skg8gJBFvr",
+  "title": "Filling the Soap Bubbles: Efficient Black-Box Adversarial Certification with Non-Gaussian Smoothing",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1lukyrKPr",
+  "title": "LEX-GAN: Layered Explainable Rumor Detector Based on Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJegkkrYPS",
+  "title": "Starfire: Regularization-Free Adversarially-Robust Structured Sparse Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HyxCRCEKwB",
+  "title": "ROBUST GENERATIVE ADVERSARIAL NETWORK",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1gdAC4KDB",
+  "title": "Adversarially Robust Generalization Just Requires More Unlabeled Data",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BkxGAREYwB",
+  "title": "Deep Expectation-Maximization in Hidden Markov Models via Simultaneous Perturbation Stochastic Approximation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1xipR4FPB",
+  "title": "Teacher-Student Compression with Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJeVnCEKwH",
+  "title": "A Closer Look at the Optimization Landscapes of Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "r1xGnA4Kvr",
+  "title": "Biologically inspired sleep algorithm for increased generalization and adversarial robustness in deep neural networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HyxJhCEFDS",
+  "title": "Intriguing Properties of Adversarial Training at Scale",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rkehoAVtvS",
+  "title": "Adversarial Paritial Multi-label Learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Syejj0NYvr",
+  "title": "Adversarial Interpolation Training: A Simple Approach for Improving Model Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1xXiREKDB",
+  "title": "Adversarial training with perturbation generator networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SkxoqRNKwr",
+  "title": "Adversarial Privacy Preservation under Attribute Inference Attack",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJlRF04YwB",
+  "title": "Generating Semantic Adversarial Examples with Differentiable Rendering",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SkgjKR4YwH",
+  "title": "MixUp as Directional Adversarial Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJlf_RVKwr",
+  "title": "Sensible adversarial learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1x2PCNKDB",
+  "title": "Task-Relevant Adversarial Imitation Learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rkgiURVFDS",
+  "title": "Certified Robustness to Adversarial Label-Flipping Attacks via Randomized Smoothing",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rkePU0VYDr",
+  "title": "A Perturbation Analysis of Input Transformations for Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJerUCEtPB",
+  "title": "Smooth Kernels Improve Adversarial Robustness and Perceptually-Aligned Gradients",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1xKBCEYDr",
+  "title": "Black-box Adversarial Attacks with Bayesian Optimization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BkxgrAVFwH",
+  "title": "Wasserstein-Bounded Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJx040EFvH",
+  "title": "Fast is better than free: Revisiting adversarial training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJlVVAEKwS",
+  "title": "Adversarial Imitation Attack",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SygfNCEYDH",
+  "title": "Weakly-supervised Knowledge Graph Alignment with Adversarial Learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SklTQCNtvS",
+  "title": "Sign-OPT: A Query-Efficient Hard-label Adversarial Attack",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Hyes70EYDB",
+  "title": "Visual Interpretability Alone Helps Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJxIm0VtwH",
+  "title": "Towards Better Understanding of Adaptive Gradient Algorithms in Generative Adversarial Nets",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "r1eVX0EFvH",
+  "title": "Exploiting Excessive Invariance caused by Norm-Bounded Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJxYMCEFDr",
+  "title": "Leveraging Adversarial Examples to Obtain Robust Second-Order Representations",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJgwzCEKwH",
+  "title": "Bridging Mode Connectivity in Loss Landscapes and Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJgwf04KPr",
+  "title": "Confidence-Calibrated Adversarial Training: Towards Robust Models Generalizing Beyond the Attack Used During Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1g4M0EtPS",
+  "title": "Gaussian MRF Covariance Modeling for Efficient Black-Box Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ryebG04YvB",
+  "title": "Adversarially robust transfer learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJlRWC4FDB",
+  "title": "Adversarial Attacks on Copyright Detection Systems",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Hkl_bCVKDr",
+  "title": "Scaleable input gradient regularization for adversarial robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HkgrZ0EYwB",
+  "title": "Unpaired Point Cloud Completion on Real Scans using Adversarial Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Skgq1ANFDB",
+  "title": "Curvature-based Robustness Certificates against Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Byx91R4twB",
+  "title": "Adversarial Video Generation on Complex Datasets",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BygpAp4Ywr",
+  "title": "Defending Against Adversarial Examples by Regularized Deep Embedding",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ryxtCpNtDS",
+  "title": "Autoencoders and Generative Adversarial Networks for Imbalanced Sequence Classification",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Hkx6p6EFDr",
+  "title": "Equivariant Entity-Relationship Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HylsTT4FvB",
+  "title": "On the \"steerability\" of generative adversarial networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJg866NFvB",
+  "title": "Estimating counterfactual treatment outcomes over time through adversarially balanced representations",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Bke-6pVKvB",
+  "title": "Poisoning Attacks with Generative Adversarial Nets",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1l3s6NtvH",
+  "title": "A Bayes-Optimal View on Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1lyiaVFwB",
+  "title": "DUAL ADVERSARIAL MODEL FOR GENERATING 3D POINT CLOUD",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Byx55pVKDB",
+  "title": "How the Softmax Activation Hinders the Detection of Adversarial and Out-of-Distribution Examples in Neural Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Bkg75aVKDH",
+  "title": "Training Provably Robust Models by Polyhedral Envelope Regularization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJl-5pNKDB",
+  "title": "On Computation and Generalization of Generative Adversarial Imitation Learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rkeZ9a4Fwr",
+  "title": "Disentangling Improves VAEs' Robustness to Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJejta4KDS",
+  "title": "SELF-KNOWLEDGE DISTILLATION ADVERSARIAL ATTACK",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1gfFaEYDS",
+  "title": "Adversarially Robust Representations with Smooth Encoders",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SklfY6EFDH",
+  "title": "Representation Quality Explain Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJe5_6VKwS",
+  "title": "Model-based Saliency for the Detection of Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJlY_6VKDr",
+  "title": "BUZz: BUffer Zones for defending  adversarial examples in image classification",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJldu6EtDS",
+  "title": "Wasserstein Adversarial Regularization (WAR) on label noise",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJlP_pEFPH",
+  "title": "SRDGAN: learning the noise prior for Super Resolution with Dual Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1xI_TEtwS",
+  "title": "Amata: An Annealing Mechanism for Adversarial Training Acceleration",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJx9vaVtDS",
+  "title": "Individualised Dose-Response Estimation using Generative Adversarial Nets",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJgVwTVtvS",
+  "title": "Gradient Perturbation is Underrated for Differentially Private Convex Optimization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BkeWw6VFwr",
+  "title": "Certified Robustness for Top-k Predictions against Adversarial Perturbations via Randomized Smoothing",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Bkl086VYvH",
+  "title": "Feature-map-level Online Adversarial Knowledge Distillation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJlAUaVYvH",
+  "title": "Optimising Neural Network Architectures for Provable Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rklPITVKvS",
+  "title": "BRIDGING ADVERSARIAL SAMPLES AND ADVERSARIAL NETWORKS",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1l8L6EtDS",
+  "title": "Self-Adversarial Learning with Comparative Discrimination for Text Generation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1liraVYwr",
+  "title": "LocalGAN: Modeling Local Distributions for Adversarial Response Generation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SkxcSpEKPS",
+  "title": "Generative Adversarial Networks For Data Scarcity Industrial Positron Images With Attention",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJxhNTNYwB",
+  "title": "Black-Box Adversarial Attack with Transferable Model-based Embedding",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJlEEaEFDS",
+  "title": "Towards an Adversarially Robust Normalization Approach",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJeQEp4YDH",
+  "title": "GAT: Generative Adversarial Training for Adversarial Example Detection and Robust Classification",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Skgy464Kvr",
+  "title": "Detecting and Diagnosing Adversarial Images with Class-Conditional Capsule Reconstructions",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJx1Na4Fwr",
+  "title": "MACER: Attack-free and Scalable Robust Training via Maximizing Certified Radius",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rygjmpVFvB",
+  "title": "Difference-Seeking Generative Adversarial Network--Unseen Sample Generation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HygbQaNYwr",
+  "title": "Adversarial Training: embedding adversarial perturbations into the parameter space of a neural network to build a robust system",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rylkma4twr",
+  "title": "Min-Max Optimization without Gradients: Convergence and Applications to Adversarial ML",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Skx6WaEYPH",
+  "title": "Bandlimiting Neural Networks Against Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJgFW6EKvH",
+  "title": "Generating Robust Audio Adversarial Examples using Iterative Proportional Clipping",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Skek-TVYvr",
+  "title": "A Uniform Generalization Error Bound for Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HkeAepVKDH",
+  "title": "QGAN: Quantize Generative Adversarial Networks to Extreme low-bits",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rklOg6EFwS",
+  "title": "Improving Adversarial Robustness Requires Revisiting Misclassified Examples",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJlkgaNKvr",
+  "title": "Towards Understanding the Regularization of Adversarial Robustness on Neural Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rkgCJ64tDB",
+  "title": "Scale-Equivariant Neural Networks with Decomposed Convolutional Filters",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJl31TNYPr",
+  "title": "Fooling Detection Alone is Not Enough: Adversarial Attack against Multiple Object Tracking",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1eik6EtPB",
+  "title": "Towards A Unified Min-Max Framework for Adversarial Exploration and Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Skgvy64tvr",
+  "title": "Enhancing Adversarial Defense by k-Winners-Take-All",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "S1lDkaEFwS",
+  "title": "Thwarting finite difference adversarial attacks with output randomization",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ryl71a4YPB",
+  "title": "A Unified framework for randomized smoothing based certified defenses",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJeGJaEtPH",
+  "title": "MIST: Multiple Instance Spatial Transformer Networks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1lZJpVFvr",
+  "title": "Robust Local Features for Improving the Generalization of Adversarial Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rkxZyaNtwB",
+  "title": "Online and stochastic optimization beyond Lipschitz continuity: A Riemannian approach",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rklnA34twH",
+  "title": "Universal Learning Approach for Adversarial Defense",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Byg9A24tvB",
+  "title": "Rethinking Softmax Cross-Entropy Loss for Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ByxtC2VtPB",
+  "title": "Mixup Inference: Better Exploiting Mixup to Defend Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BklVA2NYvH",
+  "title": "Adversarially Robust Neural Networks via Optimal Control: Bridging Robustness with Lyapunov Stability",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Byg-An4tPr",
+  "title": "Differential Privacy in Adversarial Learning with Provable Robustness",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HkgTTh4FDH",
+  "title": "Implicit Bias of Gradient Descent based Adversarial Training on Separable Data",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ryeK6nNFDr",
+  "title": "Effective and Robust Detection of Adversarial Examples via Benford-Fourier Coefficients",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "B1lFa3EFwB",
+  "title": "Stablizing Adversarial Invariance Induction by Discriminator Matching",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BkgWahEFvr",
+  "title": "Enhancing Transformation-Based Defenses Against Adversarial Attacks with a Distribution Classifier",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "ryeRn3NtPH",
+  "title": "Adversarial Inductive Transfer Learning with input and output space adaptation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "rJxAo2VYwr",
+  "title": "Transferable Perturbations of Deep Feature Distributions",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BJlRs34Fvr",
+  "title": "Skip Connections Matter: On the Transferability of Adversarial Examples Generated with ResNets",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Skg9jnVFvH",
+  "title": "Progressive Upsampling Audio Synthesis via Effective Adversarial Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H1eo9h4KPH",
+  "title": "Certifying Distributional Robustness using Lipschitz Regularisation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "Byg79h4tvB",
+  "title": "PROTOTYPE-ASSISTED ADVERSARIAL LEARNING FOR UNSUPERVISED DOMAIN ADAPTATION",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BkxDthVtvS",
+  "title": "Equivariant neural networks and equivarification",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "BklEF3VFPB",
+  "title": "Towards Stable and comprehensive Domain Alignment: Max-Margin Domain-Adversarial Training",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "HJezF3VYPB",
+  "title": "Federated Adversarial Domain Adaptation",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "r1x3unVKPS",
+  "title": "Support-guided Adversarial Imitation Learning",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "SJx4O34YvS",
+  "title": "Semantics Preserving Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2020",
+  "venue": "",
+  "query": "venue:ICLR.cc/2020/Conference"
+ },
+ {
+  "forum": "H92-E4kFwbR",
+  "title": "Composite Adversarial Training for Multiple Adversarial Perturbations and Beyond",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "USCNapootw",
+  "title": "Certify or Predict: Boosting Certified Robustness with Compositional Architectures",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "bgQek2O63w",
+  "title": "Self-supervised Adversarial Robustness for the Low-label, High-data Regime",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "S7Aeama_0s",
+  "title": "QRGAN: Quantile Regression Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "qiAxL3Xqx1o",
+  "title": "GG-GAN: A Geometric Graph Generative Adversarial Network",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "RayUtcIlGz",
+  "title": "Training Invertible Linear Layers through Rank-One Perturbations",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Te1aZ2myPIu",
+  "title": "Pretrain-to-Finetune Adversarial Training via Sample-wise Randomized Smoothing",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "vttv9ADGuWF",
+  "title": "Certified robustness against physically-realizable patch attack via randomized cropping",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "_mQp5cr_iNy",
+  "title": "Adversarially Guided Actor-Critic",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "4HGL3H9eL9U",
+  "title": "AT-GAN: An Adversarial Generative Model for Non-constrained Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "b7ZRqEFXdQ",
+  "title": "Improving Sequence Generative Adversarial Networks with Feature Statistics Alignment",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "rvosiWfMoMR",
+  "title": "Automatic Music Production Using Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "bi7nTZy4QmH",
+  "title": "Learning Contextual Perturbation Budgets for Training Robust Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "oxRaiMDSzwr",
+  "title": "NETWORK ROBUSTNESS TO PCA PERTURBATIONS",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "0xdQXkz69x9",
+  "title": "Attacking Few-Shot Classifiers with Adversarial Support Sets",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "rsf1z-JSj87",
+  "title": "End-to-end Adversarial Text-to-Speech",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Oral",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "8CCwiOHx_17",
+  "title": "Adversarial Environment Generation for Learning  to Navigate the Web",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "zg4GtrVQAKo",
+  "title": "Generative Adversarial User Privacy in Lossy Single-Server Information Retrieval",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "-Hs_otp2RB",
+  "title": "Improving VAEs' Robustness to Adversarial Attack",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Jnspzp-oIZE",
+  "title": "Gauge Equivariant Mesh CNNs: Anisotropic convolutions on geometric graphs",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "-N7PBXqOUJZ",
+  "title": "Lipschitz Recurrent Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Kzg0XmE6mxu",
+  "title": "Adversarial Deep Metric Learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sAX7Z7uIJ_Y",
+  "title": "Calibrated Adversarial Refinement for Stochastic Semantic Segmentation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "-DRft_lKDqo",
+  "title": "Generalized Universal Approximation for Certified Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "2rcgRSAa1A3",
+  "title": "Fighting Filterbubbles with Adversarial BERT-Training for News-Recommendation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "lxHgXYN4bwl",
+  "title": "Expressive Power of Invariant and Equivariant Graph Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "yvQKLaqNE6M",
+  "title": "You Only Need Adversarial Supervision for Semantic Image Synthesis",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "JkfYjnOEo6M",
+  "title": "Group Equivariant Stand-Alone Self-Attention For Vision",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "bodgPrarPUJ",
+  "title": "Lipschitz-Bounded Equilibrium Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "fTeb_adw5y4",
+  "title": "Improving Calibration through the Relationship with Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "pAj7zLJK05U",
+  "title": "AttackDist: Characterizing Zero-day Adversarial Samples by Counter Attack",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "6FsCHsZ66Fp",
+  "title": "Towards certifying $\\ell_\\infty$ robustness using Neural networks with $\\ell_\\infty$-dist Neurons",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sojnduJtbfQ",
+  "title": "Improving Hierarchical Adversarial Robustness of Deep Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Ms9zjhVB5R",
+  "title": "SOAR: Second-Order Adversarial Regularization",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "iy3xVojOhV",
+  "title": "GraphCGAN: Convolutional Graph Neural Network with Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "wMIdpzTmnct",
+  "title": "Hard-label Manifolds: Unexpected advantages of query efficiency for finding on-manifold adversarial examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "pavee2r1N01",
+  "title": "Provable Robustness by Geometric Regularization of ReLU Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "_i3ASPp12WS",
+  "title": "Online Adversarial Purification based on Self-supervised Learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "WJfIKDt8d2f",
+  "title": "Driving through the Lens: Improving Generalization of Learning-based Steering using Simulated Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "opHLcXxYTC_",
+  "title": "Influence Estimation for Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "RkqYJw5TMD7",
+  "title": "Test-Time Adaptation and Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Z_TwEk_sP34",
+  "title": "Does Adversarial Transferability Indicate Knowledge Transferability?",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Twm9LnWK-zt",
+  "title": "Searching towards Class-Aware Generators for Conditional Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "KcLlh3Qe7KU",
+  "title": "Ensembles of Generative Adversarial Networks for Disconnected Data",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "b7g3_ZMHnT0",
+  "title": "Learning to Deceive Knowledge Graph Augmented Models via Targeted Perturbation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "b9PoimzZFJ",
+  "title": "Systematic generalisation with group invariant predictions",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "loe6h28yoq",
+  "title": "Certified Robustness of Nearest Neighbors against Data Poisoning Attacks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "RrSuwzJfMQN",
+  "title": "TOWARDS NATURAL ROBUSTNESS AGAINST ADVERSARIAL EXAMPLES",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sRA5rLNpmQc",
+  "title": "Provably robust classification of adversarial examples with detection",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "ijJZbomCJIm",
+  "title": "Adversarially-Trained Deep Nets Transfer Better: Illustration on Image Classification",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Z_3x5eFk1l-",
+  "title": "Adversarial Meta-Learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Zu3iPlzCe9J",
+  "title": "On the Power of Abstention and Data-Driven Decision Making for Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "hJmtwocEqzc",
+  "title": "LowKey: Leveraging Adversarial Attacks to Protect Social Media Users from Facial Recognition",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "o81ZyBCojoA",
+  "title": "On Fast Adversarial Robustness Adaptation in Model-Agnostic Meta-Learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "VcB4QkSfyO",
+  "title": "Estimating Lipschitz constants of monotone deep equilibrium models",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "1AyPW2Emp6",
+  "title": "Tight Second-Order Certificates for Randomized Smoothing",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "C3qvk5IQIJY",
+  "title": "Understanding Over-parameterization in Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "YUGG2tFuPM",
+  "title": "Deep Partition Aggregation: Provable Defenses against General Poisoning Attacks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "LNtTXJ9XXr",
+  "title": "Adversarial Masking: Towards Understanding Robustness Trade-off for Generalization",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "IUYthV32lbK",
+  "title": "On the Certified Robustness for Ensemble Models and Beyond",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "6y3-wzlGHkb",
+  "title": "Non-robust Features through the Lens of Universal Perturbations",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "kmBFHJ5pr0o",
+  "title": "Distributed Adversarial Training to Robustify Deep Neural Networks at Scale",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "ajOrOhQOsYx",
+  "title": "A Wigner-Eckart Theorem for Group Equivariant Convolution Kernels",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "R6tNszN_QfA",
+  "title": "Adversarial Problems for Generative Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "s9788-pPB2",
+  "title": "LLBoost: Last Layer Perturbation to Boost Pre-trained Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "j6rILItz4yr",
+  "title": "ALFA: Adversarial Feature Augmentation for Enhanced Image Recognition",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "gBpYGXH9J7F",
+  "title": "Online Learning under Adversarial Corruptions",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "WqXAKcwfZtI",
+  "title": "f-Domain-Adversarial Learning: Theory and Algorithms for Unsupervised Domain Adaptation with Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "DegtqJSbxo",
+  "title": "Adversarial and Natural Perturbations for General Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "rgFNuJHHXv",
+  "title": "Group Equivariant Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "3xUBgZQ04X",
+  "title": "The Bures Metric for Taming Mode Collapse in Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "2NHl-ETnHxk",
+  "title": "Adversarial Privacy Preservation in MRI Scans of the Brain",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "4mkxyuPcFt",
+  "title": "Disentangling Adversarial Robustness in Directions of the Data Manifold",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "FX0vR39SJ5q",
+  "title": "Isometric Transformation Invariant and Equivariant Graph Convolutional Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sI4SVtktqJ2",
+  "title": "Efficient randomized smoothing by denoising with learned score function",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "hcCao_UYd6O",
+  "title": "Adversarial Feature Desensitization",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "xng0HoPDaFN",
+  "title": "An Adversarial Attack via Feature Contributive Regions",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "7aogOj_VYO0",
+  "title": "Do not Let Privacy Overbill Utility:  Gradient Embedding Perturbation for Private Learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "KTEde38blNB",
+  "title": "Intervention Generative Adversarial Nets",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "eLfqMl3z3lq",
+  "title": "Adversarial score matching and improved sampling for image generation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "c7rtqjVaWiE",
+  "title": "Efficient Sampling for Generative Adversarial Networks with Reparameterized Markov Chains",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "NLuOUSp9zZd",
+  "title": "DO-GAN: A Double Oracle Framework for Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "DHSNrGhAY7W",
+  "title": "The Lipschitz Constant of Self-Attention",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "D04TGKz5rfF",
+  "title": "A frequency domain analysis of gradient-based adversarial examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "fgX9O5q0BT",
+  "title": "On Noise Injection in Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "e8W-hsu_q5",
+  "title": "Group Equivariant Conditional Neural Processes",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "bIwkmDnSeu",
+  "title": "Unbiased Learning with State-Conditioned Rewards in Adversarial Imitation Learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "3R--2TdxMps",
+  "title": "Defuse: Debugging Classifiers Through Distilling Unrestricted Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "dpuLRRQ7zC",
+  "title": "Enhancing Certified Robustness of Smoothed Classifiers via Weighted Model Ensembling",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "4CqesJ7GO7Q",
+  "title": "Intriguing class-wise properties of adversarial training",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "VqzVhqxkjH1",
+  "title": "Deep Neural Network Fingerprinting by Conferrable Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "npOuXc85I5k",
+  "title": "Pareto Adversarial Robustness: Balancing Spatial Robustness and Sensitivity-based Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "PrzjugOsDeE",
+  "title": "CcGAN: Continuous Conditional Generative Adversarial Networks for Image Generation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "PH5PH9ZO_4",
+  "title": "Generating Adversarial Computer Programs using Optimized Obfuscations",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "LDSeViRs4-Q",
+  "title": "Increasing-Margin Adversarial (IMA) training to Improve Adversarial Robustness of Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "RcjRb9pEQ-Q",
+  "title": "Fine-grained Synthesis of Unrestricted Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "xyEx4_lHqvB",
+  "title": "Ensemble-based Adversarial Defense Using Diversified Distance Mapping",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "j39sWOYhfEg",
+  "title": "The shape and simplicity biases of adversarially robust ImageNet-trained CNNs",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "D62nJAdpijt",
+  "title": "Trojans and Adversarial Examples: A Lethal Combination",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "7TBP8k7TLFA",
+  "title": "Universal Approximation Theorem for Equivariant Maps by Group CNNs",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "N07ebsD-lHp",
+  "title": "Defending against black-box adversarial attacks with gradient-free trained sign activation neural networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "UwGY2qjqoLD",
+  "title": "Heating up decision boundaries: isocapacitory saturation, adversarial scenarios and generalization bounds",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "xCm8kiWRiBT",
+  "title": "Adversarial Attacks on Binary Image Recognition Systems",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "LIR3aVGIlln",
+  "title": "Equivariant Normalizing Flows for Point Processes and Sets",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "whAxkamuuCU",
+  "title": "Symbol-Shift Equivariant Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sSjqmfsk95O",
+  "title": "Large Scale Image Completion via Co-Modulated Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "8SP2-AiWttb",
+  "title": "Imbalanced Gradients: A New Cause of Overestimated Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "vOchfRdvPy7",
+  "title": "To be Robust or to be Fair: Towards Fairness in Adversarial Training",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "-757TnNDwIn",
+  "title": "Generative Adversarial Neural Architecture Search with Importance Sampling",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "gwFTuzxJW0",
+  "title": "Stochastic Security: Adversarial Defense Using Long-Run Dynamics of Energy-Based Models",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "J8_GttYLFgr",
+  "title": "Trajectory Prediction using Equivariant Continuous Convolution",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "LIOgGKRCYkG",
+  "title": "Target Training: Tricking Adversarial Attacks to Fail",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sfy1DGc54-M",
+  "title": "Towards Robustness against Unsuspicious Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "jQ0XleVhYuT",
+  "title": "Double Generative Adversarial Networks for Conditional Independence Testing",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "PsdsEbzxZWr",
+  "title": "Analyzing and Improving Generative Adversarial Training for Generative Modeling and Out-of-Distribution Detection",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "NGBY716p1VR",
+  "title": "Towards Understanding Fast Adversarial Training",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "cuDFRRANJ-5",
+  "title": "Formalizing Generalization and Robustness of Neural Networks to Weight Perturbations",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "n5go16HF_B",
+  "title": "Adversarial Data Generation of Multi-category Marked Temporal Point Processes with Sparse, Incomplete, and Small Training Samples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "MIDckA56aD",
+  "title": "Learning perturbation sets for robust machine learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "aGmEDl1NWJ-",
+  "title": "Luring of transferable adversarial perturbations in the black-box paradigm",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "RGeQOjc58d",
+  "title": "Improved Gradient based Adversarial Attacks for Quantized Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "xrLrpG3Ep1X",
+  "title": "Domain-Free Adversarial Splitting for Domain Generalization",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Oe2XI-Aft-k",
+  "title": "Perturbation Type Categorization for Multiple $\\ell_p$ Bounded Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Cue2ZEBf12",
+  "title": "Towards Adversarial Robustness of Bayesian Neural Network through Hierarchical Variational Inference",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sgJJjd3-Y3",
+  "title": "Semi-supervised regression with skewed data via adversarially forcing the distribution of predicted values",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "sbyjwhxxT8K",
+  "title": "Near-Black-Box Adversarial Attacks on Graph Neural Networks as An Influence Maximization Problem",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "mOO-LfEVZK",
+  "title": "Manifold-aware Training: Increase Adversarial Robustness with Feature Clustering",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "JoCR4h9O3Ew",
+  "title": "ARMOURED: Adversarially Robust MOdels using Unlabeled data by REgularizing Diversity",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "eNSpdJeR_J",
+  "title": "Deep Learning with Data Privacy via Residual Perturbation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Fn5wiAq2SR",
+  "title": "Adversarial Training using Contrastive Divergence",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "4ADnf1HqIw",
+  "title": "Recovering Geometric Information with Learned Texture Perturbations",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "arD29HCZG6O",
+  "title": "Linking average- and worst-case perturbation robustness via class selectivity and dimensionality",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "nPVlVsBTiJ",
+  "title": "Adversarial Boot Camp: label free certified robustness in one epoch",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Im43P9kuaeP",
+  "title": "Certified Watermarks for Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "ETBc_MIMgoX",
+  "title": "Learning with AMIGo: Adversarially Motivated Intrinsic Goals",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "33TBJachvOX",
+  "title": "How to compare adversarial robustness of classifiers from a global perspective",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "uMDbGsVjCS4",
+  "title": "Frequency-aware Interface Dynamics with Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "P__qBPffIlK",
+  "title": "Adversarial representation learning for synthetic replacement of private attributes",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "ctgsGEmWjDY",
+  "title": "On The Adversarial Robustness of 3D Point Cloud Classification",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "9az9VKjOx00",
+  "title": "TopoTER: Unsupervised Learning of Topology Transformation Equivariant Representations",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Wga_hrCa3P3",
+  "title": "Contrastive  Learning  with Adversarial Perturbations for Conditional Text Generation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "6NFBvWlRXaG",
+  "title": "On the Universality of Rotation Equivariant Point Cloud Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "MLSvqIHRidA",
+  "title": "Contrastive Divergence Learning is a Time Reversal Adversarial Game",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "c1zLYtHYyQG",
+  "title": "Learning from Demonstrations with Energy based Generative Adversarial Imitation Learning",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "hr-3PMvDpil",
+  "title": "Efficient Certified Defenses Against Patch Attacks on Image Classifiers",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "ZpS34ymonwE",
+  "title": "Meta Adversarial Training",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "iAX0l6Cz8ub",
+  "title": "Geometry-aware Instance-reweighted Adversarial Training",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Oral",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Ef1nNHQHZ20",
+  "title": "Layer-wise Adversarial Defense: An ODE Perspective",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "cL4wkyoxyDJ",
+  "title": "Towards Counteracting Adversarial Perturbations to Resist Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "X76iqnUbBjz",
+  "title": "A Unified Approach to Interpreting and Boosting Adversarial Transferability",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "dFwBosAcJkN",
+  "title": "Perceptual Adversarial Robustness: Defense Against Unseen Threat Models",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "a7gkBG1m6e",
+  "title": "Finding Physical Adversarial Examples for Autonomous Driving with Fast and Differentiable Image Compositing",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "luGQiBeRMxd",
+  "title": "CorrAttack: Black-box Adversarial Attack with Structured Search",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "t4hNn7IvNZX",
+  "title": "Certified Distributional Robustness via Smoothed Classifiers ",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "R2ZlTVPx0Gk",
+  "title": "DICE: Diversity in Deep Ensembles via Conditional Redundancy Adversarial Estimation",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "oj3bHNSq_2w",
+  "title": "Sample weighting as an explanation for mode collapse in generative adversarial networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "zQTezqCCtNx",
+  "title": "Improving Adversarial Robustness via Channel-wise Activation Suppressing",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Spotlight",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Xb8xvrtB8Ce",
+  "title": "Bag of Tricks for Adversarial Training",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "784_F-WCW46",
+  "title": "Rethinking Sampling in 3D Point Cloud Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "mj7WsaHYxj",
+  "title": "FLAG: Adversarial Data Augmentation for Graph Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "5xaInvrGWp",
+  "title": "Adversarially Robust Federated Learning for Neural Networks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "pzpytjk3Xb2",
+  "title": "Policy-Driven Attack: Learning to Query for Hard-label Black-box Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "ICLR 2021 Poster",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "1-j4VLSHApJ",
+  "title": "Learn2Weight: Weights Transfer Defense against Similar-domain Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "aI8VuzSvCPn",
+  "title": "Adversarial Synthetic Datasets for Neural Program Synthesis",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "nEMiSX_ipXr",
+  "title": "Proper Measure for Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "Utc4Yd1RD_s",
+  "title": "Towards Defending Multiple Adversarial Perturbations via Gated Batch Normalization",
+  "conf": "ICLR",
+  "year": "2021",
+  "venue": "",
+  "query": "venue:ICLR.cc/2021/Conference"
+ },
+ {
+  "forum": "NkZq4OEYN-",
+  "title": "Sound Adversarial Audio-Visual Navigation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "OM_lYiHXiCL",
+  "title": "AEVA: Black-box Backdoor Detection Using Adversarial Extreme Value Analysis",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "INO8hGXD2M",
+  "title": "Adversarial Distributions Against Out-of-Distribution Detectors",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "M6M8BEmd6dq",
+  "title": "PEARL: Data Synthesis via Private Embeddings and Adversarial Reconstruction Learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "TEt7PsVZux6",
+  "title": "I-PGD-AT: Efficient Adversarial Training via Imitating Iterative PGD Attack ",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "JHXjK94yH-y",
+  "title": "Explore and Control with Adversarial Surprise",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "qyzTEWWM0Pp",
+  "title": "Multiresolution Equivariant Graph Variational Autoencoder",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "7gRvcAulxa",
+  "title": "A Frequency Perspective of Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "YeShU5mLfLt",
+  "title": "On the Convergence of Certified Robust Training with Interval Bound Propagation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "sX3XaHwotOg",
+  "title": "Pretraining Text Encoders with Adversarial Mixture of Training Signal Generators",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "7zc05Ua_HOK",
+  "title": "Learning Sample Reweighting for Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "D6nH3719vZy",
+  "title": "On Improving Adversarial Transferability of Vision Transformers ",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "26gKg6x-ie",
+  "title": "Adversarial Support Alignment",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "28ib9tf6zhr",
+  "title": "Patch-Fool: Are Vision Transformers Always Robust Against Adversarial Perturbations?",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "0sEIBFb4cs",
+  "title": "Practical Adversarial Attacks on Brain--Computer Interfaces",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "_ixHFNR-FZ",
+  "title": "Adversarially Robust Models may not Transfer Better: Sufficient Conditions for Domain Transferability from the View of Regularization",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "vqGi8Kp0wM",
+  "title": "Mind the Gap: Domain Gap Control for Single Shot Domain Adaptation for Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "WE4qe9xlnQw",
+  "title": "A Program to Build E(N)-Equivariant Steerable CNNs ",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "TfwF7pqwqdm",
+  "title": "On the exploitative behavior of adversarial training against adversarial attacks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "D637S6zBRLD",
+  "title": "Learning Symmetric Representations for Equivariant World Models",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "1iDVz-khM4P",
+  "title": "Neural Networks Playing Dough: Investigating Deep Cognition With a Gradient-Based Adversarial Attack",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "qDx6DXD3Fzt",
+  "title": "Provably Robust Detection of Out-of-distribution Data (almost) for free",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "af1eUDdUVz",
+  "title": "Evading Adversarial Example Detection Defenses with Orthogonal Projected Gradient Descent",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "bUAdXW8wN6",
+  "title": "Domain Invariant Adversarial Learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "_xwr8gOBeV1",
+  "title": "Geometric and Physical Quantities improve E(3) Equivariant Message Passing",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "keQjAwuC7j-",
+  "title": "Two Birds, One Stone:  Achieving both Differential Privacy and Certified Robustness for Pre-trained Classifiers via Input Perturbation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "mHu2vIds_-b",
+  "title": "Boosting Randomized Smoothing with Variance Reduced Classifiers",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "UMfhoMtIaP5",
+  "title": "Provably Robust Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "xxyTjJFzy3C",
+  "title": "Contrastive Learning of 3D Shape Descriptor with Dynamic Adversarial Views",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "z7DAilcTx7",
+  "title": "A Distributional Robustness Perspective on Adversarial Training with the $\\infty$-Wasserstein Distance",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "__ObYt4753c",
+  "title": "A Simple Approach to Adversarial Robustness in Few-shot Image Classification ",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "MDT30TEtaVY",
+  "title": "Set Norm and Equivariant Skip Connections: Putting the Deep in Deep Sets",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "2p_5F9sHN9",
+  "title": "The Geometry of Adversarial Subspaces",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Snqhqz4LdK",
+  "title": "Generating Realistic 3D Molecules with an Equivariant Conditional Likelihood Model",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "VMuenFh7IpP",
+  "title": "What Doesn't Kill You Makes You Robust(er): How to Adversarially Train against Data Poisoning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "tHx6q2dM86s",
+  "title": "HYPOCRITE: Homoglyph Adversarial Examples for Natural Language Web Services in the Physical World",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "ba81PoR_k1p",
+  "title": "One for Many: an Instagram inspired black-box adversarial attack",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "WVX0NNVBBkV",
+  "title": "Robust Learning Meets Generative Models: Can Proxy Distributions Improve Adversarial Robustness?",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "ArY-zkyHI_l",
+  "title": "Resilience to Multiple Attacks via Adversarially Trained MIMO Ensembles",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "_PlNmPOsUS9",
+  "title": "PARL: Enhancing Diversity of Ensemble Networks to Resist Adversarial Attacks via Pairwise Adversarially Robust Loss Function",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "-Gk_IPJWvk",
+  "title": "Top-N: Equivariant Set and Graph Generation without Exchangeability",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "fTYeefgXReA",
+  "title": "Equivariant Heterogeneous Graph Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "MR7XubKUFB",
+  "title": "Adversarial Retriever-Ranker for Dense Text Retrieval",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Fj1Tpym9KxH",
+  "title": "A Closer Look at Smoothness in Domain Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "GQjaI9mLet",
+  "title": "Independent SE(3)-Equivariant Models for End-to-End Rigid Protein Docking",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "gKLAAfiytI",
+  "title": "Equivariant Self-Supervised Learning: Encouraging Equivariance in Representations",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "4o1xPXaS4X",
+  "title": "Fooling Adversarial Training with Induction Noise",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Q76Y7wkiji",
+  "title": "Boosting the Certified Robustness of L-infinity Distance Nets",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "kR1hC6j48Tp",
+  "title": "GATSBI: Generative Adversarial Training for Simulation-Based Inference",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "G0CuTynjgQa",
+  "title": "Generalization of GANs and overparameterized models under Lipschitz continuity",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "AwgtcUAhBq",
+  "title": "Domain Adversarial Training: A Game Perspective",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "gc8zLQWf2k",
+  "title": "Towards the Memorization Effect of Neural Networks in Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "3AkuJOgL_X",
+  "title": "Federated Robustness Propagation: Sharing Adversarial Robustness in Federated Learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "mTcO4-QCOB",
+  "title": "Analyzing the Effects of Classifier Lipschitzness on Explainers",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "gJLEXy3ySpu",
+  "title": "Almost Tight L0-norm Certified Robustness of Top-k Predictions against Adversarial Perturbations",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "TLnReGgZEdW",
+  "title": "Generalization in Deep RL for TSP Problems via Equivariance and Local Search",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "SHbhHHfePhP",
+  "title": "Equivariant Graph Mechanics Networks with Constraints",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "mF122BuAnnW",
+  "title": "Localized Randomized Smoothing for Collective Robustness Certification",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "SVcEx6SC_NL",
+  "title": "Adversarial Robustness as a Prior for Learned Representations",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "z-5BjnU3-OQ",
+  "title": "HyperCGAN: Text-to-Image Synthesis with HyperNet-Modulated Conditional Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "jJOjjiZHy3h",
+  "title": "Defending Against Image Corruptions Through Adversarial Augmentations",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Zf4ZdI4OQPV",
+  "title": "Attacking deep networks with surrogate-based adversarial black-box methods is easy",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "BKmoW5K4sS",
+  "title": "On Adversarial Bias and the Robustness of Fair Machine Learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "qWhajfmKEUt",
+  "title": "Delving into Feature Space: Improving Adversarial Robustness by Feature Spectral Regularization",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "bjy5Zb2fo2",
+  "title": "Scattering Networks on the Sphere for Scalable and Rotationally Equivariant Spherical CNNs",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "wNsNT56zDkG",
+  "title": "Adversarial Rademacher Complexity of Deep Neural Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "LtI14EpWKH",
+  "title": "Tessellated 2D Convolution Networks: A Robust Defence against Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "f3QTgKQW0TD",
+  "title": "Manifold Distance Judge, an Adversarial Samples Defense Strategy Based on Service Orchestration",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "XhF2VOMRHS",
+  "title": "A Unified Contrastive Energy-based Model for Understanding the Generative Ability of Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "e95i1IHcWj",
+  "title": "Equivariant and Stable Positional Encoding for More Powerful Graph Neural Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "0uZu36la_y4",
+  "title": "Protect the weak: Class focused online learning for adversarial training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Kvbr8NicKq",
+  "title": "Fast and Reliable Evaluation of Adversarial Robustness with Minimum-Margin Attack",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "i7FNvHnPvPc",
+  "title": "Boosting the Transferability of Adversarial Attacks with Reverse Adversarial Perturbation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "XWODe7ZLn8f",
+  "title": "Contrastive Fine-grained Class Clustering via Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "KoCzLK1Hugc",
+  "title": "Adversarial robustness against multiple $l_p$-threat models at the price of one and how to quickly fine-tune robust models to another threat",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "G33_uTwQiL",
+  "title": "Equivariant Vector Field Network for Many-body System Modeling",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "9dn7CjyTFoS",
+  "title": "One Thing to Fool them All: Generating Interpretable, Universal, and Physically-Realizable Adversarial Features",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "fRnRsdc_nR7",
+  "title": "Towards fast and effective single-step adversarial training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "cZAi1yWpiXQ",
+  "title": "Adversarial Robustness Through the Lens of Causality",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "-h5rboREox7",
+  "title": "Double Descent in Adversarial Training: An Implicit Label Noise Perspective",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "EXe93Md8RqS",
+  "title": "Data Quality Matters For Adversarial Training: An Empirical Study",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "TBpg4PnXhYH",
+  "title": "SPIRAL: Self-supervised Perturbation-Invariant Representation Learning for Speech Pre-Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Czsdv-S4-w9",
+  "title": "Generating Videos with Dynamics-aware Implicit Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "QJb1-8NH2Ux",
+  "title": "Detecting Adversarial Examples Is (Nearly) As Hard As Classifying Them",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "qLqeb9AjD2o",
+  "title": "Confidence-aware Training of Smoothed Classifiers for Certified Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "3Od_-TkEdnG",
+  "title": "Domain-wise Adversarial Training for Out-of-Distribution Generalization",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "SF9o3-yP1WR",
+  "title": "Robust and Personalized Federated Learning with Spurious Features: an Adversarial Approach",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "g5ynW-jMq4M",
+  "title": "Properties from mechanisms: an equivariance perspective on identifiable representation learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "oxwsctgY5da",
+  "title": "A Branch and Bound Framework for Stronger Adversarial Attacks of ReLU Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "7WVAI3dRwhR",
+  "title": "Adversarial twin neural networks: maximizing physics recovery for physical system",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "l5aSHXi8jG5",
+  "title": "Demystifying Limited Adversarial Transferability in Automatic Speech Recognition Systems",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "MeeQkFYVbzW",
+  "title": "Adversarial Unlearning of Backdoors via Implicit Hypergradient",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "RAoBtzlwtCC",
+  "title": "Provable Federated Adversarial Learning via Min-max Optimization",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "0Q6BzWbvg0P",
+  "title": "Less is More: Dimension Reduction Finds On-Manifold Adversarial Examples in Hard-Label Attacks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "HI99z0aLsl",
+  "title": "Benign Overfitting in Adversarially Robust Linear Classification",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "r88Isj2alz",
+  "title": "NODEAttack: Adversarial Attack on the Energy Consumption of Neural ODEs",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "_4GFbtOuWq-",
+  "title": "Capacity of Group-invariant Linear Readouts from Equivariant Representations: How Many Objects can be Linearly Classified Under All Possible",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "vxlAHR9AyZ6",
+  "title": "$\\alpha$-Weighted Federated Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "zIUyj55nXR",
+  "title": "Frame Averaging for Invariant and Equivariant Network Design",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Oral",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "gzeruP-0J29",
+  "title": "Revisiting and Advancing Fast Adversarial Training Through the lens of Bi-Level Optimization",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "c8AvdRAyVkz",
+  "title": "Perturbation Deterioration: The Other Side of Catastrophic Overfitting",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "kcadk-DShNO",
+  "title": "Why be adversarial? Let's cooperate!: Cooperative Dataset Alignment via JSD Upper Bound",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "hbGV3vzMPzG",
+  "title": "On the Impact of Hard Adversarial Instances on Overfitting in Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "M5hiCgL7qt",
+  "title": "The NTK Adversary: An Approach to Adversarial Attacks without any Model Access",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "DkeCkhLIVGZ",
+  "title": "Understanding Metric Learning on Unit Hypersphere and Generating Better Examples for Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "hUr6K4D9f7P",
+  "title": "Adversarial Weight Perturbation Improves Generalization in Graph Neural Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "vJZ7dPIjip3",
+  "title": "Generalization of Neural Combinatorial Solvers Through the Lens of Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "6VpeS27viTq",
+  "title": "Learnability Lock: Authorized Learnability Control Through Adversarial Invertible Transformations",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "jFfRcKVut98",
+  "title": "Learning Equivariances and Partial Equivariances From Data",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Xx4MNjSmQQ9",
+  "title": "Robust Generalization of Quadratic Neural Networks via Function Identification",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "7oyVOECcrt",
+  "title": "Local Permutation Equivariance For Graph Neural Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "_HFPHFbJrP-",
+  "title": "Certified Adversarial Robustness Under the Bounded Support Set",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "dQ7Cy_ndl1s",
+  "title": "Controlling the Complexity and Lipschitz Constant improves Polynomial Nets",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "l8It-0lE5e7",
+  "title": "Implicit Bias of Adversarial Training for Deep Neural Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "a3hQPNqIFk6",
+  "title": "Brittle interpretations: The Vulnerability of TCAV and Other Concept-based Explainability Tools to Adversarial Attack",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "e0uknAgETh",
+  "title": "Adversarial Attacks on Spiking Convolutional Networks for Event-based Vision",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "aJ9BXxg352",
+  "title": "Intriguing Properties of Input-dependent Randomized Smoothing",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "BGvt0ghNgA",
+  "title": "Lipschitz-constrained Unsupervised Skill Discovery",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "zU2v47WF0Ku",
+  "title": "Implicit Bias of Linear Equivariant Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Zae_OHNq-y",
+  "title": "Imbalanced Adversarial Training with Reweighting",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "tJhIY38d2TS",
+  "title": "Local Reweighting for Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "U9zTUXVdoIr",
+  "title": "GSmooth: Certified Robustness against Semantic Transformations via Generalized Randomized Smoothing",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "5SgoJKayTvs",
+  "title": "Intervention Adversarial Auto-Encoder",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "-AW3SFO63GO",
+  "title": "Dissecting Local Properties of Adversarial Examples",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "u6TRGdzhfip",
+  "title": "Reliable Adversarial Distillation with Unreliable Teachers",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "wIK1fWFXvU9",
+  "title": "Understanding the Interaction of Adversarial Training with Noisy Labels",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "2ggNjUisGyr",
+  "title": "Partial Wasserstein Adversarial Network for Non-rigid Point Set Registration",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "eiwpbi3iwr",
+  "title": "Neuronal Learning Analysis using Cycle-Consistent Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "RB_2cor6d-w",
+  "title": "Towards Physical, Imperceptible Adversarial Attacks via Adversarial Programs",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "5_zwnS5oJDp",
+  "title": "Bayesian Learning with Information Gain Provably Bounds Risk for a Robust Adversarial Defense",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "DesNW4-5ai9",
+  "title": "Transferable Adversarial Attack based on Integrated Gradients",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "bE239PSGIGZ",
+  "title": "Synthesising Audio Adversarial Examples for Automatic Speech Recognition",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "7gE9V9GBZaI",
+  "title": "Exploring Memorization in Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "bpUHBc9HCU8",
+  "title": "A General Unified Graph Neural Network Framework Against Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "yeP_zx9vqNm",
+  "title": "Finding Biological Plausibility for Adversarially Robust Features via Metameric Tasks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "y1PXylgrXZ",
+  "title": "Certified Robustness for Deep Equilibrium Models via Interval Bound Propagation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "GgOEm9twFO_",
+  "title": "PhaseFool: Phase-oriented Audio Adversarial Examples via Energy Dissipation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "anWCFENEc5H",
+  "title": "Modeling Adversarial Noise for Adversarial Defense",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "SYuJXrXq8tw",
+  "title": "Sparsity Winning Twice: Better Robust Generalization from More Efficient Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "baUQQPwQiAg",
+  "title": "Robust Unlearnable Examples: Protecting Data Privacy Against Adversarial Learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "nKZvpGRdJlG",
+  "title": "Mind Your Solver! On Adversarial Attack and Defense for Combinatorial Optimization",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "oU3aTsmeRQV",
+  "title": "Self-ensemble Adversarial Training for Improved Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "R0AzpCND-M_",
+  "title": "Model-Agnostic Meta-Attack: Towards Reliable Evaluation of Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "Dzpe9C1mpiv",
+  "title": "A Unified Wasserstein Distributional Robustness Framework for Adversarial Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "uydP1ykieNv",
+  "title": "Ensemble-in-One: Learning Ensemble within Random Gated Networks for Enhanced Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "jZQOWas0Lo3",
+  "title": "Cycle monotonicity of adversarial attacks for optimal domain adaptation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "bsr02xd-utn",
+  "title": "Pairwise Adversarial Training for Unsupervised Class-imbalanced Domain Adaptation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "dFbKQaRk15w",
+  "title": "Equivariant Subgraph Aggregation Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "uHq5rHHektz",
+  "title": "Contextual Fusion For Adversarial Robustness",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "gpp7cf0xdfN",
+  "title": "Reverse Engineering of Imperceptible Adversarial Image Perturbations",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "tUa4REjGjTf",
+  "title": "On the Certified Robustness for Ensemble Models and Beyond",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "36rU1ecTFvR",
+  "title": "Can standard training with clean images outperform adversarial one in robust accuracy?",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "fpU10jwpPvw",
+  "title": "Folded Hamiltonian Monte Carlo for Bayesian Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "STFJBXDTSlT",
+  "title": "Identity-Disentangled Adversarial Augmentation for Self-supervised Learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "qrdbsZEZPZ",
+  "title": "Certified Robustness for Free in Differentially Private Federated Learning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "O0g6uPDLW7",
+  "title": "On the Adversarial Robustness of Vision Transformers",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "2-mkiUs9Jx7",
+  "title": "Stein Latent Optimization for Generative Adversarial Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "KFUWHgRYEDF",
+  "title": "ScaLA: Speeding-Up Fine-tuning of Pre-trained Transformer Networks via Efficient and Scalable Adversarial Perturbation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "rw1mZl_ss3L",
+  "title": "Concurrent Adversarial Learning for Large-Batch Training",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "5K7RRqZEjoS",
+  "title": "Multiset-Equivariant Set Prediction with Approximate Implicit Differentiation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "EgkZwzEwciE",
+  "title": "Adversarial Collaborative Learning on Non-IID Features",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "ZFIT_sGjPJ",
+  "title": "Data-Dependent Randomized Smoothing",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "bYGSzbCM_i",
+  "title": "Online Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "L_sHGieq1D",
+  "title": "Adversarial Style Augmentation for Domain Generalized Urban-Scene Segmentation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "u6s8dSporO8",
+  "title": "Group equivariant neural posterior estimation",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "N9W24a4zU",
+  "title": "Steerable Partial Differential Operators for Equivariant Neural Networks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "r8S93OsHWEf",
+  "title": "Improving Adversarial Defense with Self-supervised Test-time Fine-tuning",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "0kNbTghw7q",
+  "title": "Improving Generative Adversarial Networks via Adversarial Learning in Latent Space",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "C5u6Z9voQ1",
+  "title": "Evaluating the Robustness of Time Series Anomaly and Intrusion Detection Methods against Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "4jUmjIoTz2",
+  "title": "Collaborate to Defend Against Adversarial Attacks",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "9vsRT9mc7U",
+  "title": "Generative Adversarial Training for Neural Combinatorial Optimization Models",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Submitted",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "9L1BsI4wP1H",
+  "title": "Adversarially Robust Conformal Prediction",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "zNHzqZ9wrRB",
+  "title": "Equivariant Transformers for Neural Network based Molecular Potentials",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Spotlight",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "QkRV50TZyP",
+  "title": "Beyond ImageNet Attack: Towards Crafting Adversarial Examples for Black-box Domains",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "gVRhIEajG1k",
+  "title": "Rethinking Adversarial Transferability from a Data Distribution Perspective",
+  "conf": "ICLR",
+  "year": "2022",
+  "venue": "ICLR 2022 Poster",
+  "query": "venue:ICLR.cc/2022/Conference"
+ },
+ {
+  "forum": "0Dh8dz4snu",
+  "title": "Equivariant Networks for Crystal Structures",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "6dfYc2IUj4",
+  "title": "A PAC-Bayesian Generalization Bound for Equivariant Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "1vusesyN7E",
+  "title": "Autoregressive Perturbations for Data Poisoning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "6mej19W1ppP",
+  "title": "Certifying Some Distributional Fairness with Subpopulation Decomposition",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "QFMw21ZKaa_",
+  "title": "Accelerating Certified Robustness Training via Knowledge Transfer",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "vWUmBjin_-o",
+  "title": "Structuring Representations Using Group Invariants",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Roiw2Trm-qP",
+  "title": "Subgame Solving in Adversarial Team Games",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "NtJyGXo0nF",
+  "title": "Adversarial training for high-stakes reliability",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ue4gP8ZKiWb",
+  "title": "Prompt Certified Machine Unlearning with Randomized Gradient Smoothing and Quantization",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "yJV9zp5OKAY",
+  "title": "Adversarial Auto-Augment with Label Preservation: A Representation Learning Principle Guided Approach",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "TVlKuUk-uj9",
+  "title": "Can Adversarial Training Be Manipulated By Non-Robust Features?",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "xz-2eyIh7u",
+  "title": "Collaborative Linear Bandits with Adversarial Agents: Near-Optimal Regret Bounds",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ZBlaix34YX",
+  "title": "LOT: Layer-wise Orthogonal Training on Improving l2 Certified Robustness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "5TfqL2gWdV9",
+  "title": "Invariance-Aware Randomized Smoothing Certificates",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "IbBHnPyjkco",
+  "title": "(De-)Randomized Smoothing for Decision Stump Ensembles",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "TThSwRTt4IB",
+  "title": "On the Effectiveness of Lipschitz-Driven Rehearsal in Continual Learning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "NENo__bExYu",
+  "title": "Make Some Noise: Reliable and Efficient Single-Step Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "jwOg8J1yZ-a",
+  "title": "Adversarially Robust Learning with Tolerance",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "bt25vx3aW_",
+  "title": "Adversarial Robustness is at Odds with Lazy Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "9ZWgrozGP0",
+  "title": "Provably Adversarially Robust Detection of Out-of-Distribution Data (Almost) for Free",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Fd05J4Bu5Sp",
+  "title": "On the Adversarial Robustness of Mixture of Experts",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "X0CKM7QV5k",
+  "title": "On the Stability and Scalability of Node Perturbation Learning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Y1sWzKW0k4L",
+  "title": "Indicators of Attack Failure: Debugging and Improving Optimization of Adversarial Examples",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "vRrFVHxFiXJ",
+  "title": "Predicting Cellular Responses to Novel Drug Perturbations at a Single-Cell Resolution",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "MVDzIreiRqW",
+  "title": "Evolution of Neural Tangent Kernels under Benign and Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "qmm__jMjMlL",
+  "title": "Unsupervised Object Representation Learning using Translation and Rotation Group Equivariant VAE",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "slKVqAflN5",
+  "title": "A gradient sampling method with complexity guarantees for Lipschitz functions in high and low dimensions",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ZLcwSgV-WKH",
+  "title": "Pre-trained Adversarial Perturbations",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "qcRgqCXv1o2",
+  "title": "Certifying Robust Graph Classification under Orthogonal Gromov-Wasserstein Threats",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "MeYI0QcOIRg",
+  "title": "Explicit Tradeoffs between Adversarial and Natural Distributional Robustness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "bI1XXtO-hs2",
+  "title": "Benefits of Permutation-Equivariance in Auction Mechanisms",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "CQaqJDWUGJ",
+  "title": "MCL-GAN: Generative Adversarial Networks with Multiple Specialized Discriminators",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "5oEk8fvJxny",
+  "title": "Relaxing Equivariance Constraints with Non-stationary Continuous Filters",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "pNHT6oBaPr8",
+  "title": "Learning Partial Equivariances From Data",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "47lpv23LDPr",
+  "title": "Unsupervised Learning of Group Invariant and Equivariant Representations",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "cmKZD3wdJBT",
+  "title": "Lipschitz Bandits with Batched Feedback",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Ku1afTnmozi",
+  "title": "Improving Out-of-Distribution Generalization by Adversarial Training with Structured Priors",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "B7Q2mbIFa6Q",
+  "title": "A Characterization of Semi-Supervised Adversarially Robust PAC Learnability",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "-8tU21J6BcB",
+  "title": "On the Robustness of Graph Neural Diffusion to Topology Perturbations",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "PpP9TiUZLoF",
+  "title": "An $\\alpha$-regret analysis of Adversarial Bilateral Trade",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "HOG-G4arLnU",
+  "title": "Isometric 3D Adversarial Examples in the Physical World",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "m2JJO3iEe_5",
+  "title": "Smoothed Embeddings for Certified Few-Shot Learning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "MhpB7Rxyyr",
+  "title": "HyperDomainNet: Universal Domain Adaptation for Generative Adversarial Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "2_AZxVpFlGP",
+  "title": "Towards Consistency in Adversarial Classification",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "9_O9mTLYJQp",
+  "title": "Label Noise in Adversarial Training: A Novel Perspective to Study Robust Overfitting",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "2jTCojmmh82",
+  "title": "Unsupervised Point Cloud Completion and Segmentation by Generative Adversarial Autoencoding Network",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "tlUnxtAmcJq",
+  "title": "So3krates: Equivariant attention for interactions on arbitrary length-scales in molecular systems",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ripJhpwlA2v",
+  "title": "When Does Group Invariant Learning Survive Spurious Correlations?",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "fY6OzqOiTnu",
+  "title": "Improving Certified Robustness via Statistical Learning with Logical Reasoning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "RYTGIZxY5rJ",
+  "title": "Bag of Tricks for FGSM Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "pgBpQYss2ba",
+  "title": "On the Complexity of Adversarial Decision Making",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "nzuuao_V-B_",
+  "title": "Foreseeing Privacy Threats from Gradient Inversion Through the Lens of Angular Lipschitz Smoothness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "WbnvmtD9N1g",
+  "title": "Double Bubble, Toil and Trouble: Enhancing Certified Robustness through Transitivity",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Z26xiZkbjgE",
+  "title": "Why Robust Generalization in Deep Learning is Difficult: Perspective of Expressive Power",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "8gQEmEgWAkc",
+  "title": "VoiceBlock: Privacy through Real-Time Adversarial Attacks with Audio-to-Audio Models",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "CwQCeJnteii",
+  "title": "Decision-based Black-box Attack Against Vision Transformers via Patch-wise Adversarial Removal",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "msFfpucKMf",
+  "title": "Robust Option Learning for Adversarial Generalization",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "df1g_KeEjQ",
+  "title": "VectorAdam for Rotation Equivariant Geometry Optimization",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Ncyc0JS7Q16",
+  "title": "Toward Robust Spiking Neural Network Against Adversarial Perturbation",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "NSWNgQgoF71",
+  "title": "Efficiently Computing Local Lipschitz Constants of Neural Networks via Bound Propagation",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "DoQElY73YR",
+  "title": "Friendly Noise against Adversarial Noise: A Powerful Defense against Data Poisoning Attack",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "KBUgVv8z7OA",
+  "title": "What Can the Neural Tangent Kernel Tell Us About Adversarial Robustness?",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "jFVfKsmKa-",
+  "title": "Bounded-Regret MPC via Perturbation Analysis: Prediction Error, Constraints, and Nonlinearity",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "03Qml_SaPqV",
+  "title": "Adversarially Robust Learning: A Generic Minimax Optimal Learner and Characterization",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "YPpSngE-ZU",
+  "title": "MACE: Higher Order Equivariant Message Passing Neural Networks for Fast and Accurate Force Fields",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "s776AhRFm67",
+  "title": "Boosting Barely Robust Learners: A New Perspective on Adversarial Robustness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "yTJze_xm-u6",
+  "title": "Variational Model Perturbation for Source-Free Domain Adaptation",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "YeuBRKq_yZ-",
+  "title": "Nearly Optimal Algorithms for Linear Contextual Bandits with Adversarial Corruptions",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "6ZI4iF_T7t",
+  "title": "Weakly Supervised Representation Learning with Sparse Perturbations",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "9BL0-oS7W7_",
+  "title": "Defending Against Adversarial Attacks via Neural Dynamic System",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "VE8QRTrWAMb",
+  "title": "Near-Optimal Regret for Adversarial MDP with Delayed Bandit Feedback",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "iivHwZoWzR4",
+  "title": "On the Computational Efficiency of Adapting Transformer Models via Adversarial Noise",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "aPgQdvSAuw",
+  "title": "On Translation and Reconstruction Guarantees of the Cycle-Consistent Generative Adversarial Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "X0m9q0IcsmX",
+  "title": "ViewFool: Evaluating the Robustness of Visual Recognition to Adversarial Viewpoints",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "_gA20SUfd4a",
+  "title": "Between Stochastic and Adversarial Online Convex Optimization: Improved Regret Bounds via Smoothness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "458a8dN8L6",
+  "title": "Alleviating Adversarial Attacks on Variational Autoencoders with MCMC",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "IwC_x50fvU",
+  "title": "Unknown-Aware Domain Adversarial Learning for Open-Set Domain Adaptation",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "78aj7sPX4s-",
+  "title": "Stability Analysis and Generalization Bounds of Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "yZ_JlZaOCzv",
+  "title": "Are AlphaZero-like Agents Robust to Adversarial Perturbations?",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "wmdbwZz65FM",
+  "title": "Learning to Drop Out: An Adversarial Approach to Training Sequence VAEs",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "XEoih0EwCwL",
+  "title": "Retrospective Adversarial Replay for Continual Learning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ywxtmG1nU_6",
+  "title": "Equivariant Graph Hierarchy-Based Neural Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Magl9CSHB87",
+  "title": "Improving Generative Adversarial Networks via Adversarial Learning in Latent Space",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ez6VHWvuXEx",
+  "title": "GT-GAN: General Purpose Time Series Synthesis with Generative Adversarial Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "25XwID3wKsi",
+  "title": "Follow-the-Perturbed-Leader for Adversarial Markov Decision Processes with Bandit Feedback",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "_WHs1ruFKTD",
+  "title": "A Closer Look at the Adversarial Robustness of Deep Equilibrium Models",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "qbSB_cnFSYn",
+  "title": "DEQGAN: Learning the Loss Function for PINNs with Generative Adversarial Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "aqLugNVQqRw",
+  "title": " Class-Aware Adversarial Transformers for Medical Image Segmentation ",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "cJ006qBE8Uv",
+  "title": "Adversarial Unlearning: Reducing Confidence Along Adversarial Directions",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "F0wPem89q9y",
+  "title": "Adversarial Reprogramming Revisited",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ODkBI1d3phW",
+  "title": "Efficient and Effective Augmentation Strategy for Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "pFqgUJxXXz",
+  "title": "Adversarial Task Up-sampling for Meta-learning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "IXoHxXIGpyV",
+  "title": "Towards Diverse and Faithful One-shot Adaption of Generative Adversarial Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ZV9WAe-Q0J",
+  "title": "When Adversarial Training Meets Vision Transformers: Recipes from Training to Architecture",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "-Xdts90bWZ3",
+  "title": "Perturbation Learning Based Anomaly Detection",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "skgJy0CjAO",
+  "title": "LogiGAN: Learning Logical Reasoning via Adversarial Pre-training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "8N1NDRGQSQ",
+  "title": "CalFAT: Calibrated Federated Adversarial Training with Label Skewness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "_vfyuJaXFug",
+  "title": "Translation-equivariant Representation in Recurrent Networks with a Continuous Manifold of Attractors",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "dT0eNsO2YLu",
+  "title": "Learnable Polyphase Sampling for Shift Invariant and Equivariant Convolutional Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "K4W92FUXSF9",
+  "title": "Random Normalization Aggregation for Adversarial Defense",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "88_wNI6ZBDZ",
+  "title": "Make Sharpness-Aware Minimization Stronger: A Sparsified Perturbation Approach",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "k5uFiFLWv3X",
+  "title": "Boosting the Transferability of Adversarial Attacks with Reverse Adversarial Perturbation",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "5vVSA_cdRqe",
+  "title": "FairVFL: A Fair Vertical Federated Learning Framework with Contrastive Adversarial Learning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "0zlLhfG6rxI",
+  "title": "Bessel Equivariant Networks for Inversion of Transmission Effects in Multi-Mode Optical Fibres",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "ZidkM5b92G",
+  "title": "BagFlip: A Certified Defense Against Data Poisoning",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "QNjyrDBx6tz",
+  "title": "Practical Adversarial Multivalid Conformal Prediction",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Jupoos_K4xt",
+  "title": "Equivariant Networks for Zero-Shot Coordination",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "Yb3dRKY170h",
+  "title": "One-shot Neural Backdoor Erasing via Adversarial Weight Masking",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "d229wqASHOT",
+  "title": "Adv-Attribute: Inconspicuous and Transferable Adversarial Attack on Face Recognition",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "7hhH95QKKDX",
+  "title": "Adversarial Attack on Attackers: Post-Process to Mitigate Black-Box Score-Based Query Attacks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "xaWO6bAY0xM",
+  "title": "Rethinking Lipschitz Neural Networks and Certified Robustness: A Boolean Function Perspective",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "qtZac7A3-F",
+  "title": "Enhance the Visual Representation via Discrete Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "xwBdjfKt7_W",
+  "title": "SNN-RAT: Robustness-enhanced Spiking Neural Network through Regularized Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "mfxq7BrMfga",
+  "title": "Generalized One-shot Domain Adaptation of Generative Adversarial Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "hcVlMF3Nvxg",
+  "title": "MultiGuard: Provably Robust Multi-label Classification against Adversarial Examples",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "siG_S8mUWxf",
+  "title": "Learning Physical Dynamics with Subequivariant Graph Neural Networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "js2ssA77fX",
+  "title": "Masked Generative Adversarial Networks are Data-Efficient Generation Learners",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "s7SukMH7ie9",
+  "title": "Adversarial Training with Complementary Labels: On the Benefit of Gradually Informative Attacks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "W-Z8n9HrWn0",
+  "title": "Why Do Artificially Generated Data Help Adversarial Robustness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "NkK4i91VWp",
+  "title": "Increasing Confidence in Adversarial Robustness Evaluations",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "9U4gLR_lRP",
+  "title": "Logit Margin Matters: Improving Transferable Targeted Adversarial Attack by Logit Calibration",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "2EQzEE5seF",
+  "title": "Adversarially Perturbed Batch Normalization: A Simple Way to Improve Image Recognition",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "cj6K4IWVomU",
+  "title": "Rotation-Equivariant Conditional Spherical Neural Fields for Learning a Natural Illumination Prior",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "vgIz0emVTAd",
+  "title": "DISCO: Adversarial Defense with Local Implicit Functions",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "tuC6teLFZD",
+  "title": "Synergy-of-Experts: Collaborate to Improve Adversarial Robustness",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "q0XxMcbaZH9",
+  "title": "Learning Equivariant Segmentation with Instance-Unique Querying",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "7b7iGkuVqlZ",
+  "title": "Unsupervised Learning of Equivariant Structure from Sequences",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "p62j5eqi_g2",
+  "title": "On the Robustness of Deep Clustering Models: Adversarial Attacks and Defenses",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "BRIL0EFvTgc",
+  "title": "Pay attention to your loss : understanding misconceptions about Lipschitz neural networks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "SsA-0BZa7B_",
+  "title": "A2: Efficient Automated Attacker for Boosting Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "_efamP7PSjg",
+  "title": "Equiformer: Equivariant Graph Attention Transformer for 3D Atomistic Graphs",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "lXUp6skJ7r",
+  "title": "Adversarial Style Augmentation for Domain Generalized Urban-Scene Segmentation",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "gwsnBjNcVEe",
+  "title": "Phase Transition from Clean Training to Adversarial Training",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "lTKXh991Ayv",
+  "title": "Practical Adversarial Attacks on Spatiotemporal Traffic Forecasting Models",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "jowVZoitZYu",
+  "title": "On Trace of PGD-Like Adversarial Attacks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Submitted",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ },
+ {
+  "forum": "DRckHIGk8qw",
+  "title": "GAMA: Generative Adversarial Multi-Object Scene Attacks",
+  "conf": "NeurIPS",
+  "year": "2022",
+  "venue": "NeurIPS 2022 Accept",
+  "query": "venue:NeurIPS.cc/2022/Conference"
+ }
+]
