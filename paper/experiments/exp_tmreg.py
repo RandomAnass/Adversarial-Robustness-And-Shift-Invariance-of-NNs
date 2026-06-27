@@ -39,7 +39,7 @@ from cifar_at import pgd_linf
 
 RESDIR = os.path.join(os.path.dirname(__file__), "..", "results")
 PARTDIR = os.path.join(RESDIR, "at_partial", "tmreg")
-PENALTIES = ("none", "ce_l2", "margin_l2", "margin_l1")
+PENALTIES = ("none", "ce_l2", "margin_l2", "margin_l1", "margin_norm_l1")
 
 def _lamstr(lam): return f"{float(lam):g}"
 def _jf(penalty, lam, w, seed):
@@ -83,14 +83,24 @@ def train_tmreg(model, X, y, dev, epochs, seed, eps, alpha, steps, penalty="none
                     s = F.cross_entropy(model(xc), yb)
                     g, = torch.autograd.grad(s, xc, create_graph=True)
                     pen = g.flatten(1).norm(dim=1).mean()
-                else:                                              # margin gradient: same mean-reduction as ce_l2
+                else:                                              # margin gradient
                     logits = model(xc)
                     true = logits.gather(1, yb[:, None]).squeeze(1)
                     other = logits.clone().scatter_(1, yb[:, None], -1e9).max(1).values
-                    m = (true - other).mean()
-                    g, = torch.autograd.grad(m, xc, create_graph=True)
-                    gf = g.flatten(1)
-                    pen = gf.norm(dim=1).mean() if penalty == "margin_l2" else gf.abs().sum(1).mean()
+                    Mps = true - other                              # per-sample margin
+                    if penalty == "margin_norm_l1":
+                        # margin-NORMALIZED sensitivity: penalize per-sample ||grad M_i||_1 / M_i so that
+                        # shrinking the margin INCREASES the penalty -> aims to break the self-limiting
+                        # coupling (lower sensitivity WITHOUT collapsing margin). sum() gives unscaled
+                        # per-sample gradients g_i = grad_x M_i (since M_j depends only on x_j).
+                        g, = torch.autograd.grad(Mps.sum(), xc, create_graph=True)
+                        gnorm = g.flatten(1).abs().sum(1)
+                        pen = (gnorm / Mps.clamp(min=0.05)).mean()
+                    else:                                          # margin_l1 / margin_l2: mean-reduced (== ce_l2 reduction)
+                        m = Mps.mean()
+                        g, = torch.autograd.grad(m, xc, create_graph=True)
+                        gf = g.flatten(1)
+                        pen = gf.norm(dim=1).mean() if penalty == "margin_l2" else gf.abs().sum(1).mean()
                 loss = loss + lam * pen
             loss.backward(); opt.step()
         sched.step()
