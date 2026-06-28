@@ -82,13 +82,13 @@ where $I_\pm=\big[\min_{x\in X_\pm}\fdc(x),\ \max_{x\in X_\pm}\fdc(x)\big]$ are 
 The single-image case, where each class is one image together with all its shifts, is the observation of \citet{ge2021shift} that a shift-invariant linear classifier separates classes only through their DC component. What Theorem~\ref{thm:A} adds is the exact convex-hull and interval form for an arbitrary finite separable dataset without orbit-closure, which is the form the architectural dissection of \S\ref{sec:exp} measures, together with the extension to any finite symmetry group below.
 
 The same accounting holds for any finite symmetry group, with the DC projector replaced by the group-average projector.
-\begin{theorem}[General finite-group invariant margin]\label{thm:finite-group}
+\begin{proposition}[General finite-group invariant margin]\label{thm:finite-group}
 Let a finite group $G$ act orthogonally on $\R^\dd$ by matrices $\{R_g\}$, with fixed subspace $V^G=\{v:R_gv=v\ \forall g\}$ and group-average projector $P_G=\tfrac1{|G|}\sum_{g\in G}R_g$, which is the orthogonal projector onto $V^G$. A linear score $w^\top x+b$ is exactly $G$-invariant if and only if $w\in V^G$, and the maximum invariant $\ell_2$ margin for finite separable classes is
 \[
 \gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}\big(\mathrm{conv}\,P_GX_+,\ \mathrm{conv}\,P_GX_-\big).
 \]
 Theorem~\ref{thm:A} is the cyclic case $P_G=\Pi_{\mathrm{inv}}$. (Proof in Appendix~\ref{app:proofs}.)
-\end{theorem}
+\end{proposition}
 
 \subsection{The co-existence / trade-off dichotomy and the $\eta/L$ criterion}\label{sec:dich}
 Theorem~\ref{thm:A} reduces ``does invariance hurt robustness?'' to ``is the discriminative signal preserved by projection onto the invariant subspace?''. If the projected classes overlap, $\gamma_{\mathrm{inv}}=0$ (forced trade-off); if they stay separated by $\eta>0$ with the invariant feature having Lipschitz constant $L$, the invariant classifier is simultaneously fully shift-consistent and robust with radius at least $\eta/L$. The governing scalar is therefore
@@ -140,10 +140,7 @@ The radial term is Euler's identity, $\langle\nabla M(x),x\rangle=M(x)$, which g
 Degree-one homogeneity gives $M(x)=r\,m(u)$. For a perturbation $h=au+z$ with $z\perp u$, $D r(x)[h]=\langle u,h\rangle=a$ and $D u(x)[h]=z/r$ (tangent to the sphere), so $DM(x)[h]=a\,m(u)+\langle\nabla_{\mathbb S}m(u),z\rangle=\langle m(u)u+\nabla_{\mathbb S}m(u),\,h\rangle$ for all $h$; hence $\nabla M(x)=m(u)u+\nabla_{\mathbb S}m(u)$. Orthogonality gives the norm identity, and $m(u)=M(x)/\|x\|_2$ with $\nabla_{\mathbb S}\log m=\nabla_{\mathbb S}m/m$ gives the displayed form and the envelope equivalence.
 \end{proof}
 
-The tangential factor is not controlled by homogeneity, which fixes only the radial part; it is set by the data geometry of the trained solution.
-\begin{remark}[The envelope constant is the data condition number]\label{rem:condnum}
-For a linear classifier $g(x)=w^\top x$ at its hard-margin solution the factor is exact, $\kappa_i=\|x_i\|_2/\gamma$ with $\gamma$ the geometric margin \citep{soudry2018implicit}, and sharp. For a bias-free homogeneous network the same data condition number bounds it, $\kappa_i\le B_i\|x_i\|_2/\gamma_{\mathrm{IB}}$ (with $B_i=\sqrt2$ for a depth-$D$ ReLU network under the product-of-spectral-norms complexity), where $\gamma_{\mathrm{IB}}$ is the normalized margin the gradient-descent solution actually achieves (Appendix~\ref{app:envelope}); no universal constant exists, since a four-point construction already forces $\kappa\to\infty$. The achieved margin is the honest denominator: gradient descent on homogeneous networks converges to a KKT point of the max-margin program \citep{lyu2020gradient,ji2020directional}, which for ReLU networks need not be globally max-margin \citep{vardi2022margin}, so the bound cannot use the global margin but does hold with $\gamma_{\mathrm{IB}}$, recovering the global form when the two coincide. The envelope is therefore a property of the solution's data geometry, not a trainable law. Empirically the factor is large, with $\|\nabla M\|_2$ exceeding the radial floor $M/\|x\|_2$ by roughly $26$ on the trained networks (Figure~\ref{fig:coupling-split}); this is exactly the slack that lets a gradient penalty lower $\|\nabla M\|$ at the diagnostic level while the margin falls with it, so $\eta/L$ diagnoses robustness but is not itself a target.
-\end{remark}
+The tangential factor is not controlled by homogeneity, which fixes only the radial part; it is set by the data geometry of the trained solution. For a linear classifier $g(x)=w^\top x$ at its hard-margin solution the factor is exact, $\kappa_i=\|x_i\|_2/\gamma$ with $\gamma$ the geometric margin \citep{soudry2018implicit}, and sharp. For a bias-free homogeneous network the same data condition number bounds it, $\kappa_i\le B_i\|x_i\|_2/\gamma_{\mathrm{IB}}$ (with $B_i=\sqrt2$ for a depth-$D$ ReLU network under the product-of-spectral-norms complexity), where $\gamma_{\mathrm{IB}}$ is the normalized margin the gradient-descent solution actually achieves (Appendix~\ref{app:envelope}); no universal constant exists, since a four-point construction already forces $\kappa\to\infty$. The achieved margin is the honest denominator: gradient descent on homogeneous networks converges to a KKT point of the max-margin program \citep{lyu2020gradient,ji2020directional}, which for ReLU networks need not be globally max-margin \citep{vardi2022margin}, so the bound cannot use the global margin but does hold with $\gamma_{\mathrm{IB}}$, recovering the global form when the two coincide. The envelope is therefore a property of the solution's data geometry, not a trainable law. Empirically the factor is large, with $\|\nabla M\|_2$ exceeding the radial floor $M/\|x\|_2$ by roughly $26$ on the trained networks (Figure~\ref{fig:coupling-split}); this is exactly the slack that lets a gradient penalty lower $\|\nabla M\|$ at the diagnostic level while the margin falls with it, so $\eta/L$ diagnoses robustness but is not itself a target.
 
 \begin{figure}[t]\centering
 \includegraphics[width=\linewidth]{figures/coupling_split.pdf}
@@ -362,7 +359,7 @@ The central open problem is a trajectory-level implicit-bias theorem for shift-i
 Invariance of $g(x)=w^\top x+b$ under every shift means $w^\top S_s x=w^\top x$ for all $x,s$, i.e.\ $(S_{-s}w-w)^\top x=0$ for all $x$, so $S_{-s}w=w$ for all $s$; the only vectors fixed by every cyclic shift are the constants, hence $w\in\Vinv=\mathrm{span}(\mathbf 1)$. Writing $w=c\mathbf 1$, the score depends on $x$ only through $\fdc(x)=\mathbf 1^\top x/\sqrt\dd$, so the data reduce to the scalar DC values and the classes to the intervals $I_\pm$. The maximum-margin separator of two point sets on a line places the threshold midway between the nearer interval endpoints, with geometric margin half the distance between the intervals, giving $\gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}(I_+,I_-)$. Identifying the projected line with $\mathrm{span}(\mathbf 1)$ gives the convex-hull form.
 \end{proof}
 
-\begin{proof}[Proof of Theorem~\ref{thm:finite-group}]
+\begin{proof}[Proof of Proposition~\ref{thm:finite-group}]
 $P_G$ is the orthogonal projector onto $V^G$: by group closure $P_G^2=|G|^{-2}\sum_{g,h}R_gR_h=|G|^{-1}\sum_k R_k=P_G$; each $R_g$ is orthogonal so $R_g^\top=R_{g^{-1}}$ and $P_G^\top=P_G$; its range is exactly the fixed subspace $V^G$. Invariance of $w^\top x$ for all $x$ is equivalent to $R_g^\top w=w$ for all $g$, hence (as $G$ is a group) to $R_g w=w$, i.e.\ $w\in V^G$. For $w\in V^G$ we have $w=P_Gw$, so $w^\top x=w^\top P_Gx$: every invariant linear classifier on $X_\pm$ is an ordinary linear classifier on the projected sets $P_GX_\pm$, with the same normal and signed margins. The maximum unit-normal margin separating two finite sets $A,B$ equals $\tfrac12\,\mathrm{dist}(\mathrm{conv}\,A,\mathrm{conv}\,B)$, attained by the unit vector along the closest-points segment of the hulls; applying this to $A=P_GX_+$, $B=P_GX_-$ gives the claim. The cyclic case has $P_G=\Pi_{\mathrm{inv}}$.
 \end{proof}
 
@@ -381,9 +378,9 @@ For complex $z,z'$, $\big||z|^2-|z'|^2\big|\le|z-z'|\,(|z|+|z'|)$. Applying this
 For the gradient, $\nabla f_a(x)=2F^{*}\mathrm{diag}(a)Fx$ in the real identification, so $\|\nabla f_a(x)\|_2\le 2\|a\|_\infty\|x\|_2\le 2B\|a\|_\infty$.
 \end{proof}
 
-\begin{theorem}[An exactly solvable nonlinear invariant model]\label{thm:toy}
+\begin{proposition}[An exactly solvable nonlinear invariant model]\label{thm:toy}
 Let $U,V$ be orthogonal subspaces of $\R^\dd$ and let $X_+=\{u\in U:\|u\|_2=a\}$, $X_-=\{v\in V:\|v\|_2=a\}$ (or finite shift-orbit subsets whose hulls contain $0$). The quadratic invariant $f(x)=\|P_Ux\|_2^2-\|P_Vx\|_2^2$ classifies $X_+,X_-$ correctly, every point has exact $\ell_2$ robust radius $a/\sqrt2$, and no linear classifier separates the classes.
-\end{theorem}
+\end{proposition}
 \begin{proof}
 For $x\in X_+$, $P_Vx=0$ and $\|x\|_2=a$, so $f(x)=a^2>0$. Decompose a perturbation as $\delta=\delta_U+\delta_V+\delta_W$ with $W=(U\oplus V)^\perp$. The boundary condition $f(x+\delta)\le0$ reads $\|x+\delta_U\|_2^2\le\|\delta_V\|_2^2$; $\delta_W$ cannot help, so set it to $0$. With $r=\|x+\delta_U\|_2$, the smallest $\|\delta_U\|_2$ is $|a-r|$ (move along the ray through $x$) and the smallest feasible $\|\delta_V\|_2$ is $r$, so $\|\delta\|_2^2\ge(a-r)^2+r^2$, minimized at $r=a/2$ with value $a^2/2$; hence the radius is $a/\sqrt2$, attained. The case $x\in X_-$ is symmetric. No affine hyperplane separates the classes because $0$ lies in both class convex hulls, so the hulls intersect.
 \end{proof}
@@ -504,7 +501,7 @@ picture breaks down \citep{chizat2019lazy}, stay open.
 \end{remark}
 
 \subsection{The margin-gradient envelope at the implicit-bias solution}\label{app:envelope}
-This backs the data-condition-number reading of Remark~\ref{rem:condnum}: the tangential factor of Proposition~\ref{prop:split} is bounded by the normalized margin the gradient-descent solution actually achieves, with no appeal to global optimality.
+This backs the data-condition-number reading in \S\ref{sec:coupling}: the tangential factor of Proposition~\ref{prop:split} is bounded by the normalized margin the gradient-descent solution actually achieves, with no appeal to global optimality.
 \begin{proposition}[Envelope via the achieved margin]\label{prop:ib-envelope}
 Let $M_\theta(x_i)$ be the signed margin at $x_1,\dots,x_n\in\R^\dd\setminus\{0\}$, parameter-homogeneous of degree $p$ ($M_{a\theta}=a^pM_\theta$). Let $C$ satisfy $C(a\theta)=a^pC(\theta)$ and $\|\nabla_x M_\theta(x_i)\|_2\le B_iC(\theta)$ at differentiability points, and let the limiting gradient-descent direction $\bar\theta$ make $x\mapsto M_{\bar\theta}(x)$ positively $1$-homogeneous with $\min_iM_{\bar\theta}(x_i)>0$. With the achieved normalized margin $\gamma_{\mathrm{IB}}=\min_iM_{\bar\theta}(x_i)/C(\bar\theta)$ and the normalization $\widehat\theta=(\min_iM_{\bar\theta}(x_i))^{-1/p}\bar\theta$ (so $\min_iM_{\widehat\theta}(x_i)=1$), at every support point $M_{\widehat\theta}(x_i)=1$,
 \[
