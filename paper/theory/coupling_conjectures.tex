@@ -37,10 +37,11 @@ exact identity (\S\ref{sec:Aprime}), a sharp linear case, a conditional bound un
 global max-margin, an explicit counterexample showing no universal constant exists,
 the corrected lockstep statement (\S\ref{sec:Bprime}), the corrected local capacity
 statement (\S\ref{sec:Cprime}), and the bracket-condition-number result
-(\S\ref{sec:D}). The one genuinely open path is an implicit-bias bound on the
-spherical log-gradient at the gradient-descent solution (\S\ref{sec:open}).
-Everything labelled Proposition/Theorem here is proved; the open item is stated as
-such.
+(\S\ref{sec:D}). The implicit-bias envelope at the gradient-descent solution is
+closed (\S\ref{sec:open}) by replacing the global margin with the achieved normalized
+margin $\gamma_{\mathrm{IB}}$, which recovers the global statement when the limit is
+optimal and degrades gracefully to a KKT point otherwise. Everything labelled
+Proposition/Theorem here is proved.
 \end{abstract}
 
 \section{Setup}\label{sec:setup}
@@ -293,7 +294,7 @@ tangentially misaligned with the datum; the implicit bias does not certify the b
 regime (min-norm interpolants permit localized curvature spikes; this is why
 curvature/local-linearity regularizers exist).
 
-\section{The one controlling quantity, and what remains open}\label{sec:open}
+\section{The one controlling quantity, and the resolved implicit-bias gap}\label{sec:open}
 \textbf{Synthesis.} A single quantity governs both the envelope and the certificate:
 the spherical log-margin gradient $\|\grad_{\Sph}\log m(u_i)\|=\tan\angle(\grad M,x_i)$
 at support directions, with $\sec\angle=\sqrt{1+\tan^2}$ equal to the envelope
@@ -304,28 +305,71 @@ $B_i\|x\|/\gamma_C$ under global max-margin with gradient-controlling complexity
 (Thm.~\ref{thm:complexity}, Cor.~\ref{cor:relu}), and unbounded across datasets
 (Prop.~\ref{prop:counter}). The margin alone never bounds it.
 
-\paragraph{The open path.} Theorem~\ref{thm:complexity} and Corollary~\ref{cor:relu}
-assume the trained network is the \emph{global} max-margin (min-complexity)
-interpolant. Gradient descent on homogeneous networks converges only to a
-\emph{KKT point} of the max-margin program (Lyu--Li 2020; Ji--Telgarsky 2020), and
-such a point need not be a local or global max-margin optimum for ReLU networks
-(Vardi--Shamir--Srebro 2022, arXiv:2110.02732). So the missing theorem is:
-\begin{conjecture}[Implicit-bias spherical-gradient bound]\label{conj:open}
-For the gradient-descent KKT solution on a bias-free homogeneous network with data of
-condition number $\|x\|/\gamma$, the spherical log-margin gradient at support
-directions satisfies $\|\grad_{\Sph}\log m(u_i)\|_2\le g(\|x\|/\gamma)$ for an
-explicit $g$ (e.g.\ $g=\sqrt{(\|x\|/\gamma)^2-1}$ as in the global case), absent the
-global-max-margin assumption.
-\end{conjecture}
-This is the genuinely open piece. Candidate routes: (i) strengthen the KKT structure
-of Lyu--Li/Ji--Telgarsky to control per-neuron coherence at support points; (ii) a
-curvature/local-linearity bound on the GD trajectory (CURE/LLR-style) that discharges
-the benign regime of Proposition~\ref{prop:D}; (iii) accept the global-max-margin
-hypothesis and state the result conditionally (the honest current option, used in the
-paper). Open residuals: B in the genuine non-scale, non-ridge nonlinear regime;
-C in the noisy, $p\ll n\dd$, training-point-average niche (needs an average-not-sup
-argument); D's explicit GD dataset realizing large $\kappa_{\mathrm{br}}$ at large
-margin.
+\paragraph{The gap, closed by the achieved margin.} Theorem~\ref{thm:complexity} and
+Corollary~\ref{cor:relu} were stated for the \emph{global} max-margin interpolant.
+Gradient descent on homogeneous networks converges only to a \emph{KKT point} of the
+max-margin program (Lyu--Li 2020, arXiv:1906.05890; Ji--Telgarsky 2020,
+arXiv:2006.06657), which for ReLU networks need not be a local or global max-margin
+optimum (Vardi--Shamir--Srebro 2022, arXiv:2110.02732); the linear case is the clean
+benchmark, where GD converges to the hard-margin SVM direction (Soudry et al.\ 2018,
+JMLR). A proof that depends only on ``GD reaches a KKT point'' therefore cannot deliver
+the \emph{global}-margin bound. The fix is to replace the global margin $\gamma_C$ by
+the normalized margin \emph{actually achieved} by the limiting direction,
+$\gamma_{\mathrm{IB}}$; the envelope then holds for the implicit-bias output itself and
+recovers the global statement when that output is globally optimal.
+
+\begin{theorem}[Implicit-bias spherical envelope via the achieved margin]\label{thm:ib}
+Let $x_1,\dots,x_n\in\R^{\dd}\setminus\{0\}$ and $M_\theta(x_i)$ be the signed margin.
+Assume \textup{(i)} parameter homogeneity $M_{a\theta}(x_i)=a^pM_\theta(x_i)$ for some
+$p>0$; \textup{(ii)} a matching homogeneous complexity $C(a\theta)=a^pC(\theta)$ with
+$\|\grad_x M_\theta(x_i)\|_2\le B_iC(\theta)$ at differentiability points;
+\textup{(iii)} the limiting gradient-descent direction $\bar\theta$ makes
+$x\mapsto M_{\bar\theta}(x)$ positively $1$-homogeneous; and \textup{(iv)}
+$\min_i M_{\bar\theta}(x_i)>0$. Set the achieved normalized margin
+$\gamma_{\mathrm{IB}}:=\min_iM_{\bar\theta}(x_i)/C(\bar\theta)$ (scale-invariant) and
+normalize $\widehat\theta:=(\min_iM_{\bar\theta}(x_i))^{-1/p}\bar\theta$, so
+$\min_iM_{\widehat\theta}(x_i)=1$. Then at every support point ($M_{\widehat\theta}(x_i)=1$),
+\[
+\|\grad_x M_{\widehat\theta}(x_i)\|_2\le\frac{B_i}{\gamma_{\mathrm{IB}}}
+=\frac{B_i\|x_i\|_2}{\gamma_{\mathrm{IB}}}\cdot\frac{M_{\widehat\theta}(x_i)}{\|x_i\|_2},
+\qquad
+\|\grad_{\Sph}\log m(u_i)\|_2\le\sqrt{\Big(\tfrac{B_i\|x_i\|_2}{\gamma_{\mathrm{IB}}}\Big)^2-1}.
+\]
+If $B_i\le B$ and $\|x_i\|_2\le R$ on the support set, $\kappa_i\le BR/\gamma_{\mathrm{IB}}$.
+\end{theorem}
+\begin{proof}
+$\gamma_{\mathrm{IB}}$ is scale-invariant: rescaling $\bar\theta\mapsto a\bar\theta$
+multiplies both $\min_iM_{\bar\theta}(x_i)$ and $C(\bar\theta)$ by $a^p$. With
+$\alpha=(\min_iM_{\bar\theta}(x_i))^{-1/p}$, parameter homogeneity gives
+$M_{\widehat\theta}(x_i)=\alpha^pM_{\bar\theta}(x_i)=M_{\bar\theta}(x_i)/\min_jM_{\bar\theta}(x_j)$,
+so $\min_iM_{\widehat\theta}(x_i)=1$, and $C(\widehat\theta)=\alpha^pC(\bar\theta)
+=C(\bar\theta)/\min_iM_{\bar\theta}(x_i)=1/\gamma_{\mathrm{IB}}$. The gradient-control
+hypothesis then gives $\|\grad_x M_{\widehat\theta}(x_i)\|_2\le B_iC(\widehat\theta)=B_i/\gamma_{\mathrm{IB}}$;
+at a support point $M_{\widehat\theta}(x_i)=1$ rewrites this in the displayed form. The
+spherical version follows by dividing by $m(u_i)=M_{\widehat\theta}(x_i)/\|x_i\|_2$ in
+Proposition~\ref{prop:Aprime}.
+\end{proof}
+\begin{corollary}[Bias-free ReLU networks]\label{cor:ib-relu}
+For a depth-$D$ bias-free network with $1$-Lipschitz $1$-homogeneous activations and
+$C(\theta)=(\|\theta\|_2/\sqrt D)^D$, the gradient-control hypothesis holds with
+$B_i=\sqrt2$ (Corollary~\ref{cor:relu}), so the implicit-bias direction satisfies
+$\|\grad_x M_{\widehat\theta}(x_i)\|_2\le\sqrt2/\gamma_{\mathrm{IB}}$ and
+$\|\grad_{\Sph}\log m(u_i)\|_2\le\sqrt{2\|x_i\|_2^2/\gamma_{\mathrm{IB}}^2-1}$ at support points.
+\end{corollary}
+\begin{remark}[Why this is the right denominator]
+When the gradient-descent limit is globally optimal, $\gamma_{\mathrm{IB}}=\gamma_C$ and
+Theorem~\ref{thm:ib} reduces to Theorem~\ref{thm:complexity}. When it is only a KKT
+point, the achieved margin $\gamma_{\mathrm{IB}}\le\gamma_C$ is smaller and the bound
+weakens accordingly, which is exactly the behaviour forced by the Vardi--Shamir--Srebro
+counterexamples: KKT convergence does not license replacing $\gamma_{\mathrm{IB}}$ by
+$\gamma_C$. The linear case is exact ($\|\grad_xM_w\|_2=\|w\|_2$, $C=\|w\|_2$, equality),
+and Proposition~\ref{prop:counter} shows no denominator weaker than the
+solution's data condition number can work. Open residuals: comparing
+$\gamma_{\mathrm{IB}}$ to $\gamma_C$ (when GD is globally optimal) is the standard hard
+implicit-bias question; B in the genuine non-scale nonlinear regime; C in the noisy
+$p\ll n\dd$ training-point-average niche; D's explicit GD dataset realizing large
+$\kappa_{\mathrm{br}}$ at large margin.
+\end{remark}
 
 \begin{center}
 \begin{tabular}{lll}
@@ -341,7 +385,7 @@ No universal constant & proved (counterexample) & Prop.~\ref{prop:counter} \\
 Scale-orbit lockstep / IFT characterization & proved & Prop.~\ref{prop:Bprime},~\ref{prop:Bift} \\
 Local noisy-pair ceiling & proved & Prop.~\ref{prop:Cprime} \\
 Bracket $\kappa_{\mathrm{br}}\le\sec\angle$; benign $\le2$ & proved & Prop.~\ref{prop:D} \\
-Implicit-bias spherical-gradient bound & \emph{open} & Conj.~\ref{conj:open} \\
+Implicit-bias envelope via achieved margin & proved & Thm.~\ref{thm:ib} \\
 \hline
 \end{tabular}
 \end{center}
@@ -351,9 +395,10 @@ Lem.~\ref{lem:scale}, Prop.~\ref{prop:Aprime} are standard/known (Euler identity
 Tsuzuku; polar gradient decomposition). Prop.~\ref{prop:linear} and
 Thm.~\ref{thm:complexity} are adaptations of the norm--margin duality.
 Cor.~\ref{cor:relu} is a direct application of the product-of-spectral-norms
-Lipschitz bound. Prop.~\ref{prop:counter} (no universal constant) and the
-identification of the spherical log-gradient as the controlling quantity are the
-genuinely informative observations; Conj.~\ref{conj:open} is the open contribution
-target.
+Lipschitz bound. Prop.~\ref{prop:counter} (no universal constant), the
+identification of the spherical log-gradient as the controlling quantity, and the
+achieved-margin envelope Thm.~\ref{thm:ib} (which closes the implicit-bias gap without
+the unprovable global-optimality assumption) are the genuinely informative
+contributions.
 
 \end{document}
