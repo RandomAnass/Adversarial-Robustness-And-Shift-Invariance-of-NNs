@@ -1,0 +1,320 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\dd}{d}
+\newcommand{\grad}{\nabla}
+\DeclareMathOperator{\Lip}{Lip}
+
+\title{The margin--sensitivity coupling:\\
+what is proved, why the impossibility reading was wrong,\\
+and three conjectures that would close it}
+\author{Working note (isolated from the main paper for independent attack)}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note isolates the ``self-limiting coupling'' theory that appears as
+Theorem~3 (\texttt{thm:coupling}) in the main paper, so it can be examined and,
+ideally, strengthened in isolation. It records (i) the one inequality that is
+genuinely \emph{proved} (a homogeneity lower envelope on the margin gradient);
+(ii) a precise account of \emph{why} the original ``$\eta/L$ cannot be trained''
+\emph{impossibility} reading does not follow from that inequality; and (iii)
+three conjectures, each of which, if proved, would upgrade the loose envelope into
+a real obstruction to training the certified ratio. The proved part is short and
+correct; the open part is where the contribution would be. Nothing here is claimed
+as a theorem beyond Theorem~\ref{thm:env} and Lemma~\ref{lem:scale}; everything
+labelled Conjecture is open.
+\end{abstract}
+
+\section{Setup and the quantity at stake}\label{sec:setup}
+
+Let $f:\R^{\dd}\to\R^{k}$ be a classifier with logits $f_1,\dots,f_k$, and for a
+labelled point $(x,y)$ define the \emph{signed logit margin}
+\[
+  M(x) \;=\; f_y(x)-\max_{j\neq y} f_j(x).
+\]
+$M(x)>0$ iff $f$ is correct at $x$. Write $\eta=\E[M(x)]$ for the mean margin over
+correctly classified data and $L=\E\,\|\grad M(x)\|$ for the mean input-gradient
+norm (the local sensitivity), with the norm chosen dual to the threat model
+($\ell_2$ certificate uses $\|\cdot\|_2$; an $\ell_\infty$ threat uses
+$\|\cdot\|_1$). The first-order certified radius is
+\begin{equation}\label{eq:cert}
+  r_2(f,x)\;\ge\;\frac{M(x)}{\|\grad M(x)\|_2}
+  \qquad\text{(Hein--Andriushchenko 2017; Tsuzuku et al.\ 2018),}
+\end{equation}
+so the dataset ratio $\eta/L$ is a natural robustness surrogate. The empirical
+finding of the paper is that $\eta/L$ \emph{diagnoses} robustness very well across
+architectures, yet \emph{training} it (penalizing $\|\grad M\|$, or maximizing the
+ratio) does not buy robustness. The question this note isolates is: \emph{is there
+a theorem behind that failure, or only an empirical regularity?}
+
+\section{What is proved: a homogeneity lower envelope}\label{sec:proved}
+
+\begin{theorem}[Homogeneous self-limiting envelope]\label{thm:env}
+Let $f$ be \emph{bias-free} and let every activation be positively homogeneous of
+degree one ($\sigma(ct)=c\,\sigma(t)$ for $c>0$; ReLU, leaky-ReLU, absolute value,
+maxout). Then $M$ is positively homogeneous of degree one, and at every
+differentiability point $x$,
+\begin{equation}\label{eq:euler}
+  \langle \grad M(x),\,x\rangle \;=\; M(x)\quad\text{(Euler's identity)},
+\end{equation}
+hence, by Cauchy--Schwarz and H\"older,
+\begin{equation}\label{eq:floor}
+  \|\grad M(x)\|_2 \;\ge\; \frac{M(x)}{\|x\|_2},
+  \qquad
+  \|\grad M(x)\|_1 \;\ge\; \frac{M(x)}{\|x\|_\infty}.
+\end{equation}
+Consequently the per-sample ratio is capped by the input norm,
+$M(x)/\|\grad M(x)\|_2\le\|x\|_2$, and the dataset ratio obeys
+$\eta/L\le \sup_i\|x_i\|_2$, independently of training.
+\end{theorem}
+
+\begin{proof}
+Each logit is an alternating composition of bias-free linear maps and degree-1
+positively homogeneous activations, so $f_j(cx)=c\,f_j(x)$ for $c>0$ by induction
+on depth; a pointwise maximum of degree-1 positively homogeneous functions is again
+degree-1 positively homogeneous, so $M(cx)=cM(x)$. Differentiating in $c$ at $c=1$
+gives \eqref{eq:euler} wherever $M$ is differentiable (a.e.\ by Rademacher; on the
+measure-zero nonsmooth set of a ReLU network a Clarke subgradient $v$ with
+$\langle v,x\rangle=M(x)$ exists). Then
+$M(x)=\langle\grad M(x),x\rangle\le\|\grad M(x)\|_2\|x\|_2$ and the H\"older
+version give \eqref{eq:floor}; rearranging gives the cap.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:env} is correct as stated. It is essentially Euler's identity for
+$1$-homogeneous functions plus Cauchy--Schwarz; the content is only the
+\emph{interpretation} that the margin gradient has an architecture-imposed floor
+$M(x)/\|x\|_2$ that scales with the margin. This much \emph{is} a structural
+statement: the coupling between margin and sensitivity is not purely an
+optimization artifact, because no bias-free homogeneous network can have a
+vanishing gradient at a point of nonzero margin.
+\end{remark}
+
+\section{Why the impossibility reading was wrong}\label{sec:wrong}
+
+The main paper originally read Theorem~\ref{thm:env} as an \emph{impossibility}:
+``$\eta/L$ cannot be trained, so no $\eta/L$-guided defense can exist.'' That
+reading does not follow from \eqref{eq:floor}. Four distinct gaps, in increasing
+order of importance:
+
+\paragraph{(W1) The bound points the wrong way to forbid training.}
+To \emph{raise} the certified ratio $\eta/L=M/\|\grad M\|$ one wants the
+denominator $\|\grad M\|$ \emph{small} (or the margin large). Inequality
+\eqref{eq:floor} is a \emph{lower} bound on $\|\grad M\|$, equivalently an
+\emph{upper} cap $\eta/L\le\|x\|$. An upper cap does not forbid increasing a
+quantity that currently sits \emph{below} the cap; it only says how far the
+increase could go. A genuine no-go needs a statement that $\eta/L$ is already
+\emph{at} (a constant fraction of) its ceiling, or that increasing it does not
+help robustness. Neither is in \eqref{eq:floor}.
+
+\paragraph{(W2) The envelope is loose at the operating point.}
+Empirically, for the trained networks the realized gradient norm sits far above
+the floor: $\|\grad M(x)\|_2 \approx 26\times\,M(x)/\|x\|_2$ at the data (the floor
+is a few percent of the measured value). So \eqref{eq:floor} permits the gradient
+to be reduced by more than an order of magnitude --- i.e.\ $\eta/L$ to be raised by
+more than an order of magnitude --- before the bound binds. A bound with that much
+slack cannot, by itself, explain why a penalty fails to raise robustness.
+
+\paragraph{(W3) The hypotheses fail for the real networks.}
+Identity \eqref{eq:euler} needs \emph{bias-free} and \emph{exactly} degree-1
+homogeneous architectures. The experimental models are PreActResNet-18 with
+additive biases and batch normalization (and, in some controls, smooth
+activations), all of which break exact $1$-homogeneity. On those models
+Theorem~\ref{thm:env} is at best an idealized mechanism, not an exact law, so it
+cannot carry an impossibility claim about \emph{them}.
+
+\paragraph{(W4) Static identity vs.\ dynamic lockstep.}
+The empirical obstruction is dynamical: along a regularization path
+$\min \mathcal L_{\mathrm{AT}}+\lambda\,\E\|\grad M\|$, the margin $\eta$ falls in
+\emph{lockstep} with $L$, so the ratio barely moves and the certified radius does
+not improve. Theorem~\ref{thm:env} is a \emph{static} inequality at a fixed
+network; it says nothing about how $(\eta,L)$ co-move under a training penalty. The
+original error was to treat a static inequality as if it constrained the training
+\emph{trajectory}.
+
+\medskip
+\noindent What survives rigorously after the walk-back is exactly two facts:
+
+\begin{lemma}[Scale degeneracy of the ratio]\label{lem:scale}
+The per-sample ratio $M(x)/\|\grad M(x)\|$ is invariant under $f\mapsto cf$ for
+$c>0$. Hence the objective ``maximize $\eta/L$'' (equivalently ``penalize
+$\|\grad M\|/M$ on correct points'') is blind to the absolute margin and admits the
+constant classifier $\grad M\equiv 0$ as a global optimizer. Direct ratio
+maximization is therefore ill-posed.
+\end{lemma}
+\begin{proof}
+Under $f\mapsto cf$ both $M$ and $\grad M$ scale by $c$, leaving the ratio fixed;
+the penalty $\E[\|\grad M\|/M]\ge0$ attains its infimum $0$ only as
+$\grad M\to0$, i.e.\ a constant score (chance accuracy). This is the constant-
+function degeneracy noted by Tsuzuku et al.\ (2018).
+\end{proof}
+
+Lemma~\ref{lem:scale} kills the \emph{ratio-maximization} route cleanly, but it
+says nothing about the \emph{margin-gradient penalty} route (W4); that one is, at
+present, only an empirical regularity (the four interventions). The honest current
+status is: ratio maximization is provably degenerate (Lemma~\ref{lem:scale}); the
+gradient-penalty lockstep is observed, not proved; and the homogeneity envelope
+(Theorem~\ref{thm:env}) is a true but loose structural floor that does \emph{not}
+forbid training.
+
+\section{Three conjectures that would close the gap}\label{sec:conj}
+
+Each conjecture below, if proved, converts a piece of the empirical story into a
+theorem. They are ordered by how directly they would restore an impossibility
+claim. Throughout, ``the trained solution'' means the directional limit of
+gradient flow on the logistic/exponential loss for a homogeneous network, which
+converges to a KKT point of the max-margin program (Lyu--Li 2020; Ji--Telgarsky).
+
+\subsection*{Conjecture A: a matching upper envelope at the implicit-bias solution}
+
+Theorem~\ref{thm:env} gives a lower envelope $\|\grad M(x)\|_2\ge M(x)/\|x\|_2$.
+The missing half is an \emph{upper} envelope \emph{at the GD-selected solution}.
+
+\begin{conjecture}[Tight coupling at max margin]\label{conj:upper}
+Let $f$ be a bias-free, $1$-homogeneous network and let $f^\star$ be the
+max-margin direction reached by gradient flow on a separable dataset
+$\{(x_i,y_i)\}$. Then there is a constant $\kappa\ge1$, depending only on the data
+geometry (e.g.\ the margin condition number / the number of active support
+neurons), not on the width, such that at every support point $x_i$
+\[
+  \frac{M(x_i)}{\|x_i\|_2}\;\le\;\|\grad M(x_i)\|_2\;\le\;\kappa\,\frac{M(x_i)}{\|x_i\|_2}.
+\]
+Consequently $\eta/L\in[\|x\|/\kappa,\ \|x\|]$ is pinned to a $\Theta(\|x\|)$ band
+at the trained solution, and no reparametrization or first-order penalty that stays
+at a max-margin KKT point can move it outside that band.
+\end{conjecture}
+
+\noindent\emph{Why this would close it.} An upper envelope of the same order as the
+lower one (W2 says the realized $\kappa\approx 26$; the conjecture asks whether
+$\kappa$ is \emph{bounded} by data geometry rather than free) means $\eta/L$ is
+essentially \emph{determined} by $\|x\|$ at any max-margin solution, so the only way
+to raise it is to change the data scaling or the capacity --- exactly the
+impossibility the paper wanted. \emph{Suggested attack.} At a max-margin KKT point,
+$\grad M(x_i)=\sum_{r\in\mathcal A(x_i)} a_r w_r$ over active neurons; bound
+$\|\grad M(x_i)\|$ above using the KKT stationarity
+$\sum_i \lambda_i y_i \grad_\theta f(x_i)=\theta$ and the homogeneity relation
+$\|\theta\|^2 = \sum_i \lambda_i y_i M(x_i)$ to control the number/coherence of
+active neurons. The danger case is highly anisotropic data where $\kappa$ blows up
+(the $t\mapsto t^{2n+1}$ example in \S\ref{sec:bracket} has $\kappa\to\infty$), so
+the conjecture must restrict to a margin/condition assumption.
+
+\subsection*{Conjecture B: penalty-path lockstep (no first-order decoupling)}
+
+This formalizes (W4) and the four-intervention experiment directly.
+
+\begin{conjecture}[Margin falls with the gradient along the penalty path]\label{conj:lockstep}
+Consider the regularized adversarial objective
+$\mathcal L(\theta)+\lambda\,R(\theta)$ with $R(\theta)=\E\|\grad_x M\|_q$ and let
+$\theta_\lambda$ be its minimizer (or a gradient-flow path in $\lambda$). Write
+$\eta(\lambda)=\E[M]$ and $L(\lambda)=\E\|\grad_x M\|_q$ at $\theta_\lambda$. Then
+there is a constant $c>0$ with
+\[
+  \frac{d\eta}{d(\log L)}\;\ge\; c\,\eta
+  \qquad\text{(equivalently } \tfrac{d}{d\lambda}\log\eta \ \ge\ c\,\tfrac{d}{d\lambda}\log L\text{),}
+\]
+so that $\eta/L^{c}$ is non-decreasing while $\eta/L$ is (to first order)
+stationary: reducing the sensitivity by a factor reduces the margin by at least a
+comparable factor, and the certified ratio does not improve.
+\end{conjecture}
+
+\noindent\emph{Why this would close it.} It turns ``every penalty we tried
+collapsed the margin'' into a statement about \emph{all} first-order penalties of
+this form. \emph{Suggested attack.} Differentiate the KKT/stationarity conditions
+of the penalized program in $\lambda$ (an implicit-function / envelope-theorem
+calculation): the first-order change in $\eta$ is governed by the same Hessian
+block as the change in $L$ because both are functionals of $\grad_x M$; show the
+cross term forces co-movement. A clean toy case to prove first: a single
+homogeneous neuron / a linear-in-features model where the penalty and the margin
+share a gradient direction.
+
+\subsection*{Conjecture C: a local, noise-free capacity ceiling}
+
+The capacity remark in the paper invokes Bubeck--Sellke (2021): any $p$-parameter
+interpolator of $n$ points in $\R^{\dd}$ on isoperimetric data \emph{with label
+noise} has \emph{global} Lipschitz constant $\tilde\Omega(\sqrt{n\dd/p})$, which
+gives $\eta/L\le\tilde O(\sqrt{p/(n\dd)})$ \emph{for the global constant}. Two
+caveats weaken it: it bounds the global Lipschitz constant, not the local gradient
+norm $L=\E\|\grad M\|$ that we measure; and it assumes label noise.
+
+\begin{conjecture}[Local capacity bound]\label{conj:capacity}
+Under the data assumptions of Bubeck--Sellke but \emph{without} requiring label
+noise, and with $L$ the \emph{local} expected margin-gradient norm at the data
+rather than the global Lipschitz constant, there is still a bound of the form
+$\eta/L\le\tilde O\!\big(\sqrt{p/(n\dd)}\big)$ up to logarithmic factors.
+\end{conjecture}
+
+\noindent\emph{Why this would close it.} It would make the capacity ceiling a
+theorem about the \emph{measured} ratio, explaining the architecture-independence
+of the coupling (ReLU/SiLU/GELU alike) from first principles rather than by analogy.
+\emph{Suggested attack.} Replace the global-Lipschitz step in Bubeck--Sellke by a
+local Poincar\'e/concentration argument at the data measure; the label-noise
+assumption may be replaceable by a margin/anti-concentration assumption on $M$.
+
+\subsection*{(Optional) Conjecture D: the implicit bias controls the bracket condition number}
+
+The two-sided bracket (\S\ref{sec:bracket}) shows $\eta/L\le r_2\le\eta/\alpha$
+with $\kappa=L/\alpha\ge1$, exact ($\kappa=1$) for invariant linear features. A
+bound on $\kappa$ at the trained solution would tie the diagnostic to the true
+radius.
+
+\begin{conjecture}\label{conj:kappa}
+For the max-margin solution of a homogeneous network on data with margin condition
+$\mu$, the bracket condition number satisfies $\kappa=L/\alpha\le g(\mu)$ for an
+explicit $g$, so $\eta/L$ estimates $r_2$ up to the factor $g(\mu)$.
+\end{conjecture}
+
+\section{Reference results used above (for self-containment)}
+
+\paragraph{The two-sided bracket.}\label{sec:bracket}
+For a score $g$ correct on $x$ with margin $\eta=y\,g(x)>0$, if $g$ is
+$L$-Lipschitz and has co-Lipschitz (lower-Lipschitz) constant $\alpha$ along a path
+to the boundary on a convex neighbourhood, then $\eta/L\le r_2\le\eta/\alpha$, with
+$\kappa:=L/\alpha\ge1$ and equality $r_2=\eta/L$ iff $\kappa=1$. For a linear
+invariant feature $g(x)=w^\top x+b$ with $w$ in the invariant subspace, $L=\alpha=\|w\|_2$,
+so $\kappa=1$ and $r_2=\eta/\|w\|_2$ exactly. The unbounded-$\kappa$ end is the
+feature $t\mapsto t^{2n+1}$ on $\R$: $\eta/L=1/(2n+1)$ while $r_2=1$, so no
+\emph{universal} converse exists.
+
+\paragraph{Implicit bias to max margin.}
+For homogeneous networks, gradient flow on the logistic/exponential loss converges
+in direction to a KKT point of $\min\|\theta\|$ s.t.\ $y_i f_\theta(x_i)\ge1$
+(Lyu--Li 2020; Ji--Telgarsky 2020). This is what makes ``the trained solution'' a
+well-defined object for Conjectures~\ref{conj:upper}--\ref{conj:lockstep}.
+
+\section*{Status summary}
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Statement & Status & Where \\
+\hline
+Lower envelope $\|\grad M\|_2\ge M/\|x\|_2$ & \textbf{proved} & Thm~\ref{thm:env} \\
+Ratio maximization is degenerate & \textbf{proved} & Lem~\ref{lem:scale} \\
+``$\eta/L$ cannot be trained'' (impossibility) & \textbf{withdrawn} & \S\ref{sec:wrong} \\
+Matching upper envelope at max margin & \emph{conjecture} & Conj~\ref{conj:upper} \\
+Penalty-path margin/gradient lockstep & \emph{conjecture} & Conj~\ref{conj:lockstep} \\
+Local, noise-free capacity ceiling & \emph{conjecture} & Conj~\ref{conj:capacity} \\
+Bracket condition number bound & \emph{conjecture} & Conj~\ref{conj:kappa} \\
+\hline
+\end{tabular}
+\end{center}
+
+\noindent Proving any one of A, B, or C would restore a genuine (not loose,
+not merely empirical) obstruction to first-order training of $\eta/L$, and would be
+the theoretical contribution the walked-back Theorem~3 only gestured at.
+
+\end{document}
