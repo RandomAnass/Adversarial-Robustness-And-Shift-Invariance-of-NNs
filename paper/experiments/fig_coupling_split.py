@@ -90,24 +90,24 @@ def panel_geometry(ax):
 
 def panel_band(ax):
     t = np.linspace(0, 30, 400)               # tangential factor ||grad_S log m|| = tan(theta)
-    kappa = np.sqrt(1 + t ** 2)               # = sec(theta)
-    ax.plot(t, kappa, color=GRADC, lw=2.4, zorder=3,
-            label=r"$\kappa=\sqrt{1+\|\nabla_{\mathbb{S}}\log m\|^2}$")
-    # tight end: linear / invariant
+    tau = np.sqrt(1 + t ** 2)                  # = sec(theta)
+    ax.plot(t, tau, color=GRADC, lw=2.4, zorder=3,
+            label=r"$\tau=\sqrt{1+\|\nabla_{\mathbb{S}}\log m\|^2}$")
+    # floor end: gradient purely radial
     ax.scatter([0], [1], color=RADIAL, s=42, zorder=4)
-    ax.annotate("linear / invariant feature:\n"
-                r"$\kappa=1$, certificate tight ($r_2=\eta/L$)",
+    ax.annotate("purely radial gradient\n"
+                r"($\nabla_{\mathbb{S}}\log m=0$): floor",
                 (0, 1), textcoords="offset points", xytext=(14, 6),
                 color=RADIAL, fontsize=9.5)
-    # operating region of the trained nets
+    # operating region: trained nets AND linear max-margin both sit at ||x||/gamma
     ax.axhspan(OPER - 3, OPER + 3, color=TANG, alpha=0.12, zorder=1)
     ax.axhline(OPER, color=TANG, ls="--", lw=1.6, zorder=2)
-    ax.annotate(r"trained nets: $\kappa\approx %d$" % int(OPER) + "\n"
-                r"(= data condition number $\|x\|/\gamma$)",
-                (18, OPER), textcoords="offset points", xytext=(-2, 6),
+    ax.annotate("trained nets & linear max-margin:\n"
+                r"$\tau=\|x\|/\gamma\approx %d$" % int(OPER),
+                (18, OPER), textcoords="offset points", xytext=(-2, 8),
                 color=TANG, fontsize=9.5, ha="right")
     ax.set_xlabel(r"tangential factor $\|\nabla_{\mathbb{S}}\log m(u)\|=\tan\theta$", fontsize=10.5)
-    ax.set_ylabel(r"$\kappa=\dfrac{\|\nabla M\|}{M/\|x\|}$", fontsize=11)
+    ax.set_ylabel(r"$\tau=\dfrac{\|\nabla M\|}{M/\|x\|}$", fontsize=11)
     ax.set_title(r"The envelope is set by the tangential factor", fontsize=11)
     ax.set_xlim(-1, 30); ax.set_ylim(0, 33)
     ax.grid(alpha=0.25)
