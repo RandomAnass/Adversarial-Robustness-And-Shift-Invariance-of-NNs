@@ -1,0 +1,93 @@
+{
+  "args": {
+    "n": 50000,
+    "ntest": 10000,
+    "epochs": 30,
+    "seeds": 2,
+    "w": 32,
+    "kappa": 5.0,
+    "aa_n": 1000,
+    "aa_version": "standard",
+    "pgd_steps": 40,
+    "gpu_ids": [
+      0
+    ],
+    "workers": 2,
+    "smoke": false,
+    "report_only": false
+  },
+  "recipe": {
+    "dataset": "cifar",
+    "norm": "linf",
+    "eps": 0.03137254901960784,
+    "alpha": 0.00784313725490196,
+    "steps": 7,
+    "flip": true,
+    "epochs": 30,
+    "w": 32,
+    "kappa": 5.0,
+    "aa_spec": [
+      "Linf_8_255",
+      "Linf",
+      0.03137254901960784
+    ]
+  },
+  "rows": [
+    {
+      "arm": "standard",
+      "beta": 0.0,
+      "label": "vanillaAT",
+      "nseed": 2,
+      "clean": 0.71085,
+      "consist": 0.7919,
+      "margin": 1.469405710697174,
+      "L1": 35.420671463012695,
+      "L2": 1.2510445713996887,
+      "pgd": 0.4005,
+      "aa": 0.38050001859664917,
+      "masking": false
+    },
+    {
+      "arm": "blur5",
+      "beta": 0.0,
+      "label": "AT+Bin5",
+      "nseed": 2,
+      "clean": 0.7235,
+      "consist": 0.79915,
+      "margin": 1.560827612876892,
+      "L1": 36.03065299987793,
+      "L2": 1.2828376293182373,
+      "pgd": 0.4195,
+      "aa": 0.40000002086162567,
+      "masking": false
+    },
+    {
+      "arm": "blur5",
+      "beta": 0.1,
+      "label": "C2(b=0.1)",
+      "nseed": 2,
+      "clean": 0.7256,
+      "consist": 0.79785,
+      "margin": 1.7868462204933167,
+      "L1": 40.5832405090332,
+      "L2": 1.470053255558014,
+      "pgd": 0.421,
+      "aa": 0.40300001204013824,
+      "masking": false
+    },
+    {
+      "arm": "blur5",
+      "beta": 0.5,
+      "label": "C2(b=0.5)",
+      "nseed": 2,
+      "clean": 0.71885,
+      "consist": 0.7989999999999999,
+      "margin": 2.259501814842224,
+      "L1": 49.39348793029785,
+      "L2": 1.8388229608535767,
+      "pgd": 0.4125,
+      "aa": 0.3955000191926956,
+      "masking": false
+    }
+  ]
+}

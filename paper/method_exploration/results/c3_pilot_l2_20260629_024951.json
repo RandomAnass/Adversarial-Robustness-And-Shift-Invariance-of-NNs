@@ -1,0 +1,102 @@
+{
+  "args": {
+    "n": 50000,
+    "ntest": 10000,
+    "epochs": 30,
+    "seeds": 2,
+    "width": 32,
+    "n_filt": 4,
+    "ksize": 5,
+    "arms": [
+      "vanilla",
+      "vanilla_wide",
+      "c3"
+    ],
+    "rad_n": 1000,
+    "aa_n": 1000,
+    "aa_version": "standard",
+    "pgd_steps": 40,
+    "gpus": [
+      1
+    ],
+    "workers_per_gpu": 1,
+    "smoke": false,
+    "tag": "pilot",
+    "norm": "l2"
+  },
+  "recipe": {
+    "dataset": "cifar",
+    "norm": "l2",
+    "eps": 0.5,
+    "alpha": 0.125,
+    "steps": 10,
+    "flip": true,
+    "epochs": 30,
+    "width": 32,
+    "n_filt": 4,
+    "ksize": 5,
+    "aa_n": 1000,
+    "aa_version": "standard",
+    "pgd_steps": 40,
+    "c3_params": 307690,
+    "vanilla_params": 288746,
+    "wide_w": 33,
+    "wide_params": 306976
+  },
+  "aa_spec": [
+    "L2_0_5",
+    "L2",
+    0.5
+  ],
+  "rows": [
+    {
+      "arm": "vanilla",
+      "n_seeds": 2,
+      "params": 288746,
+      "clean": 0.80585,
+      "clean_sd": 0.0041500000000000425,
+      "consist": 0.8285,
+      "rr_l2": 0.9120960533618927,
+      "margin": 2.4089404344558716,
+      "L1": 95.56075668334961,
+      "L2": 2.45883846282959,
+      "pgd": 0.586,
+      "pgd_sd": 0.0010000000000000009,
+      "aa": 0.5780000388622284,
+      "aa_sd": 0.0010000169277191162
+    },
+    {
+      "arm": "vanilla_wide",
+      "n_seeds": 2,
+      "params": 306976,
+      "clean": 0.8089,
+      "clean_sd": 0.003599999999999992,
+      "consist": 0.8301499999999999,
+      "rr_l2": 0.909791886806488,
+      "margin": 2.4308618307113647,
+      "L1": 96.20793914794922,
+      "L2": 2.4746986627578735,
+      "pgd": 0.581,
+      "pgd_sd": 0.0020000000000000018,
+      "aa": 0.5760000050067902,
+      "aa_sd": 0.0020000040531158447
+    },
+    {
+      "arm": "c3",
+      "n_seeds": 2,
+      "params": 307690,
+      "clean": 0.80555,
+      "clean_sd": 0.004850000000000021,
+      "consist": 0.8075,
+      "rr_l2": 0.9186646640300751,
+      "margin": 2.751629948616028,
+      "L1": 110.2294921875,
+      "L2": 2.8251287937164307,
+      "pgd": 0.5834999999999999,
+      "pgd_sd": 0.004500000000000004,
+      "aa": 0.5720000267028809,
+      "aa_sd": 0.0040000081062316895
+    }
+  ],
+  "verdict": "TIE: C3 AA=0.572+/-0.004 vs param-matched vanilla_wide AA=0.576+/-0.002 (delta -0.004, seed sd 0.004); vanilla(w32) AA=0.578. C3 params 307,690 vs wide 306,976. masking: OK."
+}

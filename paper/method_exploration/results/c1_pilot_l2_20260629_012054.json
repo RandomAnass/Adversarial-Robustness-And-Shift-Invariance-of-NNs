@@ -1,0 +1,42 @@
+{
+  "args": {
+    "n": 50000,
+    "ntest": 10000,
+    "epochs": 30,
+    "seeds": 2,
+    "width": 32,
+    "arms": [
+      "vanilla",
+      "blur5",
+      "c1"
+    ],
+    "rad_n": 1000,
+    "aa_n": 2000,
+    "aa_version": "standard",
+    "pgd_steps": 40,
+    "gpu": 1,
+    "workers": 2,
+    "smoke": false,
+    "tag": "pilot_l2",
+    "norm": "l2"
+  },
+  "recipe": {
+    "dataset": "cifar",
+    "norm": "linf",
+    "eps": 0.5,
+    "alpha": 0.15,
+    "steps": 7,
+    "flip": true,
+    "epochs": 30,
+    "width": 32,
+    "aa_n": 2000,
+    "aa_version": "standard",
+    "pgd_steps": 40
+  },
+  "aa_spec": [
+    "L2_0_5",
+    "L2",
+    0.5
+  ],
+  "rows": []
+}

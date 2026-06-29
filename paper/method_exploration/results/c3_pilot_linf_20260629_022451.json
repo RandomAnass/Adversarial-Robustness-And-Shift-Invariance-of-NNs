@@ -1,0 +1,102 @@
+{
+  "args": {
+    "n": 50000,
+    "ntest": 10000,
+    "epochs": 30,
+    "seeds": 2,
+    "width": 32,
+    "n_filt": 4,
+    "ksize": 5,
+    "arms": [
+      "vanilla",
+      "vanilla_wide",
+      "c3"
+    ],
+    "rad_n": 1000,
+    "aa_n": 1000,
+    "aa_version": "standard",
+    "pgd_steps": 40,
+    "gpus": [
+      0
+    ],
+    "workers_per_gpu": 1,
+    "smoke": false,
+    "tag": "pilot",
+    "norm": "linf"
+  },
+  "recipe": {
+    "dataset": "cifar",
+    "norm": "linf",
+    "eps": 0.03137254901960784,
+    "alpha": 0.00784313725490196,
+    "steps": 7,
+    "flip": true,
+    "epochs": 30,
+    "width": 32,
+    "n_filt": 4,
+    "ksize": 5,
+    "aa_n": 1000,
+    "aa_version": "standard",
+    "pgd_steps": 40,
+    "c3_params": 307690,
+    "vanilla_params": 288746,
+    "wide_w": 33,
+    "wide_params": 306976
+  },
+  "aa_spec": [
+    "Linf_8_255",
+    "Linf",
+    0.03137254901960784
+  ],
+  "rows": [
+    {
+      "arm": "vanilla",
+      "n_seeds": 2,
+      "params": 288746,
+      "clean": 0.7108,
+      "clean_sd": 0.0010000000000000009,
+      "consist": 0.79125,
+      "rr_l2": 1.0379990339279175,
+      "margin": 1.4751426577568054,
+      "L1": 35.14350509643555,
+      "L2": 1.247070074081421,
+      "pgd": 0.405,
+      "pgd_sd": 0.003999999999999976,
+      "aa": 0.38450001180171967,
+      "aa_sd": 0.005500003695487976
+    },
+    {
+      "arm": "vanilla_wide",
+      "n_seeds": 2,
+      "params": 306976,
+      "clean": 0.7141,
+      "clean_sd": 0.0017999999999999683,
+      "consist": 0.7927,
+      "rr_l2": 1.0340641736984253,
+      "margin": 1.4916893243789673,
+      "L1": 35.75808525085449,
+      "L2": 1.2599200010299683,
+      "pgd": 0.401,
+      "pgd_sd": 0.005999999999999978,
+      "aa": 0.380500003695488,
+      "aa_sd": 0.0034999996423721313
+    },
+    {
+      "arm": "c3",
+      "n_seeds": 2,
+      "params": 307690,
+      "clean": 0.71565,
+      "clean_sd": 0.0012499999999999734,
+      "consist": 0.7772,
+      "rr_l2": 1.0136775374412537,
+      "margin": 1.6370049118995667,
+      "L1": 40.07834053039551,
+      "L2": 1.440723478794098,
+      "pgd": 0.3985,
+      "pgd_sd": 0.003500000000000003,
+      "aa": 0.38350000977516174,
+      "aa_sd": 0.002499997615814209
+    }
+  ],
+  "verdict": "TIE: C3 AA=0.384+/-0.002 vs param-matched vanilla_wide AA=0.381+/-0.003 (delta +0.003, seed sd 0.006); vanilla(w32) AA=0.385. C3 params 307,690 vs wide 306,976. masking: OK."
+}
