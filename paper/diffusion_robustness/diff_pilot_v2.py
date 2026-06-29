@@ -102,7 +102,7 @@ def load_synth(n_syn, seed=0):
 
 
 # ----------------------------------------------------------------------------- mixed PGD-AT training
-def adv_train_mixed(model, Xr, yr, Xs_u8, ys, dev, epochs, bs, real_frac, cell):
+def adv_train_mixed(model, Xr, yr, Xs_u8, ys, dev, epochs, bs, real_frac, cell, A=None, n_syn=None, seed=None):
     """Linf PGD-AT. 0 arm (Xs_u8 is None): standard permutation passes over the 50k real images.
     Synthetic arms: each of steps_per_epoch batches is real_frac real + (1-real_frac) synthetic, both
     sampled with replacement from their pools; same step budget as the 0 arm. Training math is IDENTICAL
@@ -141,6 +141,11 @@ def adv_train_mixed(model, Xr, yr, Xs_u8, ys, dev, epochs, bs, real_frac, cell):
                 ep_loss += float(loss) * yb.size(0)
                 ep_correct += int((logits.argmax(1) == yb).sum()); ep_seen += yb.size(0)
         sched.step()
+        if A is not None and A.get("save_ckpt_every") and ((ep + 1) % A["save_ckpt_every"] == 0):
+            ck = os.path.join(HERE, "ckpts"); os.makedirs(ck, exist_ok=True)
+            torch.save(dict(state_dict=model.state_dict(), arm=A["arm"], width=A["width"],
+                            n_syn=int(n_syn), seed=int(seed), epoch=ep + 1),
+                       os.path.join(ck, f"{A['tag']}_traj_syn{n_syn}_s{seed}_ep{ep+1}.pt"))
         print(f"  [{cell}] epoch {ep + 1:>3d}/{epochs}  loss {ep_loss / max(ep_seen, 1):.4f}  "
               f"robust_train_acc {ep_correct / max(ep_seen, 1):.4f}  lr {sched.get_last_lr()[0]:.4f}",
               flush=True)
@@ -262,7 +267,13 @@ def run_cell(task):
         xs, ls = load_synth(n_syn, seed=A["synth_seed"])
         Xs_u8, ys = xs.to(dev), ls.to(dev)
     model = M.build(A["arm"], width=A["width"]).to(dev)   # canonical zero-pad stride-2 PreActResNet-18
-    model = adv_train_mixed(model, Xr, yr, Xs_u8, ys, dev, A["epochs"], A["bs"], A["real_frac"], cell)
+    model = adv_train_mixed(model, Xr, yr, Xs_u8, ys, dev, A["epochs"], A["bs"], A["real_frac"], cell,
+                            A=A, n_syn=n_syn, seed=seed)
+    if A.get("save_ckpt"):
+        ck = os.path.join(HERE, "ckpts"); os.makedirs(ck, exist_ok=True)
+        torch.save(dict(state_dict=model.state_dict(), arm=A["arm"], width=A["width"],
+                        n_syn=int(n_syn), seed=int(seed), epoch=A["epochs"]),
+                   os.path.join(ck, f"{A['tag']}_syn{n_syn}_s{seed}_e{A['epochs']}.pt"))
     del Xs_u8, ys
     if dev.startswith("cuda"):
         torch.cuda.empty_cache()
@@ -463,6 +474,8 @@ def main():
     ap.add_argument("--cpu", action="store_true", help="force CPU (no GPU)")
     ap.add_argument("--smoke", action="store_true", help="tiny CPU end-to-end check (no GPU training)")
     ap.add_argument("--tag", default="stage")
+    ap.add_argument("--save_ckpt", action="store_true", help="save final per-cell model weights -> ckpts/")
+    ap.add_argument("--save_ckpt_every", type=int, default=0, help="also save every K epochs (M6 trajectory)")
     args = ap.parse_args()
 
     if args.smoke:                                   # tiny end-to-end on CPU (NOT the full pilot)
@@ -477,7 +490,8 @@ def main():
     A = dict(n=args.n, ntest=args.ntest, epochs=args.epochs, bs=args.bs, real_frac=args.real_frac,
              arm=args.arm, width=args.width, rad_n=args.rad_n, rad_steps=args.rad_steps, dec_n=args.dec_n,
              temp_n=args.temp_n, aa_n=args.aa_n, aa_version=args.aa_version, pgd_steps=args.pgd_steps,
-             aa_seeds=args.aa_seeds, synth_seed=args.synth_seed, tag=args.tag)
+             aa_seeds=args.aa_seeds, synth_seed=args.synth_seed, tag=args.tag,
+             save_ckpt=args.save_ckpt, save_ckpt_every=args.save_ckpt_every)
     ng = 0 if args.cpu else (min(args.gpus, torch.cuda.device_count()) if torch.cuda.is_available() else 0)
     CD.load_cifar(10, 10)                                  # trigger the torchvision download once
 
