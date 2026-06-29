@@ -189,3 +189,5 @@ overleaf_export/
 *.nav
 *.snm
 *.vrb
+paper/diffusion_robustness/data/
+*.npz
