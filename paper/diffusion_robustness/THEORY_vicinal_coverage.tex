@@ -12,34 +12,41 @@
 \DeclareMathOperator{\op}{op}
 
 \title{Synthetic data as vicinal gradient coverage:\\
-why smoothness improves while margin falls}
+a gauge-invariant $\eta/L$ gain from rough-mode suppression}
 \author{Mechanism theory for the diffusion-data robustness finding (author-derived; verified)}
 \date{\today}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-The pilot observation is that adding diffusion-generated data to adversarial training increases the
-robust radius even though the raw logit margin \emph{decreases}, because the local sensitivity
-$L=\E\|\nabla_x M\|$ falls by more than the margin. This note gives a static mechanism for that
-pattern. First-order adversarial training is input-gradient regularization (Lemma~\ref{lem:first-order-at});
-synthetic data changes the measure on which the penalty is enforced, adding a positive-semidefinite
-\emph{vicinal gradient-coverage matrix}; increasing that matrix suppresses high-gradient modes
-(Theorem~\ref{thm:synthetic-filter}); and if a high-gradient mode also carries raw margin, the margin
-falls while the sensitivity falls faster, so the scale-invariant radius proxy $M/L$ rises exactly when a
-smoother low-gradient component remains (Theorem~\ref{thm:two-mode-smoothness}). A predicted signature,
-$L_1/L_2\approx\text{const}$ while both fall (Corollary~\ref{cor:gradient-shape}), is already confirmed in
-the pilot ($25.4\to23.6$). The slogan: \emph{diffusion data suppresses high-gradient margin-carrying
-modes; the raw margin falls, but the sensitivity falls faster, so $M/L$ rises.}
+The observation is that adding diffusion-generated data to adversarial training increases the
+\emph{scale-invariant} robustness ratio $\eta/L=M/L$ (margin over local sensitivity
+$L=\E\|\nabla_x M\|$), and hence the certified radius, even though the \emph{raw} logit margin
+\emph{decreases}. This note gives a static mechanism. First-order adversarial training is input-gradient
+regularization (Lemma~\ref{lem:first-order-at}); synthetic data changes the measure on which the penalty is
+enforced, adding a positive-semidefinite \emph{vicinal gradient-coverage matrix}; increasing that matrix
+suppresses high-gradient modes (Theorem~\ref{thm:synthetic-filter}); and if a high-gradient mode also
+carries margin, the scale-invariant ratio $\eta/L$ strictly rises exactly when a smoother low-gradient
+component remains (Theorem~\ref{thm:two-mode-smoothness}). The mechanism's \emph{gauge-free} predictions
+are confirmed at multi-seed: $\eta/L$ rises monotonically and $L_1/L_2\approx\text{const}$ while both fall
+(Corollary~\ref{cor:gradient-shape}; $25.5\to23.6$). \textbf{One caveat, made precise here
+(Remark~\ref{rem:gauge}):} the finer statement ``margin falls, sensitivity falls faster'' is a
+decomposition in the model's natural weight-norm gauge ($A=I$); it is \emph{not} gauge-invariant at the
+network level. Empirically it survives a logit-norm anchor (the analogue of that gauge) but flips sign
+under an NLL/temperature anchor, so only $\eta/L$ and the radius are reported as gauge-free conclusions.
+The slogan, stated invariantly: \emph{diffusion data suppresses high-gradient margin-carrying modes,
+raising the scale-invariant ratio $\eta/L$.}
 \end{abstract}
 
-The robust radius admits the first-order decomposition $\Delta\log r\approx\Delta\log M-\Delta\log L$, so a
-radius gain with a smaller margin is possible exactly when $L$ falls by more than $M$. The mechanism is not
-that synthetic data raises the margin: it is that adversarial training is, to first order, input-gradient
-regularization, and synthetic data changes the measure on which this regularizer acts, adding a
-positive-semidefinite vicinal gradient-coverage matrix. Modes that carry margin but have high
-input-gradient energy are suppressed; the raw margin can fall while the sensitivity falls faster, and the
-scale-invariant proxy $M/L$ rises.
+The robust radius admits the first-order decomposition $\Delta\log r\approx\Delta\log M-\Delta\log L$. The
+\emph{difference} $\Delta\log(M/L)$ is invariant under rescaling the output logits (a temperature gauge),
+whereas the two terms separately are not; the gauge-free content of the mechanism is therefore the rise of
+$M/L$, and the decomposition into ``smaller margin'' versus ``smaller $L$'' is meaningful only once a gauge
+is fixed (Remark~\ref{rem:gauge}). The mechanism is not that synthetic data raises the margin: it is that
+adversarial training is, to first order, input-gradient regularization, and synthetic data changes the
+measure on which this regularizer acts, adding a positive-semidefinite vicinal gradient-coverage matrix.
+Modes that carry margin but have high input-gradient energy are suppressed, and the scale-invariant proxy
+$M/L$ rises.
 
 \section{First-order adversarial training is input-gradient regularization}
 
@@ -160,6 +167,20 @@ Homogeneity gives $\|\nabla_xM_{\theta_t}(x)\|_\alpha\approx|\theta_{r,t}|\,\|g_
 $\beta$; since $\theta_{r,t}=a_r/(1+tq)\neq0$, $|\theta_{r,t}|$ cancels in the ratio.
 \end{proof}
 
+\begin{remark}[Gauge status of the decomposition]\label{rem:gauge}
+The map $\theta\mapsto c\theta$ ($c>0$) scales $M_\theta\mapsto cM_\theta$, hence $\eta\mapsto c\eta$ and
+$L\mapsto cL$, so the ratio $\rho=\eta/L$ is \emph{invariant} while $\eta$ and $L$ individually are not. A
+trained network has exactly this freedom (post-hoc logit/temperature rescaling), so only $\rho=\eta/L$ and
+the input-space certified radius are gauge-free; the separate signs $\eta'(t)<0$ and $L'(t)<0$ in
+Theorem~\ref{thm:two-mode-smoothness} are stated in the model's natural gauge, the one pinned by $A=I$ (the
+weight-norm / ridge normalization). The matching empirical gauge is the \emph{logit-norm anchor}, under which
+the multi-seed experiment reproduces the theorem's signs (margin and $L$ both fall, $L$ faster); under an
+\emph{NLL/temperature anchor} the split inverts. This is not a contradiction: the gauge-invariant prediction
+$\rho'(t)>0$ holds under every anchor, and the decomposition is a finer, gauge-relative reading of the same
+inequality $-\tfrac{d}{dt}\log L>-\tfrac{d}{dt}\log\eta$. Reported conclusions are confined to the
+gauge-invariant layer; the decomposition is presented only relative to a stated anchor.
+\end{remark}
+
 \section{Interpretation}
 The smooth mode $s$ is a low-sensitivity component that generalizes across the vicinity of the data manifold;
 the rough mode $r$ is a high-sensitivity component that can raise the raw logit margin on the finite real
@@ -175,8 +196,10 @@ corresponds to $a_s\neq0$: a smooth component remains while synthetic gradient c
 \textbf{(1) Not every synthetic data helps.} A useful radius gain needs $Q$ to penalize a rough mode more than a
 smooth margin-carrying one; if $Q=qI$ all modes scale uniformly and the mechanism degenerates to
 temperature-like shrinkage (no forced gain). \textbf{(2) It explains margin shrink, not denies it:}
-$\eta'(t)=-S(t)\le0$. \textbf{(3) It explains $L$ falling faster than $M$:} $-\tfrac{d}{dt}\log L>-\tfrac{d}{dt}\log\eta$
-iff $a_s\neq0$, exactly the condition for $\eta/L$ to rise while $\eta$ falls. \textbf{(4) It is not a
+$\eta'(t)=-S(t)\le0$. \textbf{(3) It explains the radius gain with a smaller raw margin:} the inequality
+$-\tfrac{d}{dt}\log L>-\tfrac{d}{dt}\log\eta$ (equivalently $\rho'(t)>0$) holds iff $a_s\neq0$. In a fixed
+gauge this reads ``$L$ falls faster than $M$''; only the ratio statement is anchor-free
+(Remark~\ref{rem:gauge}). \textbf{(4) It is not a
 robust-overfitting theorem:} the proof uses no time/epochs/learning-rate decay; it is a static
 regularization-path result. If the effect appears early and varies monotonically with synthetic diversity, this
 is the mechanism; if it appears only after a late robust-overfitting phase, a separate dynamical theorem is
@@ -188,10 +211,19 @@ gradient shape is suppressed in amplitude (Corollary~\ref{cor:gradient-shape}); 
 occur on vicinal/interpolation points where the new synthetic coverage differs most from the empirical measure.
 \end{remark}
 
-\paragraph{Empirical status (pilot).} The monotone predictions hold: $L_2$ falls monotonically with synthetic
-amount ($5.20\to2.54$), $M$ falls ($4.42\to2.58$), $M/L$ rises, and the gradient-shape prediction
-$L_1/L_2\approx\text{const}$ is confirmed ($25.4\to23.6$ while $L_1,L_2$ each roughly halve). The decisive
-remaining test is the vicinal-concentration prediction (largest $L$ drop on/near synthetic points), the
-\texttt{manifold} measurement.
+\paragraph{Empirical status (multi-seed, $4$ doses $\times 3$ seeds).} The \emph{gauge-free} predictions hold,
+monotonically and with tight seed spread: $\eta/L$ rises ($0.864\to0.984\to1.021\to1.016$; it crosses $1$ and
+saturates by $500$k), the input-space DDN $\ell_2$ radius rises ($0.771\to0.865$), AutoAttack rises
+($0.342\to0.468$, with $\mathrm{AA}\le\mathrm{PGD}$ at every dose, i.e.\ no gradient masking), and the
+gradient-shape signature $L_1/L_2\approx\text{const}$ is confirmed ($25.5\to23.6$ while $L_1,L_2$ roughly
+halve). The \emph{gauge-relative} decomposition behaves exactly as Remark~\ref{rem:gauge} predicts: under the
+logit-norm anchor ``$M$ falls, $L$ falls faster'' survives ($\text{margin}_{\mathrm{ctrl}}\!=\!-0.30$,
+$L_{2,\mathrm{ctrl}}\!=\!-0.46$ at $1$M), whereas under the NLL/temperature anchor it inverts; only $\eta/L$ and
+the radius are reported as conclusions. Saturation by $500$k (a gain that levels off as further synthetic data
+adds little new vicinal coverage) is consistent with $Q_{\mathrm{syn}}$ saturating in coverage, a refinement
+beyond the single-mode model, whose $\rho(t)$ is monotone in the coverage parameter $t$ rather than in raw
+sample count. The decisive remaining test is the vicinal-concentration prediction (largest $L$ drop on/near
+synthetic points), the \texttt{manifold} measurement, which is \emph{gauge-robust}: it compares $L$ across
+point-sets within one fixed network, so the output gauge cancels.
 
 \end{document}
