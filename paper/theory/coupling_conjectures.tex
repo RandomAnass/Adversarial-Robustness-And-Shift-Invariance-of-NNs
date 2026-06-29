@@ -401,4 +401,84 @@ achieved-margin envelope Thm.~\ref{thm:ib} (which closes the implicit-bias gap w
 the unprovable global-optimality assumption) are the genuinely informative
 contributions.
 
+\section{Orbit-complete interpolation has no invariant norm gap (corrects E1 / the lazy-cluster theorem)}
+\label{sec:no-gap}
+The lazy-regime projection argument and its rich-regime variation-norm analogue must be stated
+with care. If the training set is closed under the group action and labels are constant on orbits,
+enforcing invariance \emph{cannot} reduce the minimum interpolation norm: the invariant class is a
+subset of the unconstrained class, while Reynolds averaging maps every feasible unconstrained
+interpolant to an invariant feasible interpolant of no larger norm, so the two optimal values
+coincide. Consequently a strict certified-Lipschitz gap cannot come from the same norm certificate
+on orbit-complete data. \textbf{This corrects the draft's lazy-cluster theorem}, which claims a
+strict gap equal to the orbit-variance $\|(I-\Pi_G)f_{\mathrm{unc}}\|^2$: for a strictly convex
+norm (the RKHS case) the unconstrained minimum-norm interpolant on orbit-complete data is
+\emph{already invariant}, so that orbit-variance is exactly zero.
+
+\begin{theorem}[No invariant norm gap on orbit-complete data]\label{thm:no-gap}
+Let a compact group $G$ act on the inputs, with induced action $(T_gf)(x)=f(g^{-1}x)$. Let
+$(\mathcal F,\|\cdot\|_{\mathcal F})$ be a convex class with a $G$-invariant convex norm
+($\|T_gf\|_{\mathcal F}=\|f\|_{\mathcal F}$), let $\mu$ be normalized Haar measure, and let the
+Reynolds operator $\Pi_Gf:=\int_G T_gf\,d\mu(g)$ satisfy $\Pi_Gf\in\mathcal F$ for $f\in\mathcal F$.
+Let the data $\{(x_i,y_i)\}_{i=1}^n$, $y_i\in\{\pm1\}$, be \emph{orbit-complete and orbit-constant}:
+for every $i$ and $g\in G$, $gx_i$ is a training point with label $y_i$. With
+$\mathcal F^G=\{f\in\mathcal F:T_gf=f\ \forall g\}$, define the unit-margin minimum-norm values
+\[
+P_{\mathrm{unc}}=\inf_{f\in\mathcal F}\{\|f\|_{\mathcal F}: y_if(x_i)\ge1\ \forall i\},\qquad
+P_{\mathrm{inv}}=\inf_{f\in\mathcal F^G}\{\|f\|_{\mathcal F}: y_if(x_i)\ge1\ \forall i\}.
+\]
+Then $P_{\mathrm{unc}}=P_{\mathrm{inv}}$. If an unconstrained minimizer $f_\star$ exists, $\Pi_Gf_\star$
+is an invariant minimizer; if $\|\cdot\|_{\mathcal F}$ is strictly convex, every unconstrained
+minimizer is already invariant.
+\end{theorem}
+\begin{proof}
+\emph{(1) $\Pi_G$ is non-expansive.} By Jensen and norm-invariance,
+$\|\Pi_Gf\|\le\int_G\|T_gf\|\,d\mu=\|f\|\int_G d\mu=\|f\|$ (Haar normalized).
+\emph{(2) $\Pi_G$ preserves feasibility and lands in $\mathcal F^G$.} If $y_if(x_i)\ge1$ for all $i$,
+then for each $g$, $g^{-1}x_i$ is a training point with label $y_i$, so $y_i(T_gf)(x_i)=y_if(g^{-1}x_i)\ge1$;
+averaging over $g$ gives $y_i(\Pi_Gf)(x_i)=\int_G y_i(T_gf)(x_i)\,d\mu\ge1$. Invariance:
+$T_h\Pi_Gf=\int_G T_{hg}f\,d\mu(g)=\int_G T_kf\,d\mu(k)=\Pi_Gf$ by left-invariance of Haar.
+\emph{(3) Equal values.} $\mathcal F^G\subseteq\mathcal F$ gives $P_{\mathrm{unc}}\le P_{\mathrm{inv}}$.
+For the reverse, take $f_\varepsilon$ feasible with $\|f_\varepsilon\|\le P_{\mathrm{unc}}+\varepsilon$;
+by (2) $\Pi_Gf_\varepsilon$ is invariant feasible and by (1) $\|\Pi_Gf_\varepsilon\|\le P_{\mathrm{unc}}+\varepsilon$,
+so $P_{\mathrm{inv}}\le P_{\mathrm{unc}}+\varepsilon$; let $\varepsilon\downarrow0$.
+\emph{(4) Self-symmetrization.} If $f_\star$ minimizes, $\Pi_Gf_\star$ is invariant feasible with
+$\|\Pi_Gf_\star\|\le\|f_\star\|=P_{\mathrm{unc}}=P_{\mathrm{inv}}$, hence an invariant minimizer. If the
+norm is strictly convex and some $f_\star$ had $T_hf_\star\ne f_\star$: both are feasible minimizers of
+equal norm (each $T_gf_\star$ is feasible since $g^{-1}x_i$ is a same-label training point), so their
+average is feasible with strictly smaller norm, contradicting optimality; hence $f_\star\in\mathcal F^G$.
+\end{proof}
+
+\begin{corollary}[Variation-norm / rich two-layer]\label{cor:no-gap-var}
+For an infinite-width two-layer network $f(x)=\int a\,\sigma(w^\top x+b)\,d\rho$ with variation
+(atomic) norm $\|f\|_{\mathcal V}=\inf_\rho\int|a|\,d|\rho|$, if the activation dictionary is closed
+under the (orthogonal) $G$-action---for each atom $\phi$ and $g$, $T_g\phi$ is again an atom---then
+$\|\cdot\|_{\mathcal V}$ is $G$-invariant and Theorem~\ref{thm:no-gap} applies: on orbit-complete data
+the unconstrained and invariant minimum-variation values coincide. (The norm is not strictly convex,
+so an invariant optimum \emph{exists} but need not be unique.)
+\end{corollary}
+
+\begin{corollary}[RKHS: orbit-complete data force invariant interpolation]\label{cor:no-gap-rkhs}
+For an RKHS $\mathcal H_K$ with a $G$-invariant kernel, the action is an isometry and the norm is
+strictly convex, so on orbit-complete data the unit-margin minimum-norm interpolant is unique and
+$G$-invariant. With a certificate $L_{\mathrm{cert}}(f)=L_\Phi\|f\|_K$, equal minimizing norms give
+equal best certified constants: there is \emph{no} strict RKHS-norm or certified-Lipschitz gap from
+the projection argument on orbit-complete data.
+\end{corollary}
+
+\begin{remark}[What survives, and the correct open problem]\label{rem:no-gap}
+The theorem does not say invariance cannot help robustness; only that on orbit-complete data the help
+cannot be a smaller value of the \emph{same} minimum norm. Three routes remain. (i) On
+\emph{non}-orbit-complete data, $\Pi_G$ need not preserve the margin constraints, so the invariant and
+unconstrained problems genuinely differ. (ii) Even at equal minimum norm, the \emph{realized} local
+gradient $\E_i\|\nabla_x f(x_i)\|$ is not a norm value and may differ among equal-norm interpolants---
+this is where a realized $\eta/L$ advantage lives. (iii) For the non-strictly-convex variation norm the
+optimum is non-unique, so the rich-regime question is correctly localized: not a smaller variation-norm
+optimum, but whether the \emph{dynamics select} an invariant / lower-local-gradient optimum among
+equal-norm interpolants. Two consequences for the paper. First, the empirical lazy-regime cluster
+advantage (and the synthetic-data smoothness effect) is a \emph{realized}-local-Lipschitz / finite-width
+trajectory phenomenon, not an infinite-width min-norm gap. Second, on orbit-complete data with a
+strictly convex (RKHS) norm there is no advantage at all in the exact limit, so the lazy theorem must be
+restated as no-gap plus realized-Lipschitz localization (this is the corrected E1).
+\end{remark}
+
 \end{document}
