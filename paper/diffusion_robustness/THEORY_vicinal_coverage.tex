@@ -1,0 +1,197 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,mathtools}
+\usepackage{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\DeclareMathOperator{\op}{op}
+
+\title{Synthetic data as vicinal gradient coverage:\\
+why smoothness improves while margin falls}
+\author{Mechanism theory for the diffusion-data robustness finding (author-derived; verified)}
+\date{\today}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The pilot observation is that adding diffusion-generated data to adversarial training increases the
+robust radius even though the raw logit margin \emph{decreases}, because the local sensitivity
+$L=\E\|\nabla_x M\|$ falls by more than the margin. This note gives a static mechanism for that
+pattern. First-order adversarial training is input-gradient regularization (Lemma~\ref{lem:first-order-at});
+synthetic data changes the measure on which the penalty is enforced, adding a positive-semidefinite
+\emph{vicinal gradient-coverage matrix}; increasing that matrix suppresses high-gradient modes
+(Theorem~\ref{thm:synthetic-filter}); and if a high-gradient mode also carries raw margin, the margin
+falls while the sensitivity falls faster, so the scale-invariant radius proxy $M/L$ rises exactly when a
+smoother low-gradient component remains (Theorem~\ref{thm:two-mode-smoothness}). A predicted signature,
+$L_1/L_2\approx\text{const}$ while both fall (Corollary~\ref{cor:gradient-shape}), is already confirmed in
+the pilot ($25.4\to23.6$). The slogan: \emph{diffusion data suppresses high-gradient margin-carrying
+modes; the raw margin falls, but the sensitivity falls faster, so $M/L$ rises.}
+\end{abstract}
+
+The robust radius admits the first-order decomposition $\Delta\log r\approx\Delta\log M-\Delta\log L$, so a
+radius gain with a smaller margin is possible exactly when $L$ falls by more than $M$. The mechanism is not
+that synthetic data raises the margin: it is that adversarial training is, to first order, input-gradient
+regularization, and synthetic data changes the measure on which this regularizer acts, adding a
+positive-semidefinite vicinal gradient-coverage matrix. Modes that carry margin but have high
+input-gradient energy are suppressed; the raw margin can fall while the sensitivity falls faster, and the
+scale-invariant proxy $M/L$ rises.
+
+\section{First-order adversarial training is input-gradient regularization}
+
+\begin{lemma}[First-order robust-loss expansion]\label{lem:first-order-at}
+Let $\ell:\R^d\to\R$ be twice continuously differentiable on the closed ball
+$B_\varepsilon(x)=\{x+\delta:\|\delta\|\le\varepsilon\}$ for a norm $\|\cdot\|$ with dual $\|\cdot\|_*$, and
+suppose $\|\nabla^2_x\ell(z)\|_{\op}\le H$ for all $z\in B_\varepsilon(x)$ (operator norm induced by
+$\|\cdot\|$). Then
+\[
+\sup_{\|\delta\|\le\varepsilon}\ell(x+\delta)=\ell(x)+\varepsilon\|\nabla\ell(x)\|_*+R_\varepsilon(x),
+\qquad |R_\varepsilon(x)|\le\tfrac{H}{2}\varepsilon^2 .
+\]
+\end{lemma}
+\begin{proof}
+Set $g=\nabla\ell(x)$. For $\|\delta\|\le\varepsilon$, Taylor with remainder gives
+$\ell(x+\delta)=\ell(x)+\langle g,\delta\rangle+\tfrac12\delta^\top\nabla^2\ell(x+s\delta)\delta$ for some
+$s\in[0,1]$, and $|\tfrac12\delta^\top\nabla^2\ell(x+s\delta)\delta|\le\tfrac{H}{2}\|\delta\|^2\le\tfrac{H}{2}\varepsilon^2$.
+With $\langle g,\delta\rangle\le\|g\|_*\|\delta\|\le\varepsilon\|g\|_*$, the supremum obeys
+$\sup_{\|\delta\|\le\varepsilon}\ell(x+\delta)\le\ell(x)+\varepsilon\|g\|_*+\tfrac{H}{2}\varepsilon^2$.
+For the lower bound pick $v$ with $\|v\|\le1$ and $\langle g,v\rangle=\|g\|_*$ (the unit ball is compact, so
+the linear functional attains its max), and set $\delta=\varepsilon v$. Taylor gives
+$\ell(x+\varepsilon v)\ge\ell(x)+\varepsilon\|g\|_*-\tfrac{H}{2}\varepsilon^2$, and the supremum is at least this.
+Combining the two bounds gives $|\sup_\delta\ell(x+\delta)-\ell(x)-\varepsilon\|g\|_*|\le\tfrac{H}{2}\varepsilon^2$.
+\end{proof}
+
+\begin{remark}[From loss-gradient to margin-gradient]
+If $\ell(x,y)=\phi(M(x,y))$ then $\nabla_x\ell=\phi'(M)\nabla_xM$, and on any margin band where
+$0<c_-\le|\phi'(M)|\le c_+<\infty$ the loss-gradient and margin-gradient penalties are equivalent up to
+constants: $c_-\|\nabla_xM\|\le\|\nabla_x\ell\|\le c_+\|\nabla_xM\|$. Thus the first-order adversarial
+penalty controls the same local sensitivity $L=\E\|\nabla_xM\|$ that enters the radius proxy.
+\end{remark}
+
+\section{The vicinal gradient-coverage matrix}
+Linearize the margin in parameters, $M_\theta(x)=\theta^\top\psi(x)$ with a differentiable feature map
+$\psi:\mathcal X\to\R^p$, and write $J_\psi(x)=\nabla_x\psi(x)\in\R^{p\times d}$, so that
+$\nabla_xM_\theta(x)=J_\psi(x)^\top\theta$ and $\|\nabla_xM_\theta(x)\|_2^2=\theta^\top J_\psi(x)J_\psi(x)^\top\theta$.
+For a (data or vicinal) measure $\nu$ define the gradient-coverage matrix
+\[
+Q_\nu:=\int J_\psi(x)J_\psi(x)^\top\,d\nu(x),\qquad
+\int\|\nabla_xM_\theta(x)\|_2^2\,d\nu(x)=\theta^\top Q_\nu\theta .
+\]
+$Q_\nu$ is positive semidefinite, since $v^\top Q_\nu v=\int\|J_\psi(x)^\top v\|_2^2\,d\nu(x)\ge0$. Adding
+synthetic data changes $\nu$, adding a positive-semidefinite $Q_{\mathrm{syn}}$ to the input-gradient penalty.
+
+\section{Spectral rough-mode filtering}
+\begin{theorem}[Synthetic gradient coverage filters high-sensitivity modes]\label{thm:synthetic-filter}
+Let $A\in\R^{p\times p}$ be symmetric positive definite, $Q\in\R^{p\times p}$ symmetric positive
+semidefinite, $a\in\R^p$, and for $t\ge0$ set $B_t=A+tQ$ and
+$\mathcal J_t(\theta)=\tfrac12\theta^\top B_t\theta-a^\top\theta$ with minimizer $\theta_t$. With
+$\eta(t)=a^\top\theta_t$ and $S(t)=\theta_t^\top Q\theta_t$,
+\[
+\eta'(t)=-S(t)\le0,\qquad S'(t)=-2\,\theta_t^\top Q B_t^{-1}Q\theta_t\le0 .
+\]
+\end{theorem}
+\begin{proof}
+$B_t$ is symmetric positive definite for $t\ge0$, so $\mathcal J_t$ is strictly convex with unique minimizer
+$\theta_t=B_t^{-1}a$ ($B_t\theta_t=a$). Differentiating $B_t\theta_t=a$ in $t$ and using $B_t'=Q$ gives
+$Q\theta_t+B_t\theta_t'=0$, i.e.\ $\theta_t'=-B_t^{-1}Q\theta_t$. Then
+$\eta'(t)=a^\top\theta_t'=(B_t\theta_t)^\top\theta_t'=\theta_t^\top B_t\theta_t'=\theta_t^\top(-Q\theta_t)=-S(t)$,
+and $S(t)=\theta_t^\top Q\theta_t\ge0$. Also
+$S'(t)=2(\theta_t')^\top Q\theta_t=2(-B_t^{-1}Q\theta_t)^\top Q\theta_t=-2\theta_t^\top QB_t^{-1}Q\theta_t=-2z^\top B_t^{-1}z$
+with $z=Q\theta_t$, and $z^\top B_t^{-1}z\ge0$ since $B_t^{-1}\succ0$.
+\end{proof}
+
+\section{A two-mode theorem: margin down, sensitivity down more, radius up}
+\begin{theorem}[Smoothness-not-margin in a two-mode model]\label{thm:two-mode-smoothness}
+Let $\theta=(\theta_s,\theta_r)\in\R^2$ (smooth mode $s$, rough mode $r$), $A=I_2$,
+$Q=\begin{psmallmatrix}0&0\\0&q\end{psmallmatrix}$ with $q>0$, and $a=(a_s,a_r)$ with $a_r\neq0$. For $t\ge0$
+let $\theta_t$ minimize $\tfrac12\theta^\top(I_2+tQ)\theta-a^\top\theta$, and set $\eta(t)=a^\top\theta_t$,
+$L(t)=\sqrt{\theta_t^\top Q\theta_t}$, $\rho(t)=\eta(t)/L(t)$. Then
+\[
+\theta_t=\Big(a_s,\ \tfrac{a_r}{1+tq}\Big),\quad
+\eta(t)=a_s^2+\tfrac{a_r^2}{1+tq},\quad
+L(t)=\tfrac{\sqrt q\,|a_r|}{1+tq},\quad
+\rho(t)=\tfrac{(1+tq)a_s^2+a_r^2}{\sqrt q\,|a_r|},
+\]
+\[
+\eta'(t)=-\tfrac{q a_r^2}{(1+tq)^2}<0,\qquad L'(t)=-\tfrac{q\sqrt q\,|a_r|}{(1+tq)^2}<0,\qquad
+\rho'(t)=\tfrac{\sqrt q\,a_s^2}{|a_r|}>0\ \ (a_s\neq0),
+\]
+and, whenever $a_s\neq0$, $-\tfrac{d}{dt}\log L(t)>-\tfrac{d}{dt}\log\eta(t)$. The raw margin decreases, the
+sensitivity decreases faster, and the radius proxy $\eta/L$ strictly increases.
+\end{theorem}
+\begin{proof}
+$(I_2+tQ)=\operatorname{diag}(1,1+tq)$, so $(I_2+tQ)\theta_t=a$ gives $\theta_{s,t}=a_s$ and
+$\theta_{r,t}=a_r/(1+tq)$. Then $\eta(t)=a_s\cdot a_s+a_r\cdot\tfrac{a_r}{1+tq}=a_s^2+\tfrac{a_r^2}{1+tq}$.
+$Q\theta_t=(0,\,q a_r/(1+tq))^\top$, so $\theta_t^\top Q\theta_t=\tfrac{a_r}{1+tq}\cdot\tfrac{q a_r}{1+tq}=\tfrac{q a_r^2}{(1+tq)^2}$
+and $L(t)=\sqrt q|a_r|/(1+tq)$ (as $1+tq>0$). Dividing,
+$\rho(t)=\big(a_s^2+\tfrac{a_r^2}{1+tq}\big)\cdot\tfrac{1+tq}{\sqrt q|a_r|}=\tfrac{(1+tq)a_s^2+a_r^2}{\sqrt q|a_r|}$.
+Differentiating: $\eta'(t)=a_r^2\cdot(-q)(1+tq)^{-2}=-\tfrac{q a_r^2}{(1+tq)^2}<0$;
+$L'(t)=\sqrt q|a_r|\cdot(-q)(1+tq)^{-2}=-\tfrac{q\sqrt q|a_r|}{(1+tq)^2}<0$; the numerator of $\rho$ has $t$-derivative
+$q a_s^2$ over the constant denominator, so $\rho'(t)=\tfrac{q a_s^2}{\sqrt q|a_r|}=\tfrac{\sqrt q a_s^2}{|a_r|}>0$ when $a_s\neq0$.
+For the logarithmic comparison, $\log L(t)=\log(\sqrt q|a_r|)-\log(1+tq)$ gives $-\tfrac{d}{dt}\log L=\tfrac{q}{1+tq}$,
+and $-\tfrac{d}{dt}\log\eta=\tfrac{q a_r^2}{(1+tq)^2\eta(t)}$. The inequality $\tfrac{q}{1+tq}>\tfrac{q a_r^2}{(1+tq)^2\eta(t)}$
+is, after multiplying by $(1+tq)^2\eta(t)/q>0$, equivalent to $(1+tq)\eta(t)>a_r^2$, i.e.\
+$(1+tq)a_s^2+a_r^2>a_r^2$, i.e.\ $(1+tq)a_s^2>0$, i.e.\ $a_s\neq0$.
+\end{proof}
+
+\begin{corollary}[Pure temperature shrinkage is the degenerate case]\label{cor:pure-temperature}
+If $a_s=0$ in Theorem~\ref{thm:two-mode-smoothness}, then $\rho(t)=|a_r|/\sqrt q$ is constant: suppressing only a
+single rough margin-carrying mode scales margin and sensitivity together and cannot improve the radius proxy.
+A genuine radius gain requires a remaining smooth component $a_s\neq0$.
+\end{corollary}
+\begin{proof}
+Set $a_s=0$: $\rho(t)=\tfrac{a_r^2}{\sqrt q|a_r|}=\tfrac{|a_r|}{\sqrt q}$, independent of $t$, so $\rho'(t)=0$.
+\end{proof}
+
+\begin{corollary}[Uniform gradient-shape shrinkage]\label{cor:gradient-shape}
+If the gradient field is dominated by the rough mode, $\nabla_xM_{\theta_t}(x)\approx\theta_{r,t}\,g_r(x)$ with
+$g_r$ independent of $t$, then for any two homogeneous norms $\|\cdot\|_\alpha,\|\cdot\|_\beta$,
+\[
+\frac{\|\nabla_xM_{\theta_t}(x)\|_\alpha}{\|\nabla_xM_{\theta_t}(x)\|_\beta}\approx\frac{\|g_r(x)\|_\alpha}{\|g_r(x)\|_\beta},
+\]
+approximately independent of $t$: $L_1$ and $L_2$ can both drop sharply while $L_1/L_2$ stays nearly constant.
+\end{corollary}
+\begin{proof}
+Homogeneity gives $\|\nabla_xM_{\theta_t}(x)\|_\alpha\approx|\theta_{r,t}|\,\|g_r(x)\|_\alpha$ and likewise for
+$\beta$; since $\theta_{r,t}=a_r/(1+tq)\neq0$, $|\theta_{r,t}|$ cancels in the ratio.
+\end{proof}
+
+\section{Interpretation}
+The smooth mode $s$ is a low-sensitivity component that generalizes across the vicinity of the data manifold;
+the rough mode $r$ is a high-sensitivity component that can raise the raw logit margin on the finite real
+training set. Synthetic data increases the vicinal coverage $tq$ on the rough mode, so $\theta_{r,t}=a_r/(1+tq)$
+shrinks: the raw margin $\eta(t)=a_s^2+a_r^2/(1+tq)$ falls (the rough mode contributed margin), but the
+sensitivity $L(t)=\sqrt q|a_r|/(1+tq)$ falls faster (it is entirely the rough mode), so the radius proxy
+$\rho(t)$ rises whenever $a_s\neq0$. A pure logit-temperature rescaling would shrink margin and sensitivity by
+the same factor and leave $M/L$ unchanged; that is the degenerate $a_s=0$ case. The observed increase in $M/L$
+corresponds to $a_s\neq0$: a smooth component remains while synthetic gradient coverage suppresses rough sensitivity.
+
+\section{Adversarial verification}
+\begin{remark}[Scope and falsifiable predictions]\label{rem:av}
+\textbf{(1) Not every synthetic data helps.} A useful radius gain needs $Q$ to penalize a rough mode more than a
+smooth margin-carrying one; if $Q=qI$ all modes scale uniformly and the mechanism degenerates to
+temperature-like shrinkage (no forced gain). \textbf{(2) It explains margin shrink, not denies it:}
+$\eta'(t)=-S(t)\le0$. \textbf{(3) It explains $L$ falling faster than $M$:} $-\tfrac{d}{dt}\log L>-\tfrac{d}{dt}\log\eta$
+iff $a_s\neq0$, exactly the condition for $\eta/L$ to rise while $\eta$ falls. \textbf{(4) It is not a
+robust-overfitting theorem:} the proof uses no time/epochs/learning-rate decay; it is a static
+regularization-path result. If the effect appears early and varies monotonically with synthetic diversity, this
+is the mechanism; if it appears only after a late robust-overfitting phase, a separate dynamical theorem is
+needed. \textbf{(5) Local, not global:} the quadratic model is a local linearization; the theorem identifies the
+algebraic condition for the observed decomposition, not a claim that every diffusion-trained net optimizes this
+exact objective. \textbf{(6) Falsifiable predictions:} $L$ decreases monotonically with synthetic diversity; $M$
+may decrease; $M/L$ increases when a smooth component remains; $L_1/L_2\approx\text{const}$ when the same rough
+gradient shape is suppressed in amplitude (Corollary~\ref{cor:gradient-shape}); and the largest $L$ drop should
+occur on vicinal/interpolation points where the new synthetic coverage differs most from the empirical measure.
+\end{remark}
+
+\paragraph{Empirical status (pilot).} The monotone predictions hold: $L_2$ falls monotonically with synthetic
+amount ($5.20\to2.54$), $M$ falls ($4.42\to2.58$), $M/L$ rises, and the gradient-shape prediction
+$L_1/L_2\approx\text{const}$ is confirmed ($25.4\to23.6$ while $L_1,L_2$ each roughly halve). The decisive
+remaining test is the vicinal-concentration prediction (largest $L$ drop on/near synthetic points), the
+\texttt{manifold} measurement.
+
+\end{document}
