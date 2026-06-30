@@ -42,6 +42,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gpu", type=int, default=0)
     ap.add_argument("--doses", type=int, nargs="+", default=[0, 100000, 500000, 1000000])
+    ap.add_argument("--tag", default="v2ckpt", help="ckpt tag prefix (v2ckpt=single-seed, v2firm=multi-seed)")
+    ap.add_argument("--seeds", type=int, nargs="+", default=[0], help="seeds to early-stop and aggregate over")
     ap.add_argument("--val_n", type=int, default=2000, help="held-out val pts for checkpoint selection")
     ap.add_argument("--sel_steps", type=int, default=20, help="PGD steps for val-selection (cheap)")
     ap.add_argument("--aa_n", type=int, default=512)
@@ -59,63 +61,74 @@ def main():
     print(f"[salvage] dev={dev}  val={len(Xval)} (selection)  report={len(Xrep)} (test)  "
           f"sel=PGD-Linf-8/255 x{args.sel_steps}\n", flush=True)
 
-    rows = []
+    import statistics as st, math
+    per = []                                            # all (dose, seed) early-stopped rows
     for n in args.doses:
-        cks = sorted(glob.glob(os.path.join(HERE, f"ckpts/v2ckpt_traj_syn{n}_s0_ep*.pt")), key=epoch_of)
-        if not cks:
-            print(f"[skip] syn{n}: no trajectory checkpoints", flush=True); continue
-        # 1) select best checkpoint by VAL PGD robust accuracy
-        sel = []
-        for p in cks:
-            mdl = load_model(p, dev)
-            rob = CD.pgd_acc(mdl, Xval, yval, dev, DV.EPS, "linf", steps=args.sel_steps)
-            sel.append((epoch_of(p), rob, p))
-            del mdl
+        for sd in args.seeds:
+            cks = sorted(glob.glob(os.path.join(HERE, f"ckpts/{args.tag}_traj_syn{n}_s{sd}_ep*.pt")), key=epoch_of)
+            if not cks:
+                print(f"[skip] syn{n} s{sd}: no '{args.tag}' trajectory checkpoints", flush=True); continue
+            # 1) select best checkpoint by VAL PGD robust accuracy
+            sel = []
+            for p in cks:
+                mdl = load_model(p, dev)
+                rob = CD.pgd_acc(mdl, Xval, yval, dev, DV.EPS, "linf", steps=args.sel_steps)
+                sel.append((epoch_of(p), rob, p)); del mdl
+                if dev.startswith("cuda"): torch.cuda.empty_cache()
+            sel.sort(key=lambda t: t[1], reverse=True)
+            best_ep, best_rob, best_p = sel[0]
+            # 2) report at the selected (early-stopped) checkpoint on the disjoint TEST split
+            mdl = load_model(best_p, dev)
+            clean = CD.accuracy(mdl, Xrep, yrep, dev)
+            aa = CD.autoattack_acc(mdl, Xrep, yrep, dev, DV.EPS, "Linf", n=args.aa_n, version="standard")
+            cm = CD.correct_mask(mdl, Xrep, yrep, dev); Xc, yc = Xrep[cm], yrep[cm]
+            rr = DV.robust_radius_l2_per_sample(mdl, Xc[:args.rad_n], yc[:args.rad_n], dev, steps=args.rad_steps)
+            fin = torch.isfinite(rr); rr_mean = float(rr[fin].mean()) if fin.any() else float("nan")
+            dec = CD.etaL_decomposition(mdl, Xrep, yrep, dev, n_max=args.dec_n)
+            row = dict(n_syn=int(n), seed=int(sd), best_ep=best_ep, val_rob=best_rob, clean=clean, aa=aa,
+                       rr_l2=rr_mean, margin=dec["margin"], L1=dec["L1"], L2=dec["L2"], etaL=dec["etaL"],
+                       etaL1=dec["margin"] / dec["L1"])
+            per.append(row); del mdl
             if dev.startswith("cuda"): torch.cuda.empty_cache()
-        sel.sort(key=lambda t: t[1], reverse=True)
-        best_ep, best_rob, best_p = sel[0]
-        traj = {e: r for e, r, _ in sel}
-        # 2) report at the selected (early-stopped) checkpoint on the disjoint TEST split
-        mdl = load_model(best_p, dev)
-        clean = CD.accuracy(mdl, Xrep, yrep, dev)
-        aa = CD.autoattack_acc(mdl, Xrep, yrep, dev, DV.EPS, "Linf", n=args.aa_n, version="standard")
-        cm = CD.correct_mask(mdl, Xrep, yrep, dev); Xc, yc = Xrep[cm], yrep[cm]
-        rr = DV.robust_radius_l2_per_sample(mdl, Xc[:args.rad_n], yc[:args.rad_n], dev, steps=args.rad_steps)
-        fin = torch.isfinite(rr); rr_mean = float(rr[fin].mean()) if fin.any() else float("nan")
-        dec = CD.etaL_decomposition(mdl, Xrep, yrep, dev, n_max=args.dec_n)
-        ls = DV.mean_logit_scale(mdl, Xrep, yrep, dev, n_max=args.dec_n)
-        row = dict(n_syn=int(n), best_ep=best_ep, val_rob=best_rob, ep40_val_rob=traj.get(40),
-                   clean=clean, aa=aa, rr_l2=rr_mean, margin=dec["margin"], L1=dec["L1"], L2=dec["L2"],
-                   etaL=dec["etaL"], logit_scale=ls)
-        rows.append(row)
-        print(f"[syn{n}] best ep={best_ep} (val_rob {best_rob:.3f}; ep40 val_rob {traj.get(40,float('nan')):.3f}) "
-              f"| clean {clean:.3f} AA {aa:.3f} rr_l2 {rr_mean:.3f} | margin {dec['margin']:.3f} "
-              f"L2 {dec['L2']:.3f} eta/L {dec['etaL']:.3f} logit_scale {ls:.3f}", flush=True)
-        del mdl
-        if dev.startswith("cuda"): torch.cuda.empty_cache()
+            print(f"[syn{n} s{sd}] best ep={best_ep} (val_rob {best_rob:.3f}) | AA {aa:.3f} "
+                  f"eta/L1 {row['etaL1']:.4f} eta/L2 {dec['etaL']:.3f} L2 {dec['L2']:.3f}", flush=True)
+
+    doses = sorted({r["n_syn"] for r in per})
+
+    def agg(n, k):
+        v = [r[k] for r in per if r["n_syn"] == n]
+        return (st.mean(v), (st.pstdev(v) if len(v) > 1 else 0.0), len(v)) if v else (float("nan"), 0.0, 0)
+
+    def pear(a, b):
+        nn = len(a)
+        if nn < 2: return float("nan")
+        ma, mb = sum(a) / nn, sum(b) / nn
+        ca = sum((x - ma) * (y - mb) for x, y in zip(a, b))
+        va = sum((x - ma) ** 2 for x in a); vb = sum((y - mb) ** 2 for y in b)
+        return ca / math.sqrt(va * vb) if va > 0 and vb > 0 else float("nan")
+
+    AA = [r["aa"] for r in per]; E1 = [r["etaL1"] for r in per]; E2 = [r["etaL"] for r in per]
+    r_match, r_mis = pear(E1, AA), pear(E2, AA)
+    aggregate = {str(n): {k: agg(n, k) for k in ("aa", "etaL1", "etaL", "L1", "L2", "margin", "rr_l2", "best_ep")}
+                 for n in doses}
 
     stamp = time.strftime("%Y%m%d_%H%M%S")
-    fn = os.path.join(RESDIR, f"salvage_earlystop_{stamp}.json")
-    json.dump(dict(args=vars(args), rows=rows), open(fn, "w"), indent=2, default=float)
+    fn = os.path.join(RESDIR, f"salvage_earlystop_{args.tag}_{stamp}.json")
+    json.dump(dict(args=vars(args), per_seed=per, aggregate=aggregate,
+                   pearson=dict(etaL1_vs_AA=r_match, etaL2_vs_AA=r_mis, n_points=len(per))),
+              open(fn, "w"), indent=2, default=float)
     print(f"\nsaved {fn}", flush=True)
 
-    # ---- comparison table + the decisive read ----
-    if rows:
-        b = rows[0]
-        print("\n==== EARLY-STOPPED comparison (best-ckpt vs best-ckpt, test split) ====", flush=True)
-        print(f"{'dose':>7} {'best_ep':>7} {'clean':>7} {'AA':>7} {'rr_l2':>7} {'margin':>7} {'L2':>7} {'eta/L':>7}", flush=True)
-        for r in rows:
-            lab = "0" if r["n_syn"] == 0 else (f"{r['n_syn']//1000}k" if r["n_syn"] < 1_000_000 else "1M")
-            print(f"{lab:>7} {r['best_ep']:>7} {r['clean']:>7.3f} {r['aa']:>7.3f} {r['rr_l2']:>7.3f} "
-                  f"{r['margin']:>7.3f} {r['L2']:>7.3f} {r['etaL']:>7.3f}", flush=True)
-        print("\nDECISIVE READS:", flush=True)
-        for r in rows[1:]:
-            lab = f"{r['n_syn']//1000}k" if r["n_syn"] < 1_000_000 else "1M"
-            dAA = r["aa"] - b["aa"]; dL = r["L2"] - b["L2"]
-            print(f"  +{lab}: dAA {dAA:+.3f}  (ep40-confounded gain was larger)  |  L2 {b['L2']:.3f}->{r['L2']:.3f} "
-                  f"({'LOWER' if dL < 0 else 'HIGHER/EQUAL'} L at matched best-ckpt)  |  eta/L {b['etaL']:.3f}->{r['etaL']:.3f}", flush=True)
-        print("\nIf AA gain persists -> finding survives early stopping. If L is NOT lower at matched best-ckpt -> "
-              "the ep40 'smoothness/lower-L' mechanism was a robust-overfitting artifact.", flush=True)
+    print(f"\n==== EARLY-STOPPED, multi-seed (tag={args.tag}, seeds={args.seeds}) ====", flush=True)
+    print(f"{'dose':>6} {'nseed':>5} {'AA':>14} {'eta/L1(Linf)':>17} {'eta/L2':>13} {'L2':>13}", flush=True)
+    for n in doses:
+        lab = "0" if n == 0 else (f"{n//1000}k" if n < 1_000_000 else "1M")
+        a, e1, e2, l2 = agg(n, "aa"), agg(n, "etaL1"), agg(n, "etaL"), agg(n, "L2")
+        print(f"{lab:>6} {a[2]:>5} {a[0]:>7.3f}+-{a[1]:<5.3f} {e1[0]:>10.4f}+-{e1[1]:<5.4f} "
+              f"{e2[0]:>7.3f}+-{e2[1]:<4.3f} {l2[0]:>7.3f}+-{l2[1]:<4.3f}", flush=True)
+    print(f"\nPearson over all {len(per)} (dose x seed) points -- the threat-matched law:", flush=True)
+    print(f"  eta/L1 (Linf-matched) vs AA(Linf):  {r_match:+.3f}", flush=True)
+    print(f"  eta/L2 (mismatched)   vs AA(Linf):  {r_mis:+.3f}", flush=True)
 
 
 if __name__ == "__main__":
