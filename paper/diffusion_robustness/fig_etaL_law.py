@@ -27,21 +27,44 @@ def pear(a, b):
     return float(np.corrcoef(a, b)[0, 1])
 
 
-def main():
+def _load():
+    """Prefer the multi-seed v2firm salvage JSON (per_seed + aggregate); fall back to single-seed 'rows'."""
+    cand = sorted(glob.glob(os.path.join(HERE, "results/salvage_earlystop_v2firm_*.json")))
+    if cand:
+        d = json.load(open(cand[-1])); per = d["per_seed"]
+        for r in per:
+            r.setdefault("etaL1", r["margin"] / r["L1"])
+        return per, d.get("aggregate"), f"v2firm multi-seed ({d['pearson']['n_points']} dose$\\times$seed pts)"
     sp = sorted(glob.glob(os.path.join(HERE, "results/salvage_earlystop_*.json")))[-1]
     rows = json.load(open(sp))["rows"]
-    rows.sort(key=lambda r: r["n_syn"])
-    aa = [r["aa"] for r in rows]
-    etaL1 = [r["margin"] / r["L1"] for r in rows]
-    etaL2 = [r["etaL"] for r in rows]
-    ns = [r["n_syn"] for r in rows]
+    for r in rows:
+        r.setdefault("etaL1", r["margin"] / r["L1"])
+    return rows, None, "single seed"
+
+
+def main():
+    per, aggregate, srclab = _load()
+    per.sort(key=lambda r: r["n_syn"])
+    aa = [r["aa"] for r in per]
+    etaL1 = [r["etaL1"] for r in per]
+    etaL2 = [r["etaL"] for r in per]
+    ns = [r["n_syn"] for r in per]
+    doses = sorted(set(ns))
+
+    def dmean(key, dose):
+        v = [r[key] for r in per if r["n_syn"] == dose]
+        return float(np.mean(v)), float(np.std(v))
 
     fig, ax = plt.subplots(1, 3, figsize=(14.5, 4.3))
 
-    # Panel A: matched -- eta/L1 vs AA(Linf)
+    # Panel A: matched -- eta/L1 vs AA(Linf), per-seed scatter + per-dose mean+/-std
+    seen = set()
     for x, y, n in zip(etaL1, aa, ns):
-        ax[0].scatter(x, y, s=90, color=DOSE_C[n], zorder=3, label=DOSE_L[n])
-    ax[0].plot(etaL1, aa, color="0.6", lw=1.2, zorder=1)
+        lab = DOSE_L[n] if n not in seen else None; seen.add(n)
+        ax[0].scatter(x, y, s=55, color=DOSE_C[n], alpha=0.55, zorder=2, label=lab)
+    mx = [dmean("etaL1", n) for n in doses]; my = [dmean("aa", n) for n in doses]
+    ax[0].errorbar([m[0] for m in mx], [m[0] for m in my], xerr=[m[1] for m in mx], yerr=[m[1] for m in my],
+                   fmt="-", color="0.3", lw=1.4, capsize=3, zorder=3)
     ax[0].set_xlabel("$\\eta/L_1$  (Linf-threat-matched ratio)")
     ax[0].set_ylabel("AutoAttack robust acc (Linf 8/255)")
     ax[0].set_title(f"Threat-MATCHED: predicts AA\nPearson $={pear(etaL1, aa):+.2f}$", fontsize=10.5)
@@ -49,9 +72,11 @@ def main():
 
     # Panel B: mismatched -- eta/L2 vs AA(Linf)
     for x, y, n in zip(etaL2, aa, ns):
-        ax[1].scatter(x, y, s=90, color=DOSE_C[n], zorder=3)
-    order = np.argsort(etaL2)
-    ax[1].plot(np.array(etaL2)[order], np.array(aa)[order], color="0.6", lw=1.2, zorder=1)
+        ax[1].scatter(x, y, s=55, color=DOSE_C[n], alpha=0.55, zorder=2)
+    mx2 = [dmean("etaL", n) for n in doses]
+    order = np.argsort([m[0] for m in mx2])
+    ax[1].plot(np.array([m[0] for m in mx2])[order], np.array([m[0] for m in my])[order],
+               color="0.6", lw=1.2, zorder=1)
     ax[1].set_xlabel("$\\eta/L_2$  (L2 ratio -- MIS-matched to Linf attack)")
     ax[1].set_ylabel("AutoAttack robust acc (Linf 8/255)")
     ax[1].set_title(f"Threat-MISMATCHED: anti-predicts\nPearson $={pear(etaL2, aa):+.2f}$", fontsize=10.5)
