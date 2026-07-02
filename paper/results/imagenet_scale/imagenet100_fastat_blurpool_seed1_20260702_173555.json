@@ -1,0 +1,23 @@
+{
+ "exp": "imagenet100_fastat_eval",
+ "arm": "blurpool",
+ "seed": 1,
+ "ckpt": "/home/students/code/Anas/adversarial-robustness-shift-invariance/paper/data/imagenet100/ckpts/blurpool_seed1_best.pt",
+ "eps": 0.01568627450980392,
+ "n_attack": 1000,
+ "ts": "20260702_173555",
+ "clean": 0.6488,
+ "consist": 0.9236,
+ "dec_margin": 3.153789758682251,
+ "dec_L2": 1.0370128154754639,
+ "dec_L1": 159.16273498535156,
+ "dec_etaL2": 3.0412254333496094,
+ "dec_etaL1": 0.019814874976873398,
+ "dec_rho2": 3.735983371734619,
+ "dec_rho1": 0.023578371852636337,
+ "dec_n_pts": 1000,
+ "pgd40": 0.356,
+ "aa": 0.3230000138282776,
+ "masking_ok": true,
+ "eval_sec": 1667.9
+}

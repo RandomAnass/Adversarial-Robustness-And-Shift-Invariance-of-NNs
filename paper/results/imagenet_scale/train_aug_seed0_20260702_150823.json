@@ -1,0 +1,173 @@
+{
+ "exp": "imagenet100_fastat_train",
+ "arm": "aug",
+ "seed": 0,
+ "ts": "20260702_150823",
+ "config": {
+  "epochs": 15,
+  "bs": 256,
+  "lr_max": 0.2,
+  "wd": 0.0005,
+  "eps": 0.01568627450980392,
+  "recipe": "FGSM-RS (Wong2020), cyclic LR, eval-mode attack",
+  "img": 160,
+  "aug": "crop(pad8)+hflip+roll16"
+ },
+ "attempts": [
+  {
+   "alpha": 0.0196078431372549,
+   "warmup_epochs": 0,
+   "curves": [
+    {
+     "epoch": 0,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.02661235573659199,
+     "train_loss": 4.439526906059128,
+     "val_clean": 0.088,
+     "val_robust": 0.057,
+     "sec": 103.0
+    },
+    {
+     "epoch": 1,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.05327902240325866,
+     "train_loss": 3.9130490875108324,
+     "val_clean": 0.178,
+     "val_robust": 0.094,
+     "sec": 100.9
+    },
+    {
+     "epoch": 2,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.07994568906992533,
+     "train_loss": 3.5239682903670237,
+     "val_clean": 0.278,
+     "val_robust": 0.12,
+     "sec": 101.4
+    },
+    {
+     "epoch": 3,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.106612355736592,
+     "train_loss": 3.2691521028215886,
+     "val_clean": 0.335,
+     "val_robust": 0.164,
+     "sec": 101.2
+    },
+    {
+     "epoch": 4,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.13327902240325867,
+     "train_loss": 3.0693707487598316,
+     "val_clean": 0.358,
+     "val_robust": 0.171,
+     "sec": 101.2
+    },
+    {
+     "epoch": 5,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.15994568906992535,
+     "train_loss": 2.9396282465676875,
+     "val_clean": 0.395,
+     "val_robust": 0.189,
+     "sec": 101.2
+    },
+    {
+     "epoch": 6,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.186612355736592,
+     "train_loss": 2.864904585408869,
+     "val_clean": 0.376,
+     "val_robust": 0.187,
+     "sec": 101.0
+    },
+    {
+     "epoch": 7,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.18672097759674136,
+     "train_loss": 2.8049945590051983,
+     "val_clean": 0.41,
+     "val_robust": 0.188,
+     "sec": 101.2
+    },
+    {
+     "epoch": 8,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.1600543109300747,
+     "train_loss": 2.6850197254268893,
+     "val_clean": 0.455,
+     "val_robust": 0.221,
+     "sec": 101.2
+    },
+    {
+     "epoch": 9,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.13338764426340802,
+     "train_loss": 2.565630585946105,
+     "val_clean": 0.478,
+     "val_robust": 0.241,
+     "sec": 101.3
+    },
+    {
+     "epoch": 10,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.10672097759674135,
+     "train_loss": 2.4418553486743235,
+     "val_clean": 0.501,
+     "val_robust": 0.264,
+     "sec": 100.8
+    },
+    {
+     "epoch": 11,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.08005431093007469,
+     "train_loss": 2.30752175505425,
+     "val_clean": 0.565,
+     "val_robust": 0.297,
+     "sec": 101.2
+    },
+    {
+     "epoch": 12,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.053387644263408,
+     "train_loss": 2.1532162742302745,
+     "val_clean": 0.571,
+     "val_robust": 0.318,
+     "sec": 101.2
+    },
+    {
+     "epoch": 13,
+     "eps": 0.01568627450980392,
+     "lr_last": 0.026720977596741358,
+     "train_loss": 1.953271885915751,
+     "val_clean": 0.632,
+     "val_robust": 0.378,
+     "sec": 101.2
+    },
+    {
+     "epoch": 14,
+     "eps": 0.01568627450980392,
+     "lr_last": 5.431093007468579e-05,
+     "train_loss": 1.6915777165603556,
+     "val_clean": 0.678,
+     "val_robust": 0.409,
+     "sec": 101.1
+    }
+   ],
+   "best_val_robust": 0.409,
+   "best_epoch": 14,
+   "collapsed": false
+  }
+ ],
+ "n_restarts": 0,
+ "best_val_robust": 0.409,
+ "best_epoch": 14,
+ "ckpt_best": "/home/students/code/Anas/adversarial-robustness-shift-invariance/paper/data/imagenet100/ckpts/aug_seed0_best.pt",
+ "ckpt_final": "/home/students/code/Anas/adversarial-robustness-shift-invariance/paper/data/imagenet100/ckpts/aug_seed0_final.pt",
+ "env": {
+  "git_sha": "d7704f948060739cb0050ac409dfff691b834c91",
+  "torch": "2.6.0+cu124",
+  "cuda": "12.4",
+  "device": "NVIDIA RTX A6000"
+ }
+}

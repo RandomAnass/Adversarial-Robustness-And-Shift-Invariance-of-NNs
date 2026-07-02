@@ -1,0 +1,23 @@
+{
+ "exp": "imagenet100_fastat_eval",
+ "arm": "standard",
+ "seed": 0,
+ "ckpt": "/home/students/code/Anas/adversarial-robustness-shift-invariance/paper/data/imagenet100/ckpts/standard_seed0_best.pt",
+ "eps": 0.01568627450980392,
+ "n_attack": 1000,
+ "ts": "20260702_114848",
+ "clean": 0.647,
+ "consist": 0.8634,
+ "dec_margin": 3.282073974609375,
+ "dec_L2": 1.0710971355438232,
+ "dec_L1": 162.9902801513672,
+ "dec_etaL2": 3.0642168521881104,
+ "dec_etaL1": 0.020136624574661255,
+ "dec_rho2": 3.6052374839782715,
+ "dec_rho1": 0.02308403141796589,
+ "dec_n_pts": 1000,
+ "pgd40": 0.366,
+ "aa": 0.34200000762939453,
+ "masking_ok": true,
+ "eval_sec": 883.0
+}
