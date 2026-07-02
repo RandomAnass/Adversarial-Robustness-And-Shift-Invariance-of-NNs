@@ -134,4 +134,33 @@ touching the paper. T1's proposition, T2's lemma, T3's proposition, and T4 are a
 Nothing enters the paper until proven by the author and verified firsthand, per the standing rule.
 \end{remark}
 
+\section*{Empirical outcomes (run 2 July 2026; see \texttt{diffusion\_robustness/results/t2\_tail.json})}
+
+Both checks came back \textbf{strongly positive}; T1's proposition and T2's lemma are worth proving.
+
+\paragraph{T2 confirmed.} Over the sixteen sweep models, per-sample $r_1$ on $1500$ report points each:
+\[
+\text{AA} \sim \text{mean-ratio}/\varepsilon + \text{dose}: \quad \text{dose } \beta=+0.053\ (t=+1.42);
+\qquad
+\text{AA} \sim \mathrm{CF} + \text{dose}: \quad \text{dose } \beta=+0.006\ (t=+0.78).
+\]
+The certified fraction $\mathrm{CF}=\Prob_x(r_1\ge\varepsilon,\ \text{correct})$ \emph{absorbs the
+entire offset}, and $\mathrm{corr}(\mathrm{CF},\mathrm{AA})=+0.998$ with slope $\approx1.06$: the
+first-order certificate count is a near-exact predictor of AutoAttack accuracy at the training
+budget, across both interventions and all four budgets. The ``generalization offset'' is not beyond
+the certificate; it is beyond the \emph{mean}. Proving Conjecture~\ref{conj:tail}'s lemma (coverage
+thins the lower tail of $r_1$ at matched location) would give the paper a clean mechanism statement.
+
+\paragraph{T1 shape check: approximate scale family, with the deviation exactly where T2 predicts.}
+Median-normalized quantiles are roughly stable across all sixteen cells (q25 $\approx0.47$--$0.57$,
+q75 $\approx1.6$--$1.9$), supporting the scale-family reading as the first-order account of why the
+mean ratio works within an intervention. The systematic deviation is the \emph{lower tail}: at every
+$\varepsilon$ the $1$M-synthetic cells have higher normalized q5/q10 than the real-only cells
+(e.g.\ $\varepsilon=4$: $0.15/0.16$ vs $0.11$; $\varepsilon=8$: $0.13/0.10$ vs $0.08/0.09$), i.e.\
+the dose thins the lower tail at matched median. So: scale family $\Rightarrow$ the mean law;
+tail-thinning $\Rightarrow$ the dose offset; certified fraction $\Rightarrow$ both at once. The
+priority order for proofs is therefore: Proposition~\ref{prop:count} (short), then
+Conjecture~\ref{conj:tail}'s lemma in the vicinal two-mode model, then
+Conjecture~\ref{conj:scale} as a stated approximation with the tail caveat.
+
 \end{document}
