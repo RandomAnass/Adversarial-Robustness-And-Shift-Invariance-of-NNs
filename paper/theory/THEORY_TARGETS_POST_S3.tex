@@ -1,0 +1,137 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{conjecture}{Conjecture}
+\theoremstyle{definition}
+\newtheorem{target}{Target}
+\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+
+\title{Theory targets after the S3 wide-band sweep\\
+\large candidate statements for the author to prove, correct, or extend}
+\author{Working notes; nothing here goes into the paper until proven and verified}
+\date{2 July 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Context.} The S3 sweep (AT strength $\varepsilon\in\{2,4,8,16\}/255$ $\times$ dose
+$\{0,1\mathrm M\}$ $\times$ 2 seeds, $n=16$ cells, threat-matched AutoAttack at the training
+$\varepsilon$) produced two facts that currently have no theory layer in the paper:
+\begin{itemize}
+\item[(F1)] the \emph{budget-normalized} ratio $\eta/(L_1\varepsilon)$ predicts AutoAttack robust
+accuracy across the whole sweep (Pearson $+0.94$, Spearman $+0.94$), while the raw ratio
+$\eta/L_1$ anti-correlates across budgets ($-0.95$) because a harder budget lowers AA while raising
+the raw margin;
+\item[(F2)] at matched $\eta/L_1$ the $+1$M-synthetic models sit $+0.10$ AA above the real-only
+models ($t\approx+5$), the offset tracks a smaller train--test robust gap ($-0.45$), and it vanishes
+at $\varepsilon=16/255$ where there is no robust overfitting left to prevent.
+\end{itemize}
+Targets are ordered by (value $\times$ tractability). T1--T2 are new and, I believe, within reach;
+T3 answers a specific referee question; T4--T5 are the standing harder items.
+
+\section*{T1. The per-sample certificate count is the budget-normalized law}
+
+\paragraph{Claim to prove (exact first-order layer).}
+For the $\ell_\infty$ threat at budget $\varepsilon$, define the per-sample first-order radius
+$r_1(x)=M(x)/\|\nabla M(x)\|_1$ (the $\ell_\infty$ Hein radius; dual norm $\ell_1$).
+
+\begin{proposition}[Candidate: survival $=$ certificate, affine case]\label{prop:count}
+If $M$ is affine on the ball $B_\infty(x,\varepsilon)$ and $M(x)>0$, then
+$x$ survives every perturbation of $\ell_\infty$ norm $\le\varepsilon$ if and only if
+$r_1(x)\ge\varepsilon$. Consequently, for a model that is affine on every such ball,
+\[
+\mathrm{RobAcc}(\varepsilon)\;=\;\Prob_x\big(r_1(x)\ge\varepsilon,\ M(x)>0\big)
+\quad\text{(the \emph{certified fraction}).}
+\]
+\end{proposition}
+\noindent\emph{Proof route.} One direction is the Hein/H\"older certificate; the converse takes
+$\delta=-\varepsilon\,\mathrm{sign}(\nabla M(x))$, which attains the dual norm exactly in
+$\ell_\infty$. Should be short and clean. The paper currently has no statement at the
+\emph{robust-accuracy} (population count) level; this is the missing bridge between the per-sample
+certificate (\S5 ``per sample'') and the cross-model law.
+
+\paragraph{Claim to prove (why the \emph{mean} ratio works).}
+The empirical law (F1) uses the ratio of means $\eta/L_1=\E[M]/\E\|\nabla M\|_1$, not the certified
+fraction. Candidate explanation: a scale-family hypothesis.
+
+\begin{conjecture}[Scale family]\label{conj:scale}
+Across the trained models of one family (fixed architecture and data, varying AT strength and dose),
+the per-sample radius distribution is approximately a scale family:
+$r_1(x)\overset d=\mu\,Z$ with $\mu=\mu(\text{model})$ a scale parameter and $Z$ a
+model-independent shape variable. Then
+$\mathrm{RobAcc}(\varepsilon)=\Prob(Z\ge\varepsilon/\mu)=F_Z(\mu/\varepsilon)$ is a fixed monotone
+function of $\mu/\varepsilon$, and any scale proxy (the mean ratio, the median $r_1$) collapses the
+sweep onto one curve. This would \emph{derive} the budget-normalized law and predict that
+$\mathrm{AA}$ vs $\eta/(L_1\varepsilon)$ is not just correlated but a single monotone curve.
+\end{conjecture}
+\noindent\emph{What to do.} (i) I can test the shape-invariance empirically from the saved S3
+checkpoints (per-sample $r_1$ histograms, normalized by their median, overlaid across cells); (ii)
+if it holds, the paper statement is ``the sweep collapses onto $F_Z$''; a distribution-free
+one-sided version (Markov/Chebyshev on $1/r_1$) gives bounds without the hypothesis. Author call on
+how much to formalize.
+
+\section*{T2. Is the data-axis offset a tail effect? (highest value)}
+
+\paragraph{The point.} By Proposition~\ref{prop:count}, robust accuracy is a \emph{tail
+functional} of the $r_1$ distribution, while $\eta/L_1$ is a \emph{ratio of means}. Two models can
+match in mean ratio and differ in the lower tail. Candidate: the $+0.10$ offset (F2) is exactly
+this — the synthetic-data model has a thinner lower tail (fewer barely-non-robust test points) at
+matched mean, because robust overfitting manufactures a heavy lower tail on \emph{test} points
+(train points get memorized margins, test points near memorized islands lose theirs).
+
+\begin{conjecture}[Tail, not mean]\label{conj:tail}
+Conditioning on the certified fraction $\Prob_x(r_1(x)\ge\varepsilon)$ instead of the mean ratio
+absorbs the dose coefficient: in the OLS of AA on $\{$certified fraction, dose$\}$ the dose beta is
+statistically zero. Equivalently, the data intervention improves robustness \emph{through} the
+$r_1$ tail, and the ``generalization offset'' is the mean being an insufficient statistic, not a
+beyond-certificate effect.
+\end{conjecture}
+\noindent\emph{What to do.} (i) [cheap, I run it] recompute per-sample $r_1$ on the report split
+from the 16 saved S3 checkpoints; regress AA on certified-fraction $+$ dose; also check the
+variance/quantiles of $r_1$ at matched mean. (ii) [theory, author] a small lemma making the
+mechanism precise, e.g.\ in the vicinal two-mode model: coverage reduces the \emph{across-test-point
+variance} of $r_1$ at a given mean (the rough mode contributes idiosyncratic per-point sensitivity;
+suppressing it homogenizes $r_1$), hence raises any lower-tail functional at matched mean. If
+(i) confirms and (ii) is proven, the offset Limitation becomes a theorem-backed refinement and the
+vicinal appendix acquires its missing dynamical consequence.
+
+\section*{T3. A certifiable co-Lipschitz $\alpha$ beyond the linear case}
+
+Referee question (theory reviewer, Q1): exhibit a nonlinear, non-toy class where the bracket's
+upper arm is informative, i.e.\ $\alpha$ certified \emph{independently} of $r_2$.
+Route (extends E4 of the earlier audit): scores $g=h\circ\Psi$ with $h$ monotone and $\Psi$ a
+quadratic invariant. On a cone $\mathcal C$ bounded away from the phase-blind directions, the
+power-spectrum map satisfies an explicit two-sided bound
+$c_-(\mathcal C)\|x-y\|\le\|\Psi(x)-\Psi(y)\|\le 2B\|x-y\|$ along radial-ish paths; composing with
+$h'\ge h_->0$ gives $\alpha=h_-c_-$ certified from the feature structure alone. The deliverable is
+a proposition with the explicit cone constant $c_-$ and a numerical check on the surrogate we
+already verified ($\kappa\approx1.6$--$2.4$). Medium difficulty; answers the referee directly.
+
+\section*{T4. A dynamical vicinal-coverage statement (toy)}
+
+The appendix's static path result explains coverage; the verified mechanism is dynamical
+(robust-overfitting delay). Candidate toy bridge, in the two-mode model of thm:vic-twomode: give the
+rough coordinate an epoch-driven memorization drift (fitting label noise on the empirical measure,
+$\dot a_r\propto+\sigma^2$ on train, harming test), and show the coverage term $tq$ multiplies its
+decay so the test-ratio collapse time scales like $t_{\mathrm{collapse}}\sim(1+tq)/\sigma^2$.
+Even at this cartoon level it would let the appendix say ``coverage delays the collapse'' as a
+statement rather than a reading. Medium-hard; optional but would upgrade App.~vicinal.
+
+\section*{T5. Rich-regime dynamics selection (standing open problem)}
+
+Unchanged: whether GD on generic orbit data selects an invariant / lower-realized-$L$ optimum among
+the equal-variation-norm max-margin interpolants (the non-strict-convexity gap in
+cor:no-gap-var). This is the wall of Frei/Min/Li and stays the paper's stated open problem; no new
+angle from S3.
+
+\begin{remark}[Division of labor]
+T2(i) and the T1 shape-check are empirical and cheap: I run them from the saved checkpoints without
+touching the paper. T1's proposition, T2's lemma, T3's proposition, and T4 are author theory.
+Nothing enters the paper until proven by the author and verified firsthand, per the standing rule.
+\end{remark}
+
+\end{document}
