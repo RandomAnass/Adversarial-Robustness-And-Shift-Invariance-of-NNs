@@ -23,9 +23,9 @@ RESDIR = os.path.join(os.path.dirname(__file__), "..", "..", "results", "resnet_
 FIGDIR = os.path.join(os.path.dirname(__file__), "..", "report", "figures")
 RNG = np.random.default_rng(0)
 ARM_LAB = {"standard": "standard", "blurpool": "anti-aliased", "aps": "exact (APS)", "aug": "shift-aug",
-           "stdzero": "zero-pad", "maxpool": "max-pool (aliased)"}
+           "stdzero": "zero-pad", "maxpool": "max-pool (aliased)", "tips": "TIPS (soft-poly)"}
 ARM_COL = {"standard": "#444444", "blurpool": "#1f77b4", "aps": "#d62728", "aug": "#2ca02c",
-           "stdzero": "#999999", "maxpool": "#9467bd"}
+           "stdzero": "#999999", "maxpool": "#9467bd", "tips": "#ff7f0e"}
 CORE4 = {"standard", "blurpool", "aps", "aug"}          # the capacity-matched circular-pad comparison arms
 LOWINV = {"stdzero", "maxpool"}                          # zero-pad low-invariance arms (widen consistency axis)
 SMALL_NET = {"at_consist_aa": -0.88, "at_matched_aa": 0.90, "std_etaL_rad": 0.998, "std_consist_rad": -0.33}

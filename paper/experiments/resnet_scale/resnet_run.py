@@ -100,7 +100,7 @@ def eval_cell(model, data, dev, mode, arm="standard", n_rad=1000, n_aa=10000):  
                dec_etaL=float(np.mean(m) / (np.mean(g2) + 1e-12)))
     persample = {"radius": rad, "margin": m, "gradL2": g2, "gradL1": g1}
     if mode == "at":
-        audit = masking_audit(model, Xte, yte, dev, n=min(n_aa, 512), full=(arm == "aps"))
+        audit = masking_audit(model, Xte, yte, dev, n=min(n_aa, 512), full=(arm in ("aps", "tips")))
         out.update(aa_Linf_8_255=audit["autoattack"], pgd_Linf_8_255=audit["pgd20"], audit=audit)
         out["aa_L2_0_5"] = autoattack_acc(model, Xte, yte, dev, eps=0.5, norm="L2", n=n_aa, version="standard")
         out["pgd_L2_0_5"] = pgd_acc(model, Xte[:n_aa], yte[:n_aa], dev, eps=0.5, norm="l2", steps=20)
@@ -187,6 +187,16 @@ for arm in ["stdzero", "maxpool"]:
             if nm not in CELLS:
                 _add(nm, "cifar10", mode, arm, w, 0, sch)
             EXTRA_LOWINV.append(nm)
+
+# S1a head-to-head: TIPS (Saha&Gokhale WACV2025) as arm `tips`, capacity-comparable to the core arms,
+# run through OUR pipeline. Registered but kept OUT of ORDER (the main driver ignores them; run
+# post-main via --cell). AT grid mirrors the core-4: w{1.0} seeds{0,1,2} + w{0.5} seeds{0,1}; std for
+# the weak-attack (FGSM/PGD-small-eps) regime at both widths seed0.
+TIPS_CELLS = []
+for (w, seed) in [(1.0, 0), (1.0, 1), (1.0, 2), (0.5, 0), (0.5, 1)]:
+    nm = _add(f"c10at_tips{_wt(w)}_s{seed}", "cifar10", "at", "tips", w, seed, AT_SCHED); TIPS_CELLS.append(nm)
+for w in (1.0, 0.5):
+    nm = _add(f"c10std_tips{_wt(w)}_s0", "cifar10", "std", "tips", w, 0, STD_SCHED); TIPS_CELLS.append(nm)
 
 # ---------------- driver ----------------
 def _sanity_fail():

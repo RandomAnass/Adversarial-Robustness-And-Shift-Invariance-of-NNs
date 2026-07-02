@@ -24,10 +24,14 @@ ABLATION_ARMS = ["stdzero", "maxpool"]              # low-invariance arms: stdze
                                                     # (padding control); maxpool=zero-pad + maxpool
                                                     # downsampling (canonical aliasing op, Zhang2019).
                                                     # Both deliberately widen the consistency axis.
-ALL_ARMS = ARMS + ABLATION_ARMS
+NEARMATCH_ARMS = ["tips"]                           # TIPS (Saha&Gokhale WACV2025): learnable soft
+                                                    # polyphase. Adds ~10*C params per instance (two
+                                                    # depthwise convs) -> NEAR- not exactly capacity
+                                                    # matched (reported honestly; ~+0.16% at w1.0).
+ALL_ARMS = ARMS + ABLATION_ARMS + NEARMATCH_ARMS
 
 def _pad_mode(arm):  return "zeros" if arm in ("stdzero", "maxpool") else "circular"
-def _downsamp(arm):  return arm if arm in ("blurpool", "aps", "maxpool") else "stride"  # else: plain strided conv
+def _downsamp(arm):  return arm if arm in ("blurpool", "aps", "maxpool", "tips") else "stride"  # else: plain strided conv
 
 
 class Normalize(nn.Module):
@@ -68,13 +72,52 @@ def aps_downsample(x, stride=2, idx=None, norm_p="inf"):
     return sel, idx
 
 
+class TIPS(nn.Module):
+    """Translation Invariant Polyphase Sampling (Saha & Gokhale, WACV 2025), ported as a pure
+    downsampling OPERATOR (verbatim math from external/tips/tips.py `TIPS.forward`, output [0]).
+    Learned SOFT polyphase: depthwise 3x3 conv -> ReLU (psi) -> AdaptiveAvgPool(stride,stride) ->
+    depthwise 1x1 conv -> softmax over the s^2 polyphase components -> per-channel convex combination
+    of the components. Fully differentiable (no argmax), unlike APS.
+
+    Ported faithfully but with two deliberate, documented choices for the head-to-head:
+      * the random `feat_transform` branch (x_t, the target of TIPS's auxiliary shift-consistency MSE
+        loss) is omitted -- its output is discarded when we take [0], and we match the shared CE
+        PGD-AT recipe EXACTLY (no auxiliary loss, no tau index-regularizer), isolating the OPERATOR;
+      * parity padding is unnecessary: all 3 downsample sites see even H,W (32->16->8->4), asserted.
+    Adds two depthwise convs = 10*C params per instance (9*C for the 3x3 + C for the 1x1), so an arm
+    using TIPS is NEAR- not exactly capacity-matched to the 0-param arms; reported honestly.
+    forward returns (soft_polyphase, psi_x, None) so callers take [0], matching the upstream signature."""
+    def __init__(self, in_channels, num_poly=4, kernel=3, stride=2):
+        super().__init__()
+        self.in_channels, self.kernel, self.stride = in_channels, kernel, stride
+        self.num_poly = num_poly if num_poly else stride * stride
+        self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size=kernel, groups=in_channels,
+                               padding=(kernel - 1) // 2, stride=1, bias=False)
+        self.relu1 = nn.ReLU(inplace=True)
+        self.avgpool = nn.AdaptiveAvgPool2d((stride, stride))
+        self.conv2 = nn.Conv2d(in_channels, in_channels, kernel_size=1, groups=in_channels, stride=1, bias=False)
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, x):
+        N, C, H, W = x.shape; s = self.stride
+        assert H % s == 0 and W % s == 0, f"TIPS: feature map {H}x{W} not divisible by stride {s}"
+        psi_x = self.relu1(self.conv1(x))                                    # psi(x)
+        tau = self.conv2(self.avgpool(psi_x)).view(N, C, -1)                 # (N,C,s*s)
+        tau = self.softmax(tau)                                              # per-channel weights over polyphases
+        xpoly = torch.stack([x[:, :, 0::s, 0::s], x[:, :, 1::s, 0::s],
+                             x[:, :, 0::s, 1::s], x[:, :, 1::s, 1::s]], dim=2)   # (N,C,4,H/s,W/s)
+        xpoly = xpoly.view(N, C, self.num_poly, (H // s) * (W // s))
+        soft = (tau.reshape(N, C, self.num_poly, 1) * xpoly).view(N, C, self.num_poly, H // s, W // s)
+        return soft.sum(dim=2), psi_x, None
+
+
 class PreActBlock(nn.Module):
     expansion = 1
     def __init__(self, in_planes, planes, stride=1, arm="standard", filt_size=3, aps_norm="inf"):
         super().__init__()
         self.stride, self.arm, self.aps_norm = stride, arm, aps_norm
         ds = _downsamp(arm); pad_mode = _pad_mode(arm)
-        conv_stride = stride if ds == "stride" else 1            # blur/aps downsample separately
+        conv_stride = stride if ds == "stride" else 1            # blur/aps/tips downsample separately
         self.bn1 = nn.BatchNorm2d(in_planes)
         self.conv1 = nn.Conv2d(in_planes, planes, 3, stride=conv_stride, padding=1, bias=False, padding_mode=pad_mode)
         self.bn2 = nn.BatchNorm2d(planes)
@@ -86,6 +129,9 @@ class PreActBlock(nn.Module):
         if stride != 1 and ds == "blurpool":
             self.blur_main = BlurPool2d(planes, stride, filt_size)
             self.blur_sc = BlurPool2d(planes, stride, filt_size)
+        if stride != 1 and ds == "tips":                         # separate soft-polyphase op per branch
+            self.tips_main = TIPS(planes, stride=stride)         # (TIPS has no shared-index mechanism;
+            self.tips_sc = TIPS(planes, stride=stride)           #  matches upstream resnet.py wiring)
 
     def forward(self, x):
         pre = F.relu(self.bn1(x))
@@ -97,6 +143,8 @@ class PreActBlock(nn.Module):
                 out, sc = self.blur_main(out), self.blur_sc(sc)
             elif ds == "maxpool":                                # zero-pad + maxpool subsample (aliasing)
                 out, sc = F.max_pool2d(out, 2), F.max_pool2d(sc, 2)
+            elif ds == "tips":                                   # learnable soft polyphase (differentiable)
+                out, sc = self.tips_main(out)[0], self.tips_sc(sc)[0]
             else:                                                # aps: shared polyphase index
                 out, idx = aps_downsample(out, self.stride, norm_p=self.aps_norm)
                 sc, _ = aps_downsample(sc, self.stride, idx=idx)
@@ -142,8 +190,13 @@ if __name__ == "__main__":
     torch.manual_seed(0); x = torch.rand(8, 3, 32, 32)
     pc = {a: nparams(build(a).eval()) for a in ALL_ARMS}
     print("param counts:", pc)
-    assert len(set(pc.values())) == 1, f"arms NOT param-matched: {pc}"
-    print("PARAM-MATCHED across all arms (incl. ablation): OK")
+    matched = ARMS + ABLATION_ARMS                       # the 0-param-operator arms are EXACTLY matched
+    base = {pc[a] for a in matched}
+    assert len(base) == 1, f"0-param arms NOT param-matched: {pc}"
+    print("PARAM-MATCHED across all 0-param arms (incl. ablation): OK")
+    for a in NEARMATCH_ARMS:                             # near-matched arms: report the honest delta
+        d = pc[a] - pc["standard"]
+        print(f"NEAR-matched arm {a!r}: {pc[a]} params (+{d} = +{100*d/pc['standard']:.3f}% vs standard)")
     # invariance spectrum: APS exact to all shifts; standard(circular) exact only on the stride subgroup;
     # stdzero (zero pad) exact on none.
     for arm in ALL_ARMS:
