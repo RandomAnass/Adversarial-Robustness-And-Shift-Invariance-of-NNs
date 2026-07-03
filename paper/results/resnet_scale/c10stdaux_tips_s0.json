@@ -1,0 +1,46 @@
+{
+ "clean": 0.9314,
+ "consist": 0.973,
+ "fgsm_1": 0.493,
+ "pgd_1": 0.269,
+ "fgsm_2": 0.3,
+ "pgd_2": 0.022,
+ "aa_2": 0.00390625,
+ "fgsm_4": 0.17,
+ "pgd_4": 0.001,
+ "aa_4": 0.0,
+ "fgsm_8": 0.117,
+ "pgd_8": 0.0,
+ "aa_8": 0.0,
+ "arm": "tips+aux",
+ "w": 1.0,
+ "seed": 0,
+ "mode": "stdaux",
+ "params": 11190090,
+ "best_epoch": 52,
+ "n_epochs_run": 68,
+ "wall_s": 2003.8141639232635,
+ "config": {
+  "alpha": 0.35,
+  "wake": 17,
+  "clip": 0.0,
+  "num_down": 3,
+  "detach_xt": true,
+  "epochs": 80,
+  "milestones": [
+   40,
+   60
+  ],
+  "patience": 15,
+  "smoke": false
+ },
+ "env": {
+  "git_sha": "7d5328754b624820776f4db9641de2ef7f106e18",
+  "torch": "2.6.0+cu124",
+  "cuda": "12.4",
+  "device": "NVIDIA RTX A6000"
+ },
+ "n": 1000,
+ "n_aa": 512,
+ "pgd_steps": 10
+}

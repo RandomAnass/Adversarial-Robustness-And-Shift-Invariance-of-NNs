@@ -1,0 +1,14 @@
+{
+ "tag": "cascaded_s0",
+ "variant": "cascaded",
+ "class": "CascadedGCNN",
+ "seed": 0,
+ "epochs": 200,
+ "smoke": false,
+ "clean_acc_their_eval": 87.2,
+ "wall_s": 1936.5596930980682,
+ "recipe": "Adam lr=1e-3, StepLR(50,0.1), bs=128, no augmentation, Normalize(0.5,0.5), CE, final-epoch checkpoint (theirs verbatim)",
+ "their_repo_sha": "7257b8a0cc2ffa522fb29906fbe397b062f59756",
+ "torch": "2.2.0+cu121",
+ "model_class_source_sha256": "f28d02e82132fa442118c94b5bd126b7635360e954de97993db3f533dbd83165"
+}
