@@ -76,3 +76,21 @@ Between each round: I verify the subagent's edits (compile, spot-check claims/pr
 - **Reviewer B (soundness/rigor):** 5/10 high-end, borderline lean reject, conf 4. Spot-checked numbers reproduce exactly. Experimental hygiene above norm, exceptional candor. But threat-matching directional not established per-condition (n=8 overlapping CIs, l2-CIFAR reversal); +0.998/CF near-definitional; selector ties clean-acc (0.06 vs 0.08). +1 = powered pre-registered matched>both-clean-acc-AND-mismatched with non-overlapping CIs in one condition + one condition where eta/L beats clean-acc.
 - **Diff reviewer (vs prior 4/4/4/5):** 5/10 borderline. Per-criticism: 4 RESOLVED (C7 biggest win, C9, C10, C4-title/offset), 5 PARTIAL (C1/C2/C3/C5/C6/C8), 0 not-resolved/papered-over. Prior 4/4/4/5 -> now ~5/5/5/6. Movement UP but not clearly over bar for 9pp venue; LEANING ACCEPT at TMLR/journal. New theory sound (lazy-regime upgraded to honest no-gap; affine converse; certifiable-alpha). CF +0.998 RESTATES C1 not resolves. +1 = cut to focused core + halve abstract + demote +0.998/vicinal/elementary-lemmas to supp.
 - **META-SYNTHESIS:** Unanimous ~5/10 borderline, UP from prior 4/4/4/5. Two persistent ceilings: (1) practical payoff thin (eta/L ties clean-acc as selector, untrainable -> frame+negative-result not a tool) = the DEEPEST ceiling; (2) threat-matching statistically thin (n=8) + +0.998 over-foregrounded. VENUE SPLIT unanimous: reject-leaning at strict 9pp conference (sprawl+modest-novelty), accept-leaning at TMLR/journal (honesty+rigor+confrontation profile). Path-independent cleanup (all agree): halve abstract, demote +0.998 from headline, move certified-fraction/vicinal-appendix/elementary-lemmas to labeled supp, un-pack contributions. Path-dependent (needs user): Path B top-conf = focus+power(n>=30 architectures)+beat-clean-acc; Path C TMLR = cleanup+submit; Path A = chase the tool/payoff (open research).
+
+## PAYOFF DIRECTION (user chose "chase the payoff first", 2026-07-04)
+Panel's deepest ceiling: eta/L ties clean-accuracy as a selector -> "frame + negative result, not a tool".
+Pursuing the one setting where eta/L beats clean accuracy ACTIONABLY: **attack-free early stopping under
+robust overfitting**. Under robust overfitting (Rice 2020) robust-acc peaks then decays while clean-acc
+RISES, so clean/final-epoch selection picks the overfit checkpoint; the standard fix needs a val ATTACK.
+eta/L is the gauge-free robust-overfitting signal (paper already shows it collapses); its turnover is an
+attack-free early-stop trigger.
+- payoff_early_stop.py: per-checkpoint eval (clean, eta/L1 attack-free, test-robust, val-robust).
+- payoff_analyze.py: selectors (final/clean/etaL_argmax/etaL_turnover/val_pgd) vs noise-robust (smoothed) oracle.
+- PRELIM (4 diffusion-dose runs, seed 0): on the 1 heavy-overfit run, etaL_turnover delivers 0.403 robust
+  acc = +0.035 over clean-selection, +0.044 over final, MATCHES smoothed oracle (regret -0.001), attack-free;
+  ties on the 3 non-overfitting runs (no harm). Raw-oracle earlier looked worse due to a PGD-noise spike at
+  ep20 (which val_pgd chased) -> smoothed oracle fixes it.
+- DROPPED second angle (operator selection at matched clean acc, ImageNet-100): a WASH at n=4 arms (clean &
+  eta/L each win one seed); clean-acc not useless there.
+- SCALE-UP running: real-only PGD-AT across arms {standard,aps,blurpool} x 3 seeds, per-epoch ckpts
+  (run_payoff_scaleup.sh, both GPUs) -> 9 overfitting runs for CIs. Then eval + turnover analysis.
