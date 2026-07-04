@@ -1,0 +1,99 @@
+{
+  "task": "calib",
+  "args": {
+    "task": "calib",
+    "ckpts": [
+      "ckpts/v2ckpt_syn0_s0_e40.pt",
+      "ckpts/v2ckpt_syn100000_s0_e40.pt",
+      "ckpts/v2ckpt_syn500000_s0_e40.pt",
+      "ckpts/v2ckpt_syn1000000_s0_e40.pt"
+    ],
+    "ckpt_dir": "",
+    "synth_npz": "/home/students/code/Anas/adversarial-robustness-shift-invariance/paper/diffusion_robustness/data/1m.npz",
+    "gpu": 0,
+    "n": 50000,
+    "ntest": 10000,
+    "npts": 512,
+    "anchors": 4000,
+    "knn": 64,
+    "dtan": 30,
+    "gauss_sigma": 0.1,
+    "fd_h": 0.25,
+    "fd_rand": 3,
+    "power_iters": 20,
+    "hess_bs": 16,
+    "rho": 0.05,
+    "trials": 5,
+    "adv": false,
+    "pgd_steps": 20,
+    "tag": "mech_calib",
+    "smoke": false
+  },
+  "result": {
+    "syn0_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 0,
+        "seed": 0,
+        "epoch": 40
+      },
+      "T": 1.2213112759005018,
+      "margin_raw": 4.405729293823242,
+      "margin_calibrated": 3.6073760986328125,
+      "margin_lognorm": 0.4024639129638672,
+      "n": 512
+    },
+    "syn100000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 100000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "T": 0.6669531622198355,
+      "margin_raw": 3.044576644897461,
+      "margin_calibrated": 4.564903259277344,
+      "margin_lognorm": 0.31791701912879944,
+      "n": 512,
+      "dlog_raw_vs_base": -0.36954394752233105,
+      "dlog_calib_vs_base": 0.23541665640554493,
+      "dlog_lognorm_vs_base": -0.23581503301458095
+    },
+    "syn500000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 500000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "T": 0.5673982734990176,
+      "margin_raw": 2.6269032955169678,
+      "margin_calibrated": 4.629734516143799,
+      "margin_lognorm": 0.29056674242019653,
+      "n": 512,
+      "dlog_raw_vs_base": -0.5171001078740026,
+      "dlog_calib_vs_base": 0.2495188609456619,
+      "dlog_lognorm_vs_base": -0.3257721355475175
+    },
+    "syn1000000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 1000000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "T": 0.5625745704648164,
+      "margin_raw": 2.611539363861084,
+      "margin_calibrated": 4.642121315002441,
+      "margin_lognorm": 0.2904997766017914,
+      "n": 512,
+      "dlog_raw_vs_base": -0.5229659640869025,
+      "dlog_calib_vs_base": 0.2521907761379321,
+      "dlog_lognorm_vs_base": -0.3260026283276361
+    }
+  }
+}

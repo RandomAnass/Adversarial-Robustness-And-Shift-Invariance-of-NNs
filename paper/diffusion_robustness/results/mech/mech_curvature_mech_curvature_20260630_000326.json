@@ -1,0 +1,106 @@
+{
+  "task": "curvature",
+  "args": {
+    "task": "curvature",
+    "ckpts": [
+      "ckpts/v2ckpt_syn0_s0_e40.pt",
+      "ckpts/v2ckpt_syn100000_s0_e40.pt",
+      "ckpts/v2ckpt_syn500000_s0_e40.pt",
+      "ckpts/v2ckpt_syn1000000_s0_e40.pt"
+    ],
+    "ckpt_dir": "",
+    "synth_npz": "/home/students/code/Anas/adversarial-robustness-shift-invariance/paper/diffusion_robustness/data/1m.npz",
+    "gpu": 0,
+    "n": 50000,
+    "ntest": 10000,
+    "npts": 512,
+    "anchors": 4000,
+    "knn": 64,
+    "dtan": 30,
+    "gauss_sigma": 0.1,
+    "fd_h": 0.25,
+    "fd_rand": 3,
+    "power_iters": 20,
+    "hess_bs": 16,
+    "rho": 0.05,
+    "trials": 5,
+    "adv": false,
+    "pgd_steps": 20,
+    "tag": "mech_curvature",
+    "smoke": false
+  },
+  "result": {
+    "syn0_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 0,
+        "seed": 0,
+        "epoch": 40
+      },
+      "curv_grad_mean": 11.650653839111328,
+      "curv_grad_median": 8.461502075195312,
+      "curv_rand_mean": 2.8140180110931396,
+      "curv_grad_over_L2": 2.3024389471642803,
+      "hess_topeig_mean": 0.0,
+      "L2": 5.060135841369629,
+      "margin": 4.405742168426514,
+      "fd_h": 0.25,
+      "n": 512
+    },
+    "syn100000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 100000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "curv_grad_mean": 6.121594429016113,
+      "curv_grad_median": 4.314746856689453,
+      "curv_rand_mean": 1.6228896379470825,
+      "curv_grad_over_L2": 2.0237935269071126,
+      "hess_topeig_mean": 0.0,
+      "L2": 3.0248117446899414,
+      "margin": 3.0445895195007324,
+      "fd_h": 0.25,
+      "n": 512
+    },
+    "syn500000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 500000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "curv_grad_mean": 5.2294087409973145,
+      "curv_grad_median": 3.504342794418335,
+      "curv_rand_mean": 1.3576726913452148,
+      "curv_grad_over_L2": 2.023464133163181,
+      "hess_topeig_mean": 0.0,
+      "L2": 2.5843842029571533,
+      "margin": 2.626920700073242,
+      "fd_h": 0.25,
+      "n": 512
+    },
+    "syn1000000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 1000000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "curv_grad_mean": 5.350350856781006,
+      "curv_grad_median": 3.6351234912872314,
+      "curv_rand_mean": 1.2805095911026,
+      "curv_grad_over_L2": 2.0921372049078015,
+      "hess_topeig_mean": 0.0,
+      "L2": 2.557361364364624,
+      "margin": 2.6115527153015137,
+      "fd_h": 0.25,
+      "n": 512
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "task": "weightsharp",
+  "args": {
+    "task": "weightsharp",
+    "ckpts": [
+      "ckpts/v2ckpt_syn0_s0_e40.pt",
+      "ckpts/v2ckpt_syn100000_s0_e40.pt",
+      "ckpts/v2ckpt_syn500000_s0_e40.pt",
+      "ckpts/v2ckpt_syn1000000_s0_e40.pt"
+    ],
+    "ckpt_dir": "",
+    "synth_npz": "/home/students/code/Anas/adversarial-robustness-shift-invariance/paper/diffusion_robustness/data/1m.npz",
+    "gpu": 0,
+    "n": 50000,
+    "ntest": 10000,
+    "npts": 512,
+    "anchors": 4000,
+    "knn": 64,
+    "dtan": 30,
+    "gauss_sigma": 0.1,
+    "fd_h": 0.25,
+    "fd_rand": 3,
+    "power_iters": 20,
+    "hess_bs": 16,
+    "rho": 0.05,
+    "trials": 5,
+    "adv": false,
+    "pgd_steps": 20,
+    "tag": "mech_weightsharp",
+    "smoke": false
+  },
+  "result": {
+    "syn0_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 0,
+        "seed": 0,
+        "epoch": 40
+      },
+      "base_loss": 0.6728307604789734,
+      "rand_sharp": NaN,
+      "worst_sharp": 0.29849331080913544,
+      "rho": 0.05,
+      "adv": false,
+      "trials": 5,
+      "input_L2": 5.186756610870361
+    },
+    "syn100000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 100000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "base_loss": 0.501602053642273,
+      "rand_sharp": NaN,
+      "worst_sharp": 0.11965765058994293,
+      "rho": 0.05,
+      "adv": false,
+      "trials": 5,
+      "input_L2": 2.987996816635132
+    },
+    "syn500000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 500000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "base_loss": 0.5117921531200409,
+      "rand_sharp": NaN,
+      "worst_sharp": 0.12922737002372742,
+      "rho": 0.05,
+      "adv": false,
+      "trials": 5,
+      "input_L2": 2.529170513153076
+    },
+    "syn1000000_s0": {
+      "meta": {
+        "arm": "stdzero",
+        "width": 1.0,
+        "n_syn": 1000000,
+        "seed": 0,
+        "epoch": 40
+      },
+      "base_loss": 0.518269307911396,
+      "rand_sharp": NaN,
+      "worst_sharp": 0.12941154092550278,
+      "rho": 0.05,
+      "adv": false,
+      "trials": 5,
+      "input_L2": 2.5001747608184814
+    }
+  }
+}
