@@ -22,8 +22,12 @@ W_MARKER = {32: "o", 64: "s"}
 
 def load(path=None):
     if path is None:
-        cands = sorted(glob.glob(os.path.join(RESDIR, "at_*.json")) +
-                       glob.glob(os.path.join(RESDIR, "cifar_at_*_*.json")))
+        # prefer the uncapped full-10k AutoAttack eval (the figure in the paper, matched Pearson +0.88);
+        # earlier 512-sample runs are superseded and give a slightly different value.
+        cands = sorted(glob.glob(os.path.join(RESDIR, "at_cifar_linf_full10k_*.json")))
+        if not cands:
+            cands = sorted(glob.glob(os.path.join(RESDIR, "at_*.json")) +
+                           glob.glob(os.path.join(RESDIR, "cifar_at_*_*.json")))
         if not cands: sys.exit("no AT JSON found")
         path = cands[-1]
     print(f"# results: {path}")
@@ -134,7 +138,8 @@ def main():
             print(f"  w={w} {a:9s}: Dlog margin {dm:+.3f}  Dlog L {dL:+.3f}  Dlog(eta/L) {dm-dL:+.3f}  "
                   f"(AA {d.get(aakey, float('nan')):.3f} vs {base.get(aakey, float('nan')):.3f})")
 
-    fig_predict(results, celld, os.path.join(FIGDIR, f"at_predict_{tag}.pdf"), aakey, "match", matchlab, aalab)
+    predict_name = "cifar_at_predict.pdf" if tag == "cifar_linf" else f"at_predict_{tag}.pdf"
+    fig_predict(results, celld, os.path.join(FIGDIR, predict_name), aakey, "match", matchlab, aalab)
     fig_decomp(celld, os.path.join(FIGDIR, f"at_decomp_{tag}.pdf"))
 
     widths = sorted({d["w"] for d in cm}); arms = ["standard", "blurpool", "circular", "aug"]

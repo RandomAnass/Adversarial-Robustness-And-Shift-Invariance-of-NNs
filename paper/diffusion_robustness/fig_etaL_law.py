@@ -15,7 +15,7 @@ import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FIG = os.path.join(HERE, "figures"); os.makedirs(FIG, exist_ok=True)
+FIG = os.path.join(HERE, "..", "report", "figures"); os.makedirs(FIG, exist_ok=True)
 DOSE_C = {0: "#444444", 100000: "#1f77b4", 500000: "#2ca02c", 1000000: "#d62728"}
 DOSE_L = {0: "real-only", 100000: "+100k", 500000: "+500k", 1000000: "+1M"}
 
@@ -44,6 +44,12 @@ def _load():
 
 def main():
     per, aggregate, srclab = _load()
+    # The headline data-axis law is the four doses {0,100k,500k,1M}; the 1k/10k pools are
+    # coverage controls shown in fig:mechanism, not here. Filtering keeps this robust to whichever
+    # salvage JSON _load() picks (a 6-dose file otherwise KeyErrors on DOSE_C/DOSE_L).
+    HEADLINE = {0, 100000, 500000, 1000000}
+    per = [r for r in per if r["n_syn"] in HEADLINE]
+    srclab = f"v2firm best-checkpoint ({len(per)} dose$\\times$seed pts)"
     per.sort(key=lambda r: r["n_syn"])
     aa = [r["aa"] for r in per]
     etaL1 = [r["etaL1"] for r in per]
@@ -98,7 +104,7 @@ def main():
     fig.suptitle("Diffusion data obeys the threat-matched $\\eta/L$ law (fair best-checkpoint comparison)",
                  fontsize=12, y=1.02)
     fig.tight_layout()
-    out = os.path.join(FIG, "etaL_law.pdf")
+    out = os.path.join(FIG, "diffusion_etaL_law.pdf")
     fig.savefig(out, bbox_inches="tight"); fig.savefig(out.replace(".pdf", ".png"), dpi=150, bbox_inches="tight")
     print("# wrote", out, "| matched r=%.3f mismatched r=%.3f" % (pear(etaL1, aa), pear(etaL2, aa)))
 
