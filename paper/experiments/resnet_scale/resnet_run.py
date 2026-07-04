@@ -198,6 +198,15 @@ for (w, seed) in [(1.0, 0), (1.0, 1), (1.0, 2), (0.5, 0), (0.5, 1)]:
 for w in (1.0, 0.5):
     nm = _add(f"c10std_tips{_wt(w)}_s0", "cifar10", "std", "tips", w, 0, STD_SCHED); TIPS_CELLS.append(nm)
 
+# A5-opt: seed-1 replicate of the weak-attack regime (tips_weakattack.py --seed 1 needs std-trained
+# ckpts at seed 1). Registered but kept OUT of ORDER (run via --cell from external/b1_batch.sh).
+WEAK_S1_CELLS = []
+for arm in ["standard", "blurpool", "aps", "aug", "tips"]:
+    nm = f"c10std_{arm}_s1"
+    if nm not in CELLS:
+        _add(nm, "cifar10", "std", arm, 1.0, 1, STD_SCHED)
+    WEAK_S1_CELLS.append(nm)
+
 # ---------------- driver ----------------
 def _sanity_fail():
     """After the first CIFAR-10 AT headline cell finishes, check it is not wildly off-recipe.

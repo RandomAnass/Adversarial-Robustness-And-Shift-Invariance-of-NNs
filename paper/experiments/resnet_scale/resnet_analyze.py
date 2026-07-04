@@ -20,7 +20,7 @@ import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from scipy.stats import pearsonr, spearmanr
 
 RESDIR = os.path.join(os.path.dirname(__file__), "..", "..", "results", "resnet_scale")
-FIGDIR = os.path.join(os.path.dirname(__file__), "..", "report", "figures")
+FIGDIR = os.path.join(os.path.dirname(__file__), "..", "..", "report", "figures")
 RNG = np.random.default_rng(0)
 ARM_LAB = {"standard": "standard", "blurpool": "anti-aliased", "aps": "exact (APS)", "aug": "shift-aug",
            "stdzero": "zero-pad", "maxpool": "max-pool (aliased)", "tips": "TIPS (soft-poly)"}

@@ -58,14 +58,18 @@ def main():
     ap.add_argument("--width", type=float, default=1.0)
     ap.add_argument("--n", type=int, default=1000, help="#pts for FGSM/PGD + clean/consist")
     ap.add_argument("--n_aa", type=int, default=512, help="#pts for AutoAttack")
-    ap.add_argument("--pgd_steps", type=int, default=10); a = ap.parse_args()
+    ap.add_argument("--pgd_steps", type=int, default=10)
+    ap.add_argument("--seed", type=int, default=0, help="TRAINING seed of the std ckpts (c10std_*_s<seed>); "
+                    "eval seeds/subsets stay fixed at 0 so seeds are compared on identical points")
+    a = ap.parse_args()
     dev = f"cuda:{a.gpu}"; torch.cuda.set_device(a.gpu)
     set_seed(0); data = load_data("cifar10", seed=0); Xte, yte = data["Xte"], data["yte"]
-    out_path = os.path.join(RESDIR, f"tips_weakattack_w{a.width}.json")
+    stag = "" if a.seed == 0 else f"_s{a.seed}"      # seed-0 filename unchanged (back-compat w/ tips_driver)
+    out_path = os.path.join(RESDIR, f"tips_weakattack_w{a.width}{stag}.json")
     out = json.load(open(out_path)) if os.path.exists(out_path) else {"width": a.width, "n": a.n,
-          "n_aa": a.n_aa, "pgd_steps": a.pgd_steps, "eps_255": [1,2,4,8], "arms": {}}
+          "n_aa": a.n_aa, "pgd_steps": a.pgd_steps, "seed": a.seed, "eps_255": [1,2,4,8], "arms": {}}
     for arm in ARMS:
-        m, name = load_std(arm, a.width)
+        m, name = load_std(arm, a.width, seed=a.seed)
         if m is None: print(f"[weak] SKIP {arm} (no std ckpt at w{a.width})", flush=True); continue
         m.to(dev).eval()
         rec = out["arms"].get(arm, {})
