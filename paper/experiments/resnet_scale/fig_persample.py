@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 
 RESDIR = os.path.join(os.path.dirname(__file__), "..", "..", "results", "resnet_scale")
-FIGDIR = os.path.join(os.path.dirname(__file__), "..", "report", "figures")
+FIGDIR = os.path.join(os.path.dirname(__file__), "..", "..", "report", "figures")
 ARM_COL = {"standard": "#444444", "blurpool": "#1f77b4", "aps": "#d62728", "aug": "#2ca02c",
            "stdzero": "#999999", "maxpool": "#9467bd", "circular": "#d62728"}
 ARM_LAB = {"standard": "standard", "blurpool": "anti-aliased", "aps": "exact (APS)", "aug": "shift-aug",

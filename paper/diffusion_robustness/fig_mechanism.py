@@ -15,7 +15,7 @@ import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FIG = os.path.join(HERE, "figures"); os.makedirs(FIG, exist_ok=True)
+FIG = os.path.join(HERE, "..", "report", "figures"); os.makedirs(FIG, exist_ok=True)
 
 
 def load_diversity_salvage():
@@ -79,7 +79,7 @@ def main():
 
     fig.suptitle("Mechanism: diffusion data delays robust overfitting, given sufficient coverage", fontsize=12, y=1.02)
     fig.tight_layout()
-    out = os.path.join(FIG, "mechanism.pdf")
+    out = os.path.join(FIG, "diffusion_mechanism.pdf")
     fig.savefig(out, bbox_inches="tight"); fig.savefig(out.replace(".pdf", ".png"), dpi=150, bbox_inches="tight")
     print("# wrote", out, "| baseline AA=%.3f" % base)
 
