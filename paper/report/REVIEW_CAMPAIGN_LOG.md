@@ -94,3 +94,19 @@ attack-free early-stop trigger.
   eta/L each win one seed); clean-acc not useless there.
 - SCALE-UP running: real-only PGD-AT across arms {standard,aps,blurpool} x 3 seeds, per-epoch ckpts
   (run_payoff_scaleup.sh, both GPUs) -> 9 overfitting runs for CIs. Then eval + turnover analysis.
+
+## PAYOFF RESULT: HONEST NEGATIVE (2026-07-05)
+Multi-run (9 real-only arms x seeds, 20 ckpts each, fine 2-epoch spacing): eta/L-turnover early stopping
+does NOT reliably beat clean-accuracy selection.
+- etaL_turnover - clean = -0.004 +/- 0.017 (CI crosses 0 -> TIE).
+- etaL_turnover - val_pgd = -0.041 +/- 0.010 (well behind the expensive val-attack standard).
+- SEVERITY-DEPENDENT: wins on severe-overfit (standard arm gap 0.05 -> +0.02..+0.03, all 3 seeds) but
+  LOSES on mild-overfit (aps gap 0.004-0.018 -> -0.02..-0.04), because eta/L peaks BEFORE the robust peak,
+  so its early trigger sacrifices still-rising robustness when overfitting is gentle. Averages to a wash.
+- The +0.035 single-run preliminary was the hardest-overfit run (stdzero), not representative.
+CONCLUSION: the chosen payoff (attack-free early stopping) does NOT deliver a selection tool that beats
+clean accuracy -> the panel's ceiling ("eta/L ties clean-acc, diagnostic-not-tool") is CONFIRMED, not
+broken. eta/L's value beyond clean accuracy is PREDICTIVE (partial corr +0.89, already in paper), not
+single-pick SELECTION. This is an honest negative; it reinforces the diagnostic-not-tool thesis but adds
+no positive payoff. STRATEGIC DECISION needed: (a) TMLR-fit + fold this honest negative in, (b) try a
+different payoff idea, (c) focus+power for a conference on existing strengths.
