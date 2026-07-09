@@ -28,10 +28,16 @@ NEARMATCH_ARMS = ["tips"]                           # TIPS (Saha&Gokhale WACV202
                                                     # polyphase. Adds ~10*C params per instance (two
                                                     # depthwise convs) -> NEAR- not exactly capacity
                                                     # matched (reported honestly; ~+0.16% at w1.0).
-ALL_ARMS = ARMS + ABLATION_ARMS + NEARMATCH_ARMS
+GRADED_ARMS = ["blur2", "blur5", "blur7"]           # graded anti-aliasing (0-param, exactly capacity-
+                                                    # matched): blurpool with Rect-2 / Bin-5 / Bin-7
+                                                    # kernels (blurpool itself is Tri-3). These densify
+                                                    # the invariance axis for the powered dissection grid.
+ALL_ARMS = ARMS + ABLATION_ARMS + NEARMATCH_ARMS + GRADED_ARMS
+_BLUR_ARMS = ("blurpool", "blur2", "blur5", "blur7")
 
 def _pad_mode(arm):  return "zeros" if arm in ("stdzero", "maxpool") else "circular"
-def _downsamp(arm):  return arm if arm in ("blurpool", "aps", "maxpool", "tips") else "stride"  # else: plain strided conv
+def _downsamp(arm):  return "blurpool" if arm in _BLUR_ARMS else (arm if arm in ("aps", "maxpool", "tips") else "stride")
+def _filt_size(arm, default=3):  return {"blur2": 2, "blur5": 5, "blur7": 7}.get(arm, default)  # blurpool=Tri-3
 
 
 class Normalize(nn.Module):
@@ -43,7 +49,8 @@ class Normalize(nn.Module):
 
 
 def _blur_kernel(filt_size):
-    a = {2: [1., 1.], 3: [1., 2., 1.], 5: [1., 4., 6., 4., 1.]}[filt_size]
+    a = {2: [1., 1.], 3: [1., 2., 1.], 5: [1., 4., 6., 4., 1.],
+         7: [1., 6., 15., 20., 15., 6., 1.]}[filt_size]                 # binomial low-pass (Zhang2019)
     a = torch.tensor(a); k = torch.outer(a, a); return k / k.sum()
 
 
@@ -127,8 +134,9 @@ class PreActBlock(nn.Module):
             sc_stride = stride if ds == "stride" else 1
             self.shortcut = nn.Conv2d(in_planes, planes, 1, stride=sc_stride, bias=False)
         if stride != 1 and ds == "blurpool":
-            self.blur_main = BlurPool2d(planes, stride, filt_size)
-            self.blur_sc = BlurPool2d(planes, stride, filt_size)
+            fs = _filt_size(arm, filt_size)                     # arm sets the anti-aliasing kernel size
+            self.blur_main = BlurPool2d(planes, stride, fs)
+            self.blur_sc = BlurPool2d(planes, stride, fs)
         if stride != 1 and ds == "tips":                         # separate soft-polyphase op per branch
             self.tips_main = TIPS(planes, stride=stride)         # (TIPS has no shared-index mechanism;
             self.tips_sc = TIPS(planes, stride=stride)           #  matches upstream resnet.py wiring)

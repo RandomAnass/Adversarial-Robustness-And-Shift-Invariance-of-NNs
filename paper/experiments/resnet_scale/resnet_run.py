@@ -14,7 +14,7 @@ Usage (always with the venv python + PYTHONNOUSERSITE=1):
 """
 import os, sys, json, time, argparse, subprocess, numpy as np, torch
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from models import build, nparams, ARMS, ALL_ARMS
+from models import build, nparams, ARMS, ALL_ARMS, GRADED_ARMS
 from resnet_train import load_data, train_cell, pgd_linf, set_seed, env_stamp
 from cifar_dissection import shift_consistency, pgd_acc, autoattack_acc, accuracy, correct_mask
 
@@ -206,6 +206,16 @@ for arm in ["standard", "blurpool", "aps", "aug", "tips"]:
     if nm not in CELLS:
         _add(nm, "cifar10", "std", arm, 1.0, 1, STD_SCHED)
     WEAK_S1_CELLS.append(nm)
+
+# POWER grid: graded anti-aliasing arms (blur2=Rect-2, blur5=Bin-5, blur7=Bin-7) densify the invariance
+# axis so the threat-matched dissection reaches n>=20 cells with tighter, better-separated CIs. AT, both
+# widths, 3 seeds. Registered but kept OUT of ORDER (run post-main via --cell).
+GRADED_CELLS = []
+for arm in GRADED_ARMS:
+    for w in (1.0, 0.5):
+        for seed in (0, 1, 2):
+            nm = _add(f"c10at_{arm}{_wt(w)}_s{seed}", "cifar10", "at", arm, w, seed, AT_SCHED)
+            GRADED_CELLS.append(nm)
 
 # ---------------- driver ----------------
 def _sanity_fail():
