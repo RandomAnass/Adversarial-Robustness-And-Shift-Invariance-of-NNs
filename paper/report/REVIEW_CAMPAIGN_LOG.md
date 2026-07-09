@@ -110,3 +110,19 @@ broken. eta/L's value beyond clean accuracy is PREDICTIVE (partial corr +0.89, a
 single-pick SELECTION. This is an honest negative; it reinforces the diagnostic-not-tool thesis but adds
 no positive payoff. STRATEGIC DECISION needed: (a) TMLR-fit + fold this honest negative in, (b) try a
 different payoff idea, (c) focus+power for a conference on existing strengths.
+
+## FOCUS + POWER FOR CONFERENCE (user chose, 2026-07-09)
+PART A (power the threat-matching, n>=20 architectures):
+- Added graded anti-aliasing arms blur2/blur5/blur7 (Rect-2/Bin-5/Bin-7) to models.py: param-matched,
+  span the invariance axis (off-subgroup shift sensitivity 7.8e-4/3.3e-4/1.2e-4/6.7e-5 between standard
+  1.5e-2 and aps 9e-9). Registered 18 AT cells (3 arms x 2 widths x 3 seeds), graded_driver.sh, training
+  on both GPUs (~13h). ResNet-AT grid 14 -> 20 cells for tighter, better-separated matched/mismatched CIs.
+PART B (focus to ~9pp, author confirmed main-vs-appendix split):
+- Abstract halved 660->290 words (leads with dissociation + weak-attack-artifact).
+- Contributions: 3 dense walls -> 4 focused bullets (unifying criterion / dissociation / weak-attack-
+  artifact / diagnostic-not-trainable).
+- MOVED TO APPENDIX: Optimization section (sec:opt); the whole diffusion data axis + per-sample + selection
+  (app:dataaxis); small-net MNIST/Fashion dissection (app:smallnet). Main body 16 -> 15pp; compiles clean.
+- REMAINING: compress main 15->9pp (trim structural theory: finite-group prop / rho_G / toy model / some
+  figures+tables -> appendix; merge generality+stat-power); integrate powered dissociation numbers when
+  the graded grid lands; final compile + mini re-panel.
