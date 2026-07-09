@@ -202,29 +202,6 @@ frequency, spans (Ge) & $0.000$ & $0.000$ & $5.75$ & $0.378$ \\
 \end{tabular}
 \end{table}
 
-\paragraph{Architectural dissection ($\eta/L$ predicts robustness; shift-consistency does not).} We train seven architectures (a fully connected baseline; a single convolution-plus-global-pooling shift-invariant model; multi-layer convolutions with max/average pooling and an optional dense layer), each with and without batch-normalization where applicable, on $16{,}000$ images for $25$ epochs, three seeds, on GPU, for both MNIST and Fashion-MNIST. As the dataset-comparable robustness measure we use the per-sample \emph{robust radius} $r_2$ (the smallest $\ell_2$-PGD perturbation that flips the label), of which $\eta/L$ is a lower bound; fixed-$\epsilon$ robust accuracy is misleading across datasets because of floor effects. Table~\ref{tab:diss} reports the MNIST per-model means. Across the seven configurations, $\eta/L$ predicts the robust radius with Spearman $\rho=+0.96$ on MNIST and $+0.71$ on Fashion-MNIST, whereas shift-consistency predicts it on neither ($\rho=-0.31$ and $0.00$). The single shift-invariant model has consistency $1.0$ yet the smallest robust radius, the sharpest illustration that consistency does not imply robustness. Batch-normalization raises clean accuracy and lowers fixed-$\epsilon$ robust accuracy in both the fully connected and convolutional pairs, consistent with \citet{galloway2019batchnorm}; under the per-sample robust radius, however, the change reverses sign and is small, which is precisely why we treat the radius, not fixed-$\epsilon$ accuracy, as the dataset-comparable measure.
-
-\begin{table}[h]\centering
-\caption{MNIST dissection (means over 3 seeds, $n{=}16{,}000$, 25 epochs). Primary metric: per-sample $\ell_2$ robust radius $r_2$ (smallest label-flipping $\ell_2$-PGD perturbation), of which $\eta/L$ is a lower bound. Fixed-$\epsilon$ robust accuracy (rob$_\epsilon$, $\ell_2$ at $\epsilon{=}1.5$) is shown for comparison.}
-\label{tab:diss}
-\footnotesize
-\begin{tabular}{lrccccc}
-\toprule
-model & params & clean & consist. & $r_2$ & rob$_\epsilon\,\ell_2$ & $\eta/L$ \\
-\midrule
-FC (depth 2)            & 269k & 0.971 & 0.281 & 0.938 & 0.060 & 0.592 \\
-FC (depth 2) + BN       & 270k & 0.973 & 0.292 & 0.962 & 0.043 & 0.668 \\
-conv d1 k5 GAP          & 4.6k & 0.569 & 1.000 & 0.457 & 0.047 & 0.376 \\
-conv d1 k5 GAP + BN     & 4.9k & 0.647 & 1.000 & 0.486 & 0.022 & 0.557 \\
-conv d2 k3 max          & 212k & 0.987 & 0.473 & 1.846 & 0.477 & 1.443 \\
-conv d2 k3 avg          & 212k & 0.984 & 0.475 & 1.658 & 0.399 & 1.537 \\
-conv d2 k3 max + dense  & 953k & 0.986 & 0.487 & 1.944 & 0.570 & 1.627 \\
-\midrule
-\multicolumn{7}{l}{Spearman over 7 rows: $\eta/L$ vs $r_2 = +0.96$ (MNIST), $+0.71$ (Fashion); consist.\ vs $r_2 = -0.31$, $0.00$.}\\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \paragraph{Capacity-matched CIFAR-10 dissection.} We repeat the test on CIFAR-10 with a controlled comparison along the shift-invariance axis at matched capacity. Four architectures share one channel schedule, hence an identical parameter count, and differ only in the shift-invariance operator: a \emph{standard} network (max-pooling, zero padding); an \emph{anti-aliased} network with blur-pooled downsampling \citep{zhang2019making}; an \emph{exact cyclic} network (circular padding, global pooling, no spatial subsampling) that is exactly invariant to integer circular shifts; and a \emph{shift-augmented} network, the standard architecture trained with random circular shifts so its invariance is learned rather than built in. We train three seeds at two widths and report clean accuracy, circular-shift consistency, the per-sample $\ell_2$ robust radius $r_2$ from the decoupled direction and norm (DDN) minimum-norm attack \citep{rony2019decoupling} (validated against the closed-form radius of a linear model to under one percent), and the active logit margin $M$ (the gap between the correct-class logit and the highest other logit), summarized by its mean $\eta=\mathbb{E}[M]$ and mean input-gradient norm $L=\mathbb{E}\|\nabla M\|_2$ (Table~\ref{tab:cifar}). The threat-matched ratio $\eta/L_q$, with $L_q=\mathbb{E}\|\nabla M\|_q$ (so the $\ell_2$ constant above is $L=L_2$), used under adversarial training takes $q$ the dual norm of the attack. Clean accuracy is comparable across arms, with the exactly invariant model slightly lower. AutoAttack \citep{croce2020reliable} at the standard CIFAR thresholds drives every model to zero robust accuracy, as expected for models that are not adversarially trained; this floor is the reason we use the per-sample radius as the comparable quantity. At smaller $\ell_2$ radii where AutoAttack is informative, the radius and AutoAttack agree: across arms the fraction of points with $r_2>\epsilon$ matches AutoAttack robust accuracy at $\epsilon\in\{0.05,0.10,0.15,0.25\}$ to a mean absolute gap of $0.014$ (maximum $0.025$), so the radius is not inflated by gradient masking.
 
 \begin{table}[h]\centering
@@ -803,6 +780,34 @@ Lemma~\ref{lem:rank} and Propositions~\ref{prop:rank}--\ref{prop:generic} are mo
 \end{figure}
 
 \paragraph{A practical reading: $\eta/L$ as an attack-free selection rule.} The dissection turns $\eta/L$ into a usable diagnostic for the common task of choosing which invariance operator to deploy for robustness. Computed from a trained model on clean inputs alone, as the mean active margin divided by the mean input-gradient norm, $\eta/L$ ranks the operators by their adversarial robust accuracy (Pearson $+0.92$ on the graded sweep, $+0.91$ on the ResNet backbone) without running any attack. We make this concrete as a selection rule. On each of five conditions (MNIST, Fashion-MNIST, and CIFAR-10 under $\ell_\infty$, CIFAR-10 under $\ell_2$, and a six-operator graded sweep), selecting the operator with the highest threat-matched $\eta/L$ picks the most robust operator in four conditions and the second best, within $0.3$ points, in the last: a mean AutoAttack regret of $0.06$ points against the oracle. Selecting by the highest shift-consistency instead picks a much worse operator, a mean regret of $8.8$ points of robust accuracy (up to $13$), because consistency is maximized by the exactly invariant operator, which is the least robust. Shift-consistency, the diagnostic the anti-aliasing literature foregrounds, is therefore the wrong signal for this choice. Clean accuracy is an equally good selector ($0.08$ points of regret), consistent with the margin being the common driver of \S\ref{sec:exp}; the operative point is the failure of consistency, not a margin of $\eta/L$ over clean accuracy. This is a selection rule, not a defense; whether $\eta/L$ can instead be a training objective is the question we turn to next.
+
+
+
+\section{Small-network dissection (MNIST, Fashion-MNIST)}\label{app:smallnet}
+These capacity-varying small-convolutional sweeps are supplementary to the capacity-matched CIFAR-10 and PreActResNet-18 dissections of the main text.
+
+\paragraph{Architectural dissection ($\eta/L$ predicts robustness; shift-consistency does not).} We train seven architectures (a fully connected baseline; a single convolution-plus-global-pooling shift-invariant model; multi-layer convolutions with max/average pooling and an optional dense layer), each with and without batch-normalization where applicable, on $16{,}000$ images for $25$ epochs, three seeds, on GPU, for both MNIST and Fashion-MNIST. As the dataset-comparable robustness measure we use the per-sample \emph{robust radius} $r_2$ (the smallest $\ell_2$-PGD perturbation that flips the label), of which $\eta/L$ is a lower bound; fixed-$\epsilon$ robust accuracy is misleading across datasets because of floor effects. Table~\ref{tab:diss} reports the MNIST per-model means. Across the seven configurations, $\eta/L$ predicts the robust radius with Spearman $\rho=+0.96$ on MNIST and $+0.71$ on Fashion-MNIST, whereas shift-consistency predicts it on neither ($\rho=-0.31$ and $0.00$). The single shift-invariant model has consistency $1.0$ yet the smallest robust radius, the sharpest illustration that consistency does not imply robustness. Batch-normalization raises clean accuracy and lowers fixed-$\epsilon$ robust accuracy in both the fully connected and convolutional pairs, consistent with \citet{galloway2019batchnorm}; under the per-sample robust radius, however, the change reverses sign and is small, which is precisely why we treat the radius, not fixed-$\epsilon$ accuracy, as the dataset-comparable measure.
+
+\begin{table}[h]\centering
+\caption{MNIST dissection (means over 3 seeds, $n{=}16{,}000$, 25 epochs). Primary metric: per-sample $\ell_2$ robust radius $r_2$ (smallest label-flipping $\ell_2$-PGD perturbation), of which $\eta/L$ is a lower bound. Fixed-$\epsilon$ robust accuracy (rob$_\epsilon$, $\ell_2$ at $\epsilon{=}1.5$) is shown for comparison.}
+\label{tab:diss}
+\footnotesize
+\begin{tabular}{lrccccc}
+\toprule
+model & params & clean & consist. & $r_2$ & rob$_\epsilon\,\ell_2$ & $\eta/L$ \\
+\midrule
+FC (depth 2)            & 269k & 0.971 & 0.281 & 0.938 & 0.060 & 0.592 \\
+FC (depth 2) + BN       & 270k & 0.973 & 0.292 & 0.962 & 0.043 & 0.668 \\
+conv d1 k5 GAP          & 4.6k & 0.569 & 1.000 & 0.457 & 0.047 & 0.376 \\
+conv d1 k5 GAP + BN     & 4.9k & 0.647 & 1.000 & 0.486 & 0.022 & 0.557 \\
+conv d2 k3 max          & 212k & 0.987 & 0.473 & 1.846 & 0.477 & 1.443 \\
+conv d2 k3 avg          & 212k & 0.984 & 0.475 & 1.658 & 0.399 & 1.537 \\
+conv d2 k3 max + dense  & 953k & 0.986 & 0.487 & 1.944 & 0.570 & 1.627 \\
+\midrule
+\multicolumn{7}{l}{Spearman over 7 rows: $\eta/L$ vs $r_2 = +0.96$ (MNIST), $+0.71$ (Fashion); consist.\ vs $r_2 = -0.31$, $0.00$.}\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 \end{document}
