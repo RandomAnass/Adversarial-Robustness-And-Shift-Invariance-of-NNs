@@ -101,11 +101,16 @@ def run_tower(name, imgs, labels, class_names, args, device):
         aa = A.run_autoattack(tower, xi, yi, eps, n_classes=len(class_names),
                               bs=args.attack_bs, device=device, square=False)
         res["S_apgd"][tag] = aa["robust_acc"]
-        # black-box Square on the same subset -> masking gap = S_square - S_apgd (>=0 if no masking)
-        sq = A.run_square_gap(tower, xi, yi, eps, bs=args.attack_bs, device=device,
+        # black-box Square on a capped subset (spot-check) -> masking gap = S_square - S_apgd.
+        # Square with N queries = N forward passes; cap images + queries to bound cost.
+        nsq = min(args.square_max_images, len(xi))
+        # recompute APGD S on the SAME square subset for a fair gap
+        aa_sub = A.run_autoattack(tower, xi[:nsq], yi[:nsq], eps, n_classes=len(class_names),
+                                  bs=args.attack_bs, device=device, square=False)
+        sq = A.run_square_gap(tower, xi[:nsq], yi[:nsq], eps, bs=args.attack_bs, device=device,
                               n_queries=args.square_queries)
         res["S_square"][tag] = sq
-        res["S_square_gap"][tag] = sq - aa["robust_acc"]
+        res["S_square_gap"][tag] = sq - aa_sub["robust_acc"]  # >=0 if no masking (APGD stronger)
         tk = _t(f"attacks eps={tag} (FGSM/PGD40/APGD/Square)", tk)
 
     # 6. per-image Linf robust radius via PGD bisection (for per-image Spearman)
@@ -168,7 +173,8 @@ def main():
                     default=[0.5/255, 1/255, 2/255, 3/255, 4/255, 6/255, 8/255])
     ap.add_argument("--radius_steps", type=int, default=25)
     ap.add_argument("--radius_max_images", type=int, default=400)
-    ap.add_argument("--square_queries", type=int, default=2000)
+    ap.add_argument("--square_queries", type=int, default=500)
+    ap.add_argument("--square_max_images", type=int, default=300)
     ap.add_argument("--tag", type=str, default="main")
     args = ap.parse_args()
 
