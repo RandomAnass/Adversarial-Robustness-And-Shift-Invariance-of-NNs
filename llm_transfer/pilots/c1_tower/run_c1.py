@@ -101,16 +101,19 @@ def run_tower(name, imgs, labels, class_names, args, device):
         aa = A.run_autoattack(tower, xi, yi, eps, n_classes=len(class_names),
                               bs=args.attack_bs, device=device, square=False)
         res["S_apgd"][tag] = aa["robust_acc"]
-        # black-box Square on a capped subset (spot-check) -> masking gap = S_square - S_apgd.
+        # black-box Square on a capped subset (spot-check) -> masking gap.
         # Square with N queries = N forward passes; cap images + queries to bound cost.
+        # No-masking => the black-box Square is NOT stronger than white-box APGD, i.e.
+        # S_square >= S_apgd (gap >= ~0). We compare Square (subset) to the full-subset APGD S;
+        # a materially lower Square robust acc than APGD would flag gradient masking.
         nsq = min(args.square_max_images, len(xi))
-        # recompute APGD S on the SAME square subset for a fair gap
-        aa_sub = A.run_autoattack(tower, xi[:nsq], yi[:nsq], eps, n_classes=len(class_names),
-                                  bs=args.attack_bs, device=device, square=False)
         sq = A.run_square_gap(tower, xi[:nsq], yi[:nsq], eps, bs=args.attack_bs, device=device,
                               n_queries=args.square_queries)
+        # APGD robust acc restricted to the same subset for a like-for-like gap
+        apgd_sub = A.robust_acc(tower, aa["xadv"][:nsq], yi[:nsq], device=device) \
+            if "xadv" in aa else res["S_apgd"][tag]
         res["S_square"][tag] = sq
-        res["S_square_gap"][tag] = sq - aa_sub["robust_acc"]  # >=0 if no masking (APGD stronger)
+        res["S_square_gap"][tag] = sq - apgd_sub  # >=0 (or ~0) if no masking (APGD stronger)
         tk = _t(f"attacks eps={tag} (FGSM/PGD40/APGD/Square)", tk)
 
     # 6. per-image Linf robust radius via PGD bisection (for per-image Spearman)
