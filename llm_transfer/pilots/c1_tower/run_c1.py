@@ -42,30 +42,40 @@ def build_tower(name, class_names, device):
     return towers.load_clip_tower(name, class_names, device)
 
 
+def _t(msg, t0):
+    print(f"[C1]   .. {msg}: {time.time()-t0:.0f}s", flush=True)
+    return time.time()
+
+
 def run_tower(name, imgs, labels, class_names, args, device):
     t0 = time.time()
     tower = build_tower(name, class_names, device)
     res = {"tower": name}
+    tk = _t("tower built", t0)
 
     # 1. clean accuracy
     pred = D.predict(tower, imgs, bs=args.bs, device=device)
     correct = (pred == labels)
     res["clean_acc"] = correct.float().mean().item()
     res["n_eval"] = int(len(labels))
+    tk = _t("clean acc", tk)
 
     # 2 + 3. diagnostics on the full eval set (margin/grad); eta,L over correct
     diag = D.margin_and_grad(tower, imgs, labels, q_list=(1, 2), bs=args.diag_bs,
                              device=device, correct_only=True)
     summ = D.eta_L_summary(diag, q_list=(1, 2))
     res.update({k: v for k, v in summ.items() if not k.startswith("_")})
+    tk = _t("margin+grad diagnostics", tk)
 
     # SC on the SAME correct subset (round2_C fix 5)
-    offsets = D.patch_grid_offsets(max_shift=args.max_shift, step=args.shift_step)
+    offsets = D.patch_grid_offsets(max_shift=args.max_shift, step=args.shift_step,
+                                   compact=args.sc_compact)
     sc = D.shift_consistency(tower, imgs, labels, offsets, bs=args.bs, device=device,
-                             base_correct_mask=diag["correct"])
+                             base_correct_mask=diag["correct"], max_images=args.sc_max_images)
     res["sc_pred"] = sc["sc_pred"]
     res["sc_cos"] = sc["sc_cos"]
     res["n_offsets"] = sc["n_offsets"]
+    tk = _t(f"SC ({sc['n_offsets']} offsets)", tk)
 
     # attack subset: correctly-classified images (standard robust-acc convention)
     ci = torch.where(correct)[0]
@@ -96,6 +106,7 @@ def run_tower(name, imgs, labels, class_names, args, device):
                               n_queries=args.square_queries)
         res["S_square"][tag] = sq
         res["S_square_gap"][tag] = sq - aa["robust_acc"]
+        tk = _t(f"attacks eps={tag} (FGSM/PGD40/APGD/Square)", tk)
 
     # 6. per-image Linf robust radius via PGD bisection (for per-image Spearman)
     if args.per_image_radius:
@@ -115,8 +126,15 @@ def run_tower(name, imgs, labels, class_names, args, device):
         per_image["ratio_l1"] = ratio1[sel].cpu()
         per_image["ratio_l2"] = ratio2[sel].cpu()
         per_image["margin"] = marg[sel].cpu()
-        per_image["sc_pred_per_image"] = sc["sc_pred_per_image"][
-            torch.tensor([pos[int(j)] for j in ci.tolist()])].cpu()
+        # SC per-image is defined only on the SC subset (positions within the correct set);
+        # map each attack image to its SC value if present, else NaN.
+        sc_pos = sc["sc_subset_pos"].tolist()  # positions within correct set
+        sc_val = sc["sc_pred_per_image"]       # aligned to sc_subset_pos order
+        sc_lookup = {int(p): float(sc_val[k]) for k, p in enumerate(sc_pos)}
+        sc_aligned = torch.tensor(
+            [sc_lookup.get(int(pos[int(j)]), float("nan")) for j in ci.tolist()])
+        per_image["sc_pred_per_image"] = sc_aligned
+        tk = _t("per-image robust radius", tk)
 
     torch.save(per_image, os.path.join(RESULTS, f"per_image_{name}_{args.tag}.pt"))
     res["seconds"] = time.time() - t0
@@ -132,7 +150,11 @@ def main():
     ap.add_argument("--n_attack", type=int, default=1000, help="correct imgs for attacks")
     ap.add_argument("--eps", type=float, nargs="+", default=[2/255, 4/255])
     ap.add_argument("--max_shift", type=int, default=8)
-    ap.add_argument("--shift_step", type=int, default=1)
+    ap.add_argument("--shift_step", type=int, default=2)
+    ap.add_argument("--sc_max_images", type=int, default=800,
+                    help="cap SC image count (SC is a mean; bounds O(n_off x N) cost)")
+    ap.add_argument("--sc_compact", action="store_true", default=True,
+                    help="use a representative ~12-offset phase set (bounds SC cost)")
     ap.add_argument("--bs", type=int, default=128)
     ap.add_argument("--diag_bs", type=int, default=48)
     ap.add_argument("--attack_bs", type=int, default=64)

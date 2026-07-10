@@ -100,55 +100,101 @@ def circular_shift(x, dy, dx):
 
 
 @torch.no_grad()
+def _encode_and_logits(tower, x):
+    """Single forward -> (normalized embedding, logits). For CLIP the logits are derived
+    from the embedding (no second forward); for the linear-probe tower we run the head."""
+    if hasattr(tower, "text_features"):  # ClipZeroShot
+        emb = F.normalize(tower.encode(x), dim=-1)
+        logits = tower.logit_scale * emb @ tower.text_features.t()
+        return emb, logits
+    if hasattr(tower, "head_w"):  # LinearProbeZeroShot
+        feats = tower.encode(x)
+        emb = F.normalize(feats, dim=-1)
+        logits = F.linear(feats, tower.head_w, tower.head_b)
+        return emb, logits
+    # fallback: two calls
+    return F.normalize(tower.encode(x), dim=-1), tower(x)
+
+
+@torch.no_grad()
 def shift_consistency(tower, images, labels, offsets, bs=128, device="cuda",
-                      base_correct_mask=None):
+                      base_correct_mask=None, max_images=None, seed=0):
     """SC = mean over images and shifts of 1[argmax f(S_s x) == argmax f(x)].
 
     Also pooled-embedding cosine-consistency: mean cos(emb(S_s x), emb(x)).
     Computed on the same correct-only subset when base_correct_mask is given
     (round2_C fix 5: SC on the same population as eta/L and S).
+    Single forward per shifted batch (embedding -> logits derived), halving cost.
+    SC is O(n_offsets x N x tower_forward); with max_images we cap N (SC is a mean, so a
+    fixed 800-1000 correct-image subset gives a tight per-tower estimate) to bound cost.
 
     offsets: list of (dy,dx) integer shifts (excluding (0,0)).
-    Returns dict: sc_pred (label-agreement), sc_cos (embedding cosine).
+    Returns dict: sc_pred (label-agreement), sc_cos (embedding cosine), and per-image
+    label-agreement on the SC subset PLUS the indices of that subset within the correct set.
     """
     tower.eval()
     if base_correct_mask is not None:
         idx = torch.where(base_correct_mask)[0]
         images = images[idx]
+    else:
+        idx = torch.arange(len(images))
+    # subsample SC images (deterministic) to bound cost; keep sc_subset_pos for alignment
+    if max_images is not None and len(images) > max_images:
+        g = torch.Generator().manual_seed(seed)
+        sub = torch.randperm(len(images), generator=g)[:max_images]
+        sub, _ = torch.sort(sub)
+        images = images[sub]
+        sc_subset_pos = sub  # positions within the correct set
+    else:
+        sc_subset_pos = torch.arange(len(images))
     N = len(images)
-    # reference predictions and embeddings
-    ref_pred = torch.empty(N, dtype=torch.long)
-    has_encode = hasattr(tower, "encode")
-    ref_emb = [] if has_encode else None
+    # Keep reference on GPU; accumulate on GPU (no per-iteration host syncs -> big speedup).
+    ref_pred = torch.empty(N, dtype=torch.long, device=device)
+    ref_emb_list = []
     for i in range(0, N, bs):
         xb = images[i:i + bs].to(device)
-        ref_pred[i:i + bs] = tower(xb).argmax(1).cpu()
-        if has_encode:
-            ref_emb.append(F.normalize(tower.encode(xb), dim=-1).cpu())
-    if has_encode:
-        ref_emb = torch.cat(ref_emb)
-    agree_sum = torch.zeros(N)
-    cos_sum = torch.zeros(N)
+        emb, lg = _encode_and_logits(tower, xb)
+        ref_pred[i:i + bs] = lg.argmax(1)
+        ref_emb_list.append(emb)
+    ref_emb = torch.cat(ref_emb_list)  # [N,d] on GPU
+    agree_sum = torch.zeros(N, device=device)
+    cos_sum = torch.zeros(N, device=device)
     for (dy, dx) in offsets:
         for i in range(0, N, bs):
             xb = images[i:i + bs].to(device)
             xs = circular_shift(xb, dy, dx)
-            ps = tower(xs).argmax(1).cpu()
-            agree_sum[i:i + bs] += (ps == ref_pred[i:i + bs]).float()
-            if has_encode:
-                es = F.normalize(tower.encode(xs), dim=-1).cpu()
-                cos_sum[i:i + bs] += (es * ref_emb[i:i + bs]).sum(1)
+            emb, lg = _encode_and_logits(tower, xs)
+            agree_sum[i:i + bs] += (lg.argmax(1) == ref_pred[i:i + bs]).float()
+            cos_sum[i:i + bs] += (emb * ref_emb[i:i + bs]).sum(1)
+    agree_sum = agree_sum.cpu()
+    cos_sum = cos_sum.cpu()
     n_off = len(offsets)
     sc_pred = (agree_sum / n_off).mean().item()
-    sc_cos = (cos_sum / n_off).mean().item() if has_encode else float("nan")
+    sc_cos = (cos_sum / n_off).mean().item()
     return {"sc_pred": sc_pred, "sc_cos": sc_cos,
             "sc_pred_per_image": (agree_sum / n_off),
+            "sc_subset_pos": sc_subset_pos,  # positions within the correct set
             "n_images": N, "n_offsets": n_off}
 
 
-def patch_grid_offsets(max_shift=8, step=1):
-    """Patch-grid phase sweep offsets: (dy,dx) for dy,dx in +-1..+-max_shift on axes and
-    a few diagonals, excluding (0,0). Integer circular shifts (paper's S_s)."""
+def patch_grid_offsets(max_shift=8, step=1, compact=False):
+    """Patch-grid phase sweep offsets: integer circular shifts S_s spanning the phase grid.
+
+    compact=True returns a representative ~10-offset set (axes + diagonals at a few
+    shift magnitudes spanning 1..max_shift, which covers within-patch and cross-patch
+    phase for stride-14/16 stems). SC is a mean over shifts, so a representative set
+    estimates it tightly at a fraction of the cost. compact=False sweeps every step.
+    """
+    if compact:
+        mags = sorted(set([1, 2, max(3, max_shift // 2), max_shift]))
+        offs = []
+        for d in mags:
+            offs += [(d, 0), (0, d)]
+        # a few diagonals at the extremes to capture 2D phase
+        offs += [(1, 1), (max_shift, max_shift), (max_shift, -max_shift), (-max_shift, max_shift)]
+        # dedup, drop (0,0)
+        offs = [o for o in dict.fromkeys(offs) if o != (0, 0)]
+        return offs
     offs = []
     for d in range(step, max_shift + 1, step):
         offs += [(d, 0), (-d, 0), (0, d), (0, -d), (d, d), (-d, -d)]

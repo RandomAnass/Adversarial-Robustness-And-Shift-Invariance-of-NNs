@@ -160,8 +160,11 @@ def main():
                  "spearman_ratioL1_radius_ci95": sp_r1_ci,
                  "frac_flipped": float(pi["flipped"].float().mean())}
         if scpi is not None:
-            entry["spearman_SC_radius"] = spearman(scpi, rad)
-            entry["spearman_SC_radius_ci95"] = boot_ci(spearman, scpi, rad)
+            m = np.isfinite(scpi) & np.isfinite(rad)
+            if m.sum() >= 10:
+                entry["spearman_SC_radius"] = spearman(scpi[m], rad[m])
+                entry["spearman_SC_radius_ci95"] = boot_ci(spearman, scpi[m], rad[m])
+                entry["n_sc_radius"] = int(m.sum())
         out["per_image"][t] = entry
 
     # ---- gradient-masking verdict ----
