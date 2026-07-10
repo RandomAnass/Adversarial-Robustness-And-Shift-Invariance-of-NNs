@@ -82,8 +82,18 @@ def main():
     }
     S["judge"] = jc
 
-    # KILL
-    S["KILL"] = a.get("KILL", {})
+    # KILL (combine the analysis KILL with the gauge result: the ratio's value survives if EITHER
+    # it out-predicts M OR it is gauge-stable where M is not)
+    kill = dict(a.get("KILL", {}))
+    h = g.get("headline", {})
+    m_gauge_range = max(h.get("fixedacc_M_range_scale", 0) or 0, h.get("fixedacc_M_range_bias", 0) or 0)
+    r_gauge_range = max(h.get("fixedacc_R2_range_scale", 0) or 0, h.get("fixedacc_R2_range_bias", 0) or 0)
+    kill["M_gauge_fixedacc_range"] = m_gauge_range
+    kill["R2_gauge_fixedacc_range"] = r_gauge_range
+    kill["M_is_gauge_stable"] = bool(m_gauge_range < 0.05)
+    # ratio has NO added value only if M matches its AUROC AND M is itself gauge-stable
+    kill["ratio_killed"] = bool(kill.get("ratio_no_added_value_vs_M_auroc", False) and kill["M_is_gauge_stable"])
+    S["KILL"] = kill
 
     json.dump(S, open(os.path.join(RES, "SUMMARY.json"), "w"), indent=2, default=str)
 
@@ -98,12 +108,15 @@ def main():
     print(f"  AUROC(M   vs label)       = {ci(a.get('R1_auroc_M'))}")
     print(f"  PRIMARY partial Spearman(R_2, r_2 | clean-refuse, M) = "
           f"{a.get('R1_partial_spearman_R2_r2_given_cleanrefuse_M')}  CI {ci(a.get('R1_partial_ci'))}")
-    print(f"\n--- R2 GAUGE (raw M ranking moves under gauge, R_q invariant?) ---")
+    print(f"  JUDGE-FREE Spearman(R_2, attack-loss@refeps) = {ci(a.get('R1_spearman_R2_lossref_JUDGEFREE'))}")
+    print(f"  JUDGE-FREE partial (| clean-refuse, M)       = "
+          f"{a.get('R1_partial_R2_lossref_given_cleanrefuse_M_JUDGEFREE')}")
+    print(f"\n--- R2 GAUGE (raw M's fixed-threshold accuracy moves under gauge, R_q's is stable?) ---")
     h = g.get("headline", {})
-    print(f"  AUROC range of M    across scale c = {h.get('auroc_M_range_scale')}")
-    print(f"  AUROC range of R_2  across scale c = {h.get('auroc_R2_range_scale')}")
-    print(f"  AUROC range of M    across bias  b = {h.get('auroc_M_range_bias')}")
-    print(f"  AUROC range of R_2  across bias  b = {h.get('auroc_R2_range_bias')}")
+    print(f"  fixed-acc range of M    across scale c = {h.get('fixedacc_M_range_scale')}")
+    print(f"  fixed-acc range of R_2  across scale c = {h.get('fixedacc_R2_range_scale')}")
+    print(f"  fixed-acc range of M    across bias  b = {h.get('fixedacc_M_range_bias')}")
+    print(f"  fixed-acc range of R_2  across bias  b = {h.get('fixedacc_R2_range_bias')}")
     print(f"\n--- R3 CONSISTENCY NULL (does paraphrase-consistency predict?) ---")
     print(f"  Spearman(C, r_2)          = {ci(a.get('R3_spearman_C_r2'))}")
     print(f"  AUROC(C vs label)         = {ci(a.get('R3_auroc_C'))}")

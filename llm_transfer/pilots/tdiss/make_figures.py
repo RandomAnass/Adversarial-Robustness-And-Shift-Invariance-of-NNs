@@ -43,16 +43,16 @@ def main():
     if g:
         fig, ax = plt.subplots(1, 2, figsize=(11, 4))
         scales = sorted(g["scale_sweep"].keys(), key=float)
-        aM = [g["scale_sweep"][c]["auroc_M"] for c in scales]
-        aR = [g["scale_sweep"][c]["auroc_R2"] for c in scales]
+        aM = [g["scale_sweep"][c]["fixedacc_M"] for c in scales]
+        aR = [g["scale_sweep"][c]["fixedacc_R2"] for c in scales]
         ax[0].plot([float(c) for c in scales], aM, "o-", label="raw M")
         ax[0].plot([float(c) for c in scales], aR, "s-", label="ratio R_2")
         ax[0].set_xscale("log"); ax[0].set_xlabel("logit scale c (temperature)")
-        ax[0].set_ylabel("AUROC (vulnerability)"); ax[0].set_title("Gauge: scale sweep")
+        ax[0].set_ylabel("fixed-threshold balanced acc"); ax[0].set_title("Gauge: scale sweep")
         ax[0].legend(); ax[0].axhline(0.5, ls=":", c="gray")
         biases = sorted(g["bias_sweep"].keys(), key=float)
-        bM = [g["bias_sweep"][b]["auroc_M"] for b in biases]
-        bR = [g["bias_sweep"][b]["auroc_R2"] for b in biases]
+        bM = [g["bias_sweep"][b]["fixedacc_M"] for b in biases]
+        bR = [g["bias_sweep"][b]["fixedacc_R2"] for b in biases]
         ax[1].plot([float(b) for b in biases], bM, "o-", label="raw M")
         ax[1].plot([float(b) for b in biases], bR, "s-", label="ratio R_2")
         ax[1].set_xlabel("refusal-token logit bias b"); ax[1].set_ylabel("AUROC")
