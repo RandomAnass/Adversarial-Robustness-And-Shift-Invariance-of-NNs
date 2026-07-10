@@ -1,0 +1,596 @@
+%==============================================================================
+%  Pitch deck: "When Does Shift-Invariance Permit Adversarial Robustness?"
+%  Self-contained Beamer. Compiles with plain pdflatex (no external fonts,
+%  no metropolis package). A clean, modern flat theme is defined inline.
+%==============================================================================
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+%------------------------------------------------------------------ palette ----
+\definecolor{ink}{HTML}{1F2933}       % near-black text
+\definecolor{slate}{HTML}{52606D}     % muted secondary
+\definecolor{accent}{HTML}{2B6CB0}    % blue accent (structure / eta/L)
+\definecolor{warm}{HTML}{C05621}      % orange accent (the puzzle / warning)
+\definecolor{good}{HTML}{2F855A}      % green (result holds)
+\definecolor{bad}{HTML}{9B2C2C}       % red (consistency fails)
+\definecolor{paper}{HTML}{FBFBF9}     % off-white background
+\definecolor{rulec}{HTML}{D9DEE3}
+
+%------------------------------------------------------------------ theme -------
+\setbeamercolor{normal text}{fg=ink,bg=paper}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{frametitle}{fg=ink,bg=paper}
+\setbeamercolor{title}{fg=ink}
+\setbeamercolor{itemize item}{fg=accent}
+\setbeamercolor{itemize subitem}{fg=slate}
+\setbeamercolor{block title}{fg=paper,bg=accent}
+\setbeamercolor{block body}{fg=ink,bg=accent!7}
+\setbeamercolor{alerted text}{fg=warm}
+
+\setbeamerfont{frametitle}{series=\bfseries,size=\Large}
+\setbeamerfont{title}{series=\bfseries,size=\huge}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\small\raise0.2ex\hbox{\textbullet}}
+\setbeamertemplate{itemize subitem}{\footnotesize\raise0.15ex\hbox{--}}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+
+% frame title: title on top, a thin rule under it
+\setbeamertemplate{frametitle}{%
+  \vspace{0.6em}%
+  \begin{beamercolorbox}[wd=\paperwidth,leftskip=0.9em,rightskip=0.9em]{frametitle}%
+    \usebeamerfont{frametitle}\insertframetitle%
+    \ifx\insertframesubtitle\empty\else
+      \\[0.1em]{\small\normalfont\color{slate}\insertframesubtitle}%
+    \fi
+    \vspace{0.15em}%
+    {\color{rulec}\hrule height 1pt}%
+  \end{beamercolorbox}%
+}
+
+% footline: short title | author | frame number
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.2ex,dp=1ex,leftskip=0.9em,rightskip=0.9em]{}%
+    {\color{slate}\scriptsize $\eta/L$: threat-matched margin-to-Lipschitz
+    \hfill Al Ammiri (TUM)\hfill \insertframenumber}%
+  \end{beamercolorbox}}%
+}
+
+% handy macros
+\newcommand{\etaL}{\ensuremath{\eta/L}}
+\newcommand{\good}[1]{{\color{good}#1}}
+\newcommand{\bad}[1]{{\color{bad}#1}}
+\newcommand{\acc}[1]{{\color{accent}#1}}
+\newcommand{\warmt}[1]{{\color{warm}#1}}
+\newcommand{\keyword}[1]{{\color{accent}\bfseries #1}}
+\newcommand{\lead}[1]{{\Large #1}}
+
+% a small "takeaway strip" at bottom of content slides
+\newcommand{\takeaway}[1]{%
+  \vfill
+  \begin{beamercolorbox}[wd=\textwidth,sep=5pt,rounded=true]{block body}%
+    \footnotesize\textbf{\color{accent}Takeaway.}\ #1%
+  \end{beamercolorbox}}
+
+%------------------------------------------------------------------ title -------
+\title{When Does Shift-Invariance Permit\\Adversarial Robustness?}
+\subtitle{A threat-matched margin-to-Lipschitz diagnostic \,$\eta/L$}
+\author{Anass Al Ammiri}
+\institute{Technical University of Munich}
+\date{}
+
+\begin{document}
+
+%==============================================================================
+% 1. TITLE
+%==============================================================================
+{\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \vspace{0.6em}
+  \begin{center}
+    {\color{slate}\small\scshape Two contradicting literatures, one scalar}\\[1.2em]
+    {\usebeamerfont{title}\color{ink} When Does Shift-Invariance\\[0.15em] Permit Adversarial Robustness?}\\[0.9em]
+    {\large\color{accent} A threat-matched margin-to-Lipschitz diagnostic $\;\eta/L$}\\[1.6em]
+    {\color{rulec}\rule{0.5\textwidth}{1pt}}\\[1.2em]
+    {\large Anass Al Ammiri}\\[0.3em]
+    {\color{slate} Technical University of Munich}
+  \end{center}
+  \vfill
+  \begin{center}\small\color{slate}
+    \emph{Thesis:} the ``invariance hurts robustness'' and ``invariance helps it'' claims are
+    two regimes of one gauge-free, threat-matched ratio $\eta/L$; the field's invariance metric does not
+    predict robustness, this ratio does, and the ``helps'' claims are weak-attack artifacts.
+  \end{center}
+\end{frame}}
+
+%==============================================================================
+% 2. THE PUZZLE
+%==============================================================================
+\begin{frame}{The puzzle: same word, opposite verdicts}{Does making a CNN more shift-invariant help or hurt adversarial robustness?}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\warmt{``Invariance HURTS''}}
+        \small
+        \textbf{Ge et al.\ 2021.} A fully shift-invariant classifier can be far
+        \emph{less} robust than a plain one. On a one-pixel problem the achievable
+        margin collapses from a constant to $\mathcal{O}(1/\sqrt{d})$.\\[0.4em]
+        Kamath 2021: a provable spatial-vs-adversarial trade-off.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\good{``Invariance HELPS''}}
+        \small
+        \textbf{Anti-aliasing / TIPS / Wang 2025.} Reducing aliasing, learned
+        translation-invariant pooling, and rotation/scale equivariance are
+        \emph{reported to improve} adversarial robustness, argued through an
+        orbit-invariant Lipschitz bound.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.3em}
+  \begin{center}\footnotesize\color{slate}
+    ``A contradiction in the literature is a flashing sign that some shared assumption is wrong,
+    and the assumption is almost always a word doing too much work. Here the overloaded word is
+    \warmt{\emph{invariance}}.''
+  \end{center}
+  \takeaway{These are not all wrong. They measure different regimes of the \emph{same} underlying quantity. We put them on one axis.}
+\end{frame}
+
+%==============================================================================
+% 3. WHY INVARIANCE CAN DESTROY SIGNAL (intuition)
+%==============================================================================
+\begin{frame}{Why invariance can quietly destroy the signal}{The linear case is brutally clean}
+  \vspace{0.2em}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \small
+      A shift-invariant \emph{linear} classifier must answer the same for a signal
+      and every shift of it. That forces its weights onto the shift group's fixed subspace:
+      \begin{itemize}\itemsep2pt
+        \item ``The \keyword{only} linear shift-invariant feature is the
+        \keyword{mean}.'' For images: a linear invariant sees nothing but the
+        \emph{average colour}.
+        \item On Ge's ``black vs.\ white pixel'', it keeps only the DC component;
+        the margin collapses from a constant to $2/\sqrt{d}$ ($\sim$$28\times$ at $d{=}784$).
+        \item \keyword{Position lives entirely in the phase}: the power spectrum
+        (magnitude only) is \emph{blind} to location, so even it cannot separate $\pm e_j$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.92,>=Latex]
+        % two class hulls in full space
+        \fill[good!25] (0.2,2.3) ellipse (0.55 and 0.35);
+        \fill[bad!25]  (2.4,1.0) ellipse (0.55 and 0.35);
+        \node[good,font=\scriptsize] at (0.2,2.75) {class $+$};
+        \node[bad,font=\scriptsize]  at (2.4,0.55) {class $-$};
+        % invariant subspace line (DC line)
+        \draw[accent,thick,-] (-0.3,-0.3) -- (2.9,2.9) node[right,font=\scriptsize,accent] {$V_{\mathrm{inv}}$ (DC line)};
+        % projections onto line
+        \draw[dashed,slate] (0.2,2.3) -- (1.25,1.25);
+        \draw[dashed,slate] (2.4,1.0) -- (1.7,1.7);
+        \fill[good] (1.25,1.25) circle (1.6pt);
+        \fill[bad]  (1.7,1.7) circle (1.6pt);
+        % overlap bracket
+        \draw[<->,warm,thick] (1.25,1.25) -- (1.7,1.7);
+        \node[warm,font=\scriptsize,rotate=45,anchor=south] at (1.47,1.47) {tiny $\gamma_{\mathrm{inv}}$};
+        \node[font=\scriptsize,slate,align=center] at (1.5,-0.35)
+          {classes are well separated in full space,\\ but nearly overlap once projected};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \takeaway{Invariance keeps only the signal that survives projection onto the invariant subspace; if little survives, robustness must trade off.}
+\end{frame}
+
+%==============================================================================
+% 4. THE ONE IDEA: eta/L
+%==============================================================================
+\begin{frame}{The one idea: a margin-to-Lipschitz ratio \etaL}{Margin that survives the invariance, over its sensitivity to the attack}
+  \vspace{0.4em}
+  \begin{center}
+    \begin{beamercolorbox}[wd=0.78\textwidth,sep=5pt,rounded=true,center]{block body}
+      \normalsize
+      $\displaystyle
+        r_2 \;\ge\; \frac{\eta}{L}
+        \;=\;
+        \frac{\overbrace{\eta}^{\text{\small margin that survives invariance}}}
+             {\underbrace{L}_{\text{\small its sensitivity to the attack}}}$
+    \end{beamercolorbox}
+  \end{center}
+  \vspace{0.6em}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \small
+      \keyword{The certificate.} A model is certifiably safe over a ball when it is
+      \emph{decisive} (big margin $\eta$) \emph{and gentle} (small Lipschitz $L$).
+      Robustness attaches to the \emph{ratio}, not to the margin or Lipschitz term alone.
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \small
+      \keyword{One axis for both camps.}
+      \begin{itemize}\itemsep2pt
+        \item \good{Large \etaL:} invariance and robustness \emph{coexist}.
+        \item \bad{Small surviving margin:} they \emph{trade off}.
+        \item Ge / Kamath = the small-\etaL{} corner.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%==============================================================================
+% 5. THE TWO PROPERTIES THAT MAKE IT WORK
+%==============================================================================
+\begin{frame}{Two properties make \etaL{} the right scalar}{Gauge-free and threat-matched}
+  \vspace{0.4em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\acc{1. Gauge-free (scale-invariant)}}
+        \small
+        Rescale the logits $f \mapsto c\,f$: both $\eta$ and $L$ scale by $c$, so
+        \etaL{} is unchanged.\\[0.4em]
+        The margin and the Lipschitz constant are each \emph{gauge-dependent}, so
+        ``robustness improved because the margin grew'' is only well-posed once a
+        gauge is fixed. The \emph{ratio} is the honest, gauge-free quantity.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\acc{2. Threat-matched}}
+        \small
+        An attack in norm $\ell_p$ is resisted by sensitivity in the \emph{dual}
+        norm $\ell_q$.\\[0.4em]
+        So we always match the Lipschitz term to the attack:
+        $\;L_q=\mathbb{E}\|\nabla M\|_q$.
+        For an $\ell_\infty$ attack, use the $\ell_1$ gradient norm.
+        Get this wrong and the ratio can even \emph{anti}-predict.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.3em}
+  \begin{center}\small\color{slate}
+    Read it off a trained model on clean inputs: \; $\eta=\mathbb{E}[\text{logit margin}]$, \quad
+    $L_q=\mathbb{E}\|\nabla(\text{margin})\|_q$.
+  \end{center}
+  \takeaway{One organizing principle: invariance changes robustness \emph{only} through \etaL, and the attack's norm decides which Lipschitz constant counts.}
+\end{frame}
+
+%==============================================================================
+% 6. THEORY BLOCK -- concept figure
+%==============================================================================
+\begin{frame}{Structural theory, in one picture}{Invariant margin = separation of the data projected onto the invariant subspace}
+  \vspace{0.4em}
+  \begin{center}
+    \includegraphics[width=0.82\linewidth]{../report/figures/concept.pdf}
+  \end{center}
+  \vspace{0.4em}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \footnotesize
+      \textbf{(a)} An invariant classifier sees the data only through its projection
+      onto $V_{\mathrm{inv}}$. What separation remains is the invariant margin
+      $\gamma_{\mathrm{inv}}$; signal in the orthogonal (AC) subspace is invisible.
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \footnotesize
+      \textbf{(b)} A surviving margin $\eta$ certifies $r_2\ge \eta/L$. Invariance helps
+      robustness \emph{only} when the discriminative signal survives the projection with
+      positive margin.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%==============================================================================
+% 7. THEORY BLOCK -- three structural results
+%==============================================================================
+\begin{frame}{Three structural results behind \etaL}{}
+  \vspace{0.3em}
+  \begin{block}{\acc{Exact invariant margin (Theorem)}}
+    \small
+    The invariant linear max-margin \emph{equals} the separation of the DC-projected data,
+    $\;\gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}\!\big(\mathrm{conv}\,\Pi_{\mathrm{inv}}X_+,\ \mathrm{conv}\,\Pi_{\mathrm{inv}}X_-\big)$.
+    Recovers Ge's $1/\sqrt d$ collapse as a special case; holds for any finite dataset and any finite symmetry group.
+  \end{block}
+  \begin{block}{\acc{A nonlinear escape (Lemma)}}
+    \small
+    A convolution + quadratic activation + global pooling computes the \emph{power spectrum}
+    $\Phi_w(x)=\tfrac1d\sum_k|\hat w_k|^2|\hat x_k|^2$: a shift-invariant nonlinear feature that
+    can separate data linear invariance cannot. Invariance can help \emph{through the right nonlinear feature}.
+  \end{block}
+  \begin{block}{\acc{Two-sided bracket (Proposition)}}
+    \small
+    Under a reachability condition the one-sided certificate completes to
+    $\;\eta/L\le r_2\le \eta/\alpha$, with $\kappa=L/\alpha$ (exact, $\kappa{=}1$, for linear invariants).
+    So \etaL{} determines the robust radius up to a condition number $\kappa$.
+  \end{block}
+\end{frame}
+
+%==============================================================================
+% 8. THEORY BLOCK -- not a trainable target
+%==============================================================================
+\begin{frame}{\etaL{} is a diagnostic, \emph{not} a trainable target}{The scale-invariance that makes it honest also makes it untrainable}
+  \vspace{0.4em}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \small
+      Because \etaL{} is scale-invariant, maximizing it directly is ill-posed:
+      the global optimizer is the \bad{constant classifier} ($\nabla M\equiv 0$),
+      which classifies at chance.
+      \medskip
+
+      An exact identity (Euler) ties the margin gradient to the margin itself:
+      $\|\nabla M\|\ge M/\|x\|$. Lowering the gradient drags the margin down with it.
+      \medskip
+
+      \keyword{Four} first-order attempts to raise \etaL{} (isotropic / anisotropic
+      gradient penalties, ratio maximization, directional penalty) all \bad{collapse the
+      margin} and leave robustness flat or worse.
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.95,>=Latex]
+        \draw[->,slate] (0,0) -- (3.4,0) node[right,font=\scriptsize,black] {penalty strength};
+        \draw[->,slate] (0,0) -- (0,2.7);
+        % eta/L rises
+        \draw[accent,very thick] (0,0.5) .. controls (1.6,1.6) and (2.4,2.1) .. (3.2,2.35)
+          node[right,font=\scriptsize,accent] {\;$\eta/L$};
+        % margin falls
+        \draw[bad,very thick] (0,2.2) .. controls (1.4,1.1) and (2.2,0.55) .. (3.2,0.35)
+          node[right,font=\scriptsize,bad] {\;$\eta$};
+        % robustness flat then down
+        \draw[good,thick,dashed] (0,1.3) .. controls (1.6,1.28) and (2.3,1.15) .. (3.2,0.9)
+          node[right,font=\scriptsize,good] {\;robust acc};
+        \node[font=\scriptsize,slate,align=center] at (1.7,-0.55)
+          {diagnostic moves,\\ robustness does not};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \takeaway{You can \emph{read} \etaL{} off a model to rank it; you cannot \emph{optimize} it into robustness.}
+\end{frame}
+
+%==============================================================================
+% 9. EMPIRICAL -- the dissociation (headline)
+%==============================================================================
+\begin{frame}{Main empirical result: the dissociation}{The field's invariance metric does not predict robustness; \etaL{} does}
+  \vspace{0.4em}
+  \begin{center}
+    \includegraphics[width=0.66\linewidth]{../report/figures/cifar_at_predict.pdf}
+  \end{center}
+  \vspace{0.1em}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \footnotesize \good{Left.} Threat-matched $\eta/\|\nabla M\|_1$ tracks AutoAttack robust
+      accuracy on adversarially trained CIFAR-10 (\good{Pearson $+0.88$}).
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \footnotesize \bad{Right.} Shift-consistency \bad{anti}-predicts it (\bad{$-0.88$}). The
+      exactly invariant model (red) has consistency $1.0$ and the \emph{lowest} robust accuracy.
+    \end{column}
+  \end{columns}
+  \takeaway{Perfect shift-consistency, worst robustness. Consistency is the \emph{wrong} axis; the threat-matched ratio is the right one.}
+\end{frame}
+
+%==============================================================================
+% 10. EMPIRICAL -- generality
+%==============================================================================
+\begin{frame}{The dissociation is not a one-off}{Same two laws across datasets, threat models, and a ResNet backbone}
+  \vspace{0.3em}
+  \begin{center}
+  \small
+  \begin{tabular}{llcc}
+    \toprule
+    condition & training / threat & \bad{consist.\ vs rob.} & \good{matched \etaL{} vs rob.}\\
+    \midrule
+    CIFAR-10 dissection      & standard, $r_2$       & \bad{$-0.33$} & \good{$+0.998$}\\
+    CIFAR-10 dissection      & PGD-AT, $\ell_\infty$ & \bad{$-0.88$} & \good{$+0.88$}\\
+    CIFAR-10 dissection      & PGD-AT, $\ell_2$      & \bad{$-0.81$} & \good{$+0.88$}\\
+    MNIST dissection         & PGD-AT, $\ell_\infty$ & \bad{$-0.44$} & \good{$+0.92$}\\
+    Fashion-MNIST dissection & PGD-AT, $\ell_\infty$ & \bad{$-0.92$} & \good{$+0.71$}\\
+    ResNet-18 (with TIPS)    & PGD-AT, $\ell_\infty$ & \bad{$-0.79$} & \good{$+0.91$}\\
+    ImageNet-100             & Fast-AT, $\ell_\infty$& \bad{$-0.87$} & \good{$+0.90$}\\
+    diffusion \emph{data} axis & PGD-AT, $\ell_\infty$ & near-const & \good{$+0.85$}\\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{0.2em}
+  \begin{center}\small\color{slate}
+    Consistency: uninformative to anti-predictive. \; Threat-matched \etaL: predicts throughout.\\
+    ImageNet-100: clean accuracy is \emph{flat} across arms, so the deficit is margin geometry, not underfitting.
+  \end{center}
+\end{frame}
+
+%==============================================================================
+% 11. EMPIRICAL -- the killer result: weak-attack artifact
+%==============================================================================
+\begin{frame}{The strongest result: ``invariance helps'' is a weak-attack artifact}{We retrained the contrary papers' own models under their own recipe}
+  \vspace{0.3em}
+  \begin{center}
+  \small
+  \begin{tabular}{lccc@{\hskip 1.4em}cc}
+    \toprule
+    & & \multicolumn{2}{c}{\warmt{weak attack}} & \multicolumn{2}{c}{\good{strong attack}}\\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}
+    arm (standard-trained) & consist. & FGSM$_1$ & FGSM$_2$ & AA$_2$ & AA$_4$\\
+    \midrule
+    standard              & 0.965 & 0.477 & 0.244 & 0.006 & 0.000\\
+    anti-aliased          & 0.978 & 0.472 & 0.262 & 0.002 & 0.000\\
+    \bad{exact invariant (APS)} & \bad{1.000} & \warmt{0.497} & \warmt{0.277} & \good{0.004} & \good{0.000}\\
+    shift-augmented       & 0.973 & \warmt{0.532} & \warmt{0.315} & \good{0.004} & \good{0.000}\\
+    TIPS + aux losses     & 0.973 & \warmt{0.493} & 0.300 & 0.004 & 0.000\\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{0.2em}
+  \begin{itemize}\footnotesize\itemsep2pt
+    \item \warmt{Under FGSM} the ``invariance helps'' ordering \emph{does} appear (invariant arms above the baseline).
+    \item \good{Under AutoAttack} every arm collapses to $\le 0.006$ at $\varepsilon=2/255$ --- there is no robustness left to order.
+    \item Same for Wang 2025's rotation-equivariant net: FGSM $28.5\%$ at their headline budget, but $0.1\%$ under threat-matched AutoAttack.
+    \item[$\Rightarrow$] \textbf{\color{accent}The ``invariance helps'' correlation lives only under weak attacks on undefended models; it vanishes when the attack converges.}
+  \end{itemize}
+\end{frame}
+
+%==============================================================================
+% 12. EMPIRICAL -- graded control (invariance CAN help, honestly)
+%==============================================================================
+\begin{frame}{Honest scope: invariance \emph{can} help, when it does not cost margin}{A graded anti-aliasing control at matched clean accuracy}
+  \vspace{0.4em}
+  \begin{center}
+    \includegraphics[width=0.62\linewidth]{../report/figures/graded_antialias.pdf}
+  \end{center}
+  \vspace{0.1em}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \footnotesize \good{Left.} Under adversarial training, graded blur-pooling raises robust
+      accuracy at matched clean accuracy, and \etaL{} orders all six arms (\good{$+0.92$}):
+      invariance buys robustness \emph{through the margin}.
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \footnotesize \bad{Right.} Consistency is non-monotone: flat across the anti-aliasing family,
+      then jumps to $1.0$ at the exact-cyclic arm, which is the \emph{least} robust.
+    \end{column}
+  \end{columns}
+  \takeaway{We do not claim invariance always hurts. \etaL, not consistency, tells you \emph{which} invariance helps.}
+\end{frame}
+
+%==============================================================================
+% 13. WHAT IT MEANS
+%==============================================================================
+\begin{frame}{What it means}{}
+  \vspace{0.5em}
+  \begin{itemize}
+    \item[\acc{1.}] \keyword{One axis unifies a split field.} ``Invariance hurts'' and
+    ``invariance helps'' are the small- and large-\etaL{} regimes of one gauge-free,
+    threat-matched ratio.
+    \medskip
+    \item[\acc{2.}] \keyword{Stop measuring shift-consistency for robustness.} It does not
+    order adversarial robustness and \emph{anti}-predicts it under adversarial training.
+    As an attack-free selection rule it costs $\sim$$8.8$ pts of robust accuracy vs.\ the oracle;
+    picking by \etaL{} costs $0.06$.
+    \medskip
+    \item[\acc{3.}] \keyword{Distrust ``invariance helps'' claims measured under weak attacks.}
+    The effect is an FGSM artifact; it vanishes under AutoAttack and under adversarial training.
+    \medskip
+    \item[\acc{4.}] \keyword{\etaL{} is a diagnostic, not a defense.} Read it to rank operators;
+    do not try to optimize it --- that collapses the margin.
+  \end{itemize}
+  \vspace{0.4em}
+  \begin{center}\small\color{slate}
+    Honest scope: \etaL{} is a lower-bound certificate (no universal converse), predicts \emph{within}
+    an intervention axis, and the headline is the dissociation, not the near-perfect \etaL--radius fit
+    (that part is partly definitional).
+  \end{center}
+\end{frame}
+
+%==============================================================================
+% SECTION DIVIDER: how to pitch
+%==============================================================================
+{\setbeamercolor{normal text}{fg=paper,bg=accent}
+\setbeamertemplate{footline}{}
+\usebeamercolor[fg]{normal text}
+\begin{frame}[plain]
+  \begin{center}
+    \vfill
+    {\color{paper}\Huge\bfseries How to pitch this}\\[0.6em]
+    {\color{paper!85}\large Everything a student needs to give the talk cold}
+    \vfill
+  \end{center}
+\end{frame}}
+
+%==============================================================================
+% 14. PITCH -- thesis + 3-beat narrative
+%==============================================================================
+\begin{frame}{Pitch kit (1/3): the thesis and the 3-beat story}{}
+  \vspace{0.3em}
+  \begin{block}{The one-sentence thesis}
+    Two literatures fight over whether shift-invariance helps or hurts adversarial robustness;
+    they are two regimes of one \emph{gauge-free, threat-matched} margin-to-Lipschitz ratio
+    \etaL, the field's invariance metric does not predict robustness while \etaL{} does, and the
+    ``invariance helps'' claims are weak-attack artifacts.
+  \end{block}
+  \vspace{0.2em}
+  \textbf{The 3-beat narrative:}
+  \begin{itemize}
+    \item[\acc{Beat 1.}] \keyword{Tension.} Same word, opposite verdicts. Ge: invariance hurts.
+    Anti-aliasing / TIPS / Wang: invariance helps. Nobody put them on one axis.
+    \item[\acc{Beat 2.}] \keyword{Resolution.} One scalar \etaL{} = margin that survives the invariance,
+    over its sensitivity in the attack's dual norm. Large ratio $\Rightarrow$ they coexist; small
+    surviving margin $\Rightarrow$ forced trade-off.
+    \item[\acc{Beat 3.}] \keyword{Payoff.} Consistency \emph{anti}-predicts robustness under adversarial
+    training; \etaL{} predicts it across datasets/threats/backbones; and the ``helps'' result is an
+    FGSM artifact that dies under AutoAttack.
+  \end{itemize}
+\end{frame}
+
+%==============================================================================
+% 15. PITCH -- analogies + killer result
+%==============================================================================
+\begin{frame}{Pitch kit (2/3): two analogies + the killer result}{}
+  \vspace{0.3em}
+  \textbf{Two analogies that make it click:}
+  \begin{itemize}
+    \item \keyword{``Average colour.''} A linear invariant of an image can see nothing but its
+    \emph{average colour} --- everything about \emph{where} things are is thrown away. That is why
+    forcing invariance can collapse the usable margin (Ge's one-pixel example: margin drops to $2/\sqrt d$).
+    \item \keyword{``Decisive and gentle.''} A model is certifiably safe when it is \emph{decisive}
+    (big margin) \emph{and gentle} (small Lipschitz). \etaL{} is exactly ``decisiveness per unit
+    sensitivity'' --- and sensitivity must be measured in the attack's own (dual) norm.
+  \end{itemize}
+  \vspace{0.4em}
+  \begin{block}{The single result to lead with}
+    Retrain the ``invariance helps'' models under their own recipe: the exactly invariant arm has
+    \emph{perfect} shift-consistency and looks best under FGSM (0.497 vs.\ 0.477), yet under
+    AutoAttack \emph{every} arm collapses to $\le 0.006$. The advantage was a weak-attack artifact.
+    Under real (adversarial-training) robustness, consistency $-0.88$ vs.\ \etaL{} $+0.88$.
+  \end{block}
+\end{frame}
+
+%==============================================================================
+% 16. PITCH -- likely questions
+%==============================================================================
+\begin{frame}{Pitch kit (3/3): three questions you \emph{will} get, with answers}{}
+  \vspace{0.3em}
+  \begin{itemize}\small
+    \item[\acc{Q1.}] \textbf{``$r_2\ge\eta/L$ is just a loose lower bound --- how can it \emph{characterize}
+    robustness?''}\\
+    \emph{A.} As a certificate it is one-sided, yes. But (i) empirically it \emph{predicts} robustness
+    (correlations above), and (ii) we prove a two-sided bracket $\eta/L\le r_2\le\eta/\alpha$ that pins
+    $r_2$ up to a condition number $\kappa=L/\alpha$ (exact, $\kappa{=}1$, for linear invariants).
+    \medskip
+    \item[\acc{Q2.}] \textbf{``The dot / DC collapse is a toy. Does it matter on real data?''}\\
+    \emph{A.} The same accounting is what the capacity-matched CIFAR / ResNet / ImageNet-100 dissections
+    measure: forcing exact invariance collapses the margin on real data too, and \etaL{} predicts
+    robustness at ImageNet-100 resolution \emph{with clean accuracy held flat}.
+    \medskip
+    \item[\acc{Q3.}] \textbf{``If \etaL{} predicts robustness, just train on it --- new defense?''}\\
+    \emph{A.} No. It is scale-invariant, so its maximizer is the constant classifier, and Euler's identity
+    ties $\|\nabla M\|$ to $M$. Four first-order attempts all collapse the margin. It is a \emph{diagnostic},
+    not a target.
+  \end{itemize}
+\end{frame}
+
+%==============================================================================
+% CLOSING
+%==============================================================================
+{\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \vspace{1.2em}
+  \begin{center}
+    {\color{slate}\small\scshape one line to remember}\\[1.0em]
+    {\Large\color{ink} Don't ask whether a model is \emph{invariant}.}\\[0.5em]
+    {\Large\color{ink} Ask how much \acc{margin survives the invariance},}\\[0.3em]
+    {\Large\color{ink} and how \acc{sensitive} that margin is \acc{to the attack}.}\\[1.6em]
+    {\color{rulec}\rule{0.55\textwidth}{1pt}}\\[1.0em]
+    {\large\color{accent}$\displaystyle r_2 \;\ge\; \eta/L$}\\[1.2em]
+    {\color{slate}\small Anass Al Ammiri\; $\cdot$\; Technical University of Munich}
+  \end{center}
+\end{frame}}
+
+\end{document}
