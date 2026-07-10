@@ -116,8 +116,10 @@ def run_autoattack(tower, images, labels, eps, n_classes, bs=64, device="cuda",
     adversary = AutoAttack(wrap, norm="Linf", eps=eps, version="custom",
                            attacks_to_run=attacks_full, device=device, seed=seed)
     adversary.apgd.n_restarts = 1
+    adversary.apgd.n_iter = 100
     adversary.apgd_targeted.n_restarts = 1
-    adversary.apgd_targeted.n_target_classes = min(5, n_classes - 1)
+    adversary.apgd_targeted.n_iter = 100
+    adversary.apgd_targeted.n_target_classes = min(3, n_classes - 1)
     adversary.verbose = False
     if square:
         adversary.square.n_queries = 5000
