@@ -111,18 +111,23 @@ def run_tower(name, imgs, labels, class_names, args, device):
     # 6. per-image Linf robust radius via PGD bisection (for per-image Spearman)
     if args.per_image_radius:
         eps_grid = args.radius_grid
+        # radius on a capped subset (7-eps PGD sweep is expensive); enough for per-image Spearman
+        nr = min(args.radius_max_images, len(xi))
+        ci_r = ci[:nr]
         radius, flipped = A.per_image_robust_radius_linf(
-            tower, xi, yi, eps_grid, steps=args.radius_steps, bs=args.attack_bs, device=device)
+            tower, imgs[ci_r], labels[ci_r], eps_grid, steps=args.radius_steps,
+            bs=args.attack_bs, device=device)
+        per_image["radius_idx"] = ci_r.cpu()
         per_image["robust_radius_linf"] = radius.cpu()
         per_image["flipped"] = flipped.cpu()
-        # align per-image eta/L1 ratio to the same attack images:
-        # diag correct-only ratio is over correct images in original order; map ci->position
+        # align per-image eta/L1 ratio to the radius images:
         corr_idx = torch.where(diag["correct"])[0]
         pos = {int(v): k for k, v in enumerate(corr_idx.tolist())}
         ratio1 = summ["_per_image_ratio_L1"]
         ratio2 = summ["_per_image_ratio_L2"]
         marg = summ["_per_image_margin"]
-        sel = torch.tensor([pos[int(j)] for j in ci.tolist()])
+        sel = torch.tensor([pos[int(j)] for j in ci_r.tolist()])
+        ci = ci_r  # per-image arrays below align to the radius subset
         per_image["ratio_l1"] = ratio1[sel].cpu()
         per_image["ratio_l2"] = ratio2[sel].cpu()
         per_image["margin"] = marg[sel].cpu()
@@ -161,7 +166,8 @@ def main():
     ap.add_argument("--per_image_radius", action="store_true", default=True)
     ap.add_argument("--radius_grid", type=float, nargs="+",
                     default=[0.5/255, 1/255, 2/255, 3/255, 4/255, 6/255, 8/255])
-    ap.add_argument("--radius_steps", type=int, default=40)
+    ap.add_argument("--radius_steps", type=int, default=25)
+    ap.add_argument("--radius_max_images", type=int, default=400)
     ap.add_argument("--square_queries", type=int, default=2000)
     ap.add_argument("--tag", type=str, default="main")
     args = ap.parse_args()
