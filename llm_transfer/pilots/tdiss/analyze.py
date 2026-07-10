@@ -185,6 +185,22 @@ def main():
         out["TM_spearman_R2_rinf"] = float(spearman(R2_ri, rinf))
         out["TM_n_linf"] = len(rinf_ids)
 
+    # ---- benchmark-provenance stratification (audit §0.5): report within-source correlations ----
+    src = np.array([p1[i]["source"] for i in ids])
+    out["by_source"] = {}
+    for s in sorted(set(src.tolist())):
+        mask = src == s
+        if mask.sum() > 20:
+            out["by_source"][s] = {
+                "n": int(mask.sum()),
+                "spearman_R2_r2": float(spearman(R2[mask], r2[mask])),
+                "spearman_C_r2": float(spearman(Cval[mask], r2[mask])),
+                "partial_R2_r2_given_M": float(partial_spearman(R2[mask], r2[mask], [M[mask]])),
+            }
+            f2 = np.isfinite(loss_ref) & mask
+            if f2.sum() > 20:
+                out["by_source"][s]["spearman_R2_lossref"] = float(spearman(R2[f2], loss_ref[f2]))
+
     # ---- KILL check ----
     aR = out["R1_auroc_R2"][0]
     aM = out["R1_auroc_M"][0]
