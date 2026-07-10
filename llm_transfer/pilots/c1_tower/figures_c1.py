@@ -43,15 +43,15 @@ def main():
     for t, x, y in zip(towers, etaL1, S * 100):
         ax[0].annotate(t, (x, y), fontsize=8, xytext=(4, 4), textcoords="offset points")
     ax[0].set_xlabel(r"attack-free $\eta/L_1$ (threat-matched, clean images)")
-    ax[0].set_ylabel(r"AutoAttack robust acc $S$ (%)  $\varepsilon=%.4f$" % args.eps)
-    ax[0].set_title(r"$\eta/L$ predicts robustness  (Pearson $=%.2f$)" % pr1)
+    ax[0].set_ylabel(r"AutoAttack robust acc $S$ (\%),  $\varepsilon=$" + f"{args.eps:.4f}")
+    ax[0].set_title(r"$\eta/L$ predicts robustness  (Pearson $=$" + f"{pr1:.2f})")
     ax[0].grid(alpha=0.3)
     ax[1].scatter(sc, S * 100, c=cs, s=90, zorder=3)
     for t, x, y in zip(towers, sc, S * 100):
         ax[1].annotate(t, (x, y), fontsize=8, xytext=(4, 4), textcoords="offset points")
     ax[1].set_xlabel("shift-consistency SC (clean images)")
-    ax[1].set_ylabel(r"AutoAttack robust acc $S$ (%)")
-    ax[1].set_title(r"SC does NOT order robustness  (Pearson $=%.2f$)" % prsc)
+    ax[1].set_ylabel(r"AutoAttack robust acc $S$ (\%)")
+    ax[1].set_title(r"SC does NOT order robustness  (Pearson $=$" + f"{prsc:.2f})")
     ax[1].grid(alpha=0.3)
     fig.suptitle("C1: shift-consistency vs a threat-matched margin-to-Lipschitz ratio "
                  "as attack-free robustness selectors (frozen VLM towers)")
