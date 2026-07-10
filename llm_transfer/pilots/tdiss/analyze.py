@@ -103,12 +103,25 @@ def main():
     ent = np.array([p1[i]["resp_entropy"] for i in ids])
     Tlen = np.array([p1[i]["T"] for i in ids])
     clean_refuse = np.array([int(p1[i]["clean_refuse"]) for i in ids])
-    r2 = np.array([rad(p2[i]["r2"], l2_max) for i in ids])
+    # continuous fine-grained radius: r2 with within-bin ordering by the reference attack loss.
+    # A prompt harder to jailbreak (larger loss at the reference eps) gets a slightly larger radius.
+    l2_ref = list(p2.values())[0].get("l2_ref_eps")
+    loss_ref = np.array([p2[i].get("l2_loss_ref") if p2[i].get("l2_loss_ref") is not None else np.nan
+                         for i in ids])
+    # normalize loss_ref into a small tie-break offset in [0, min-ladder-gap)
+    lr = loss_ref.copy()
+    lr[np.isnan(lr)] = np.nanmax(lr) if np.isfinite(np.nanmax(lr)) else 0.0
+    lr_rank = stats.rankdata(lr) / len(lr)                       # 0..1
+    r2_binary = np.array([rad(p2[i]["r2"], l2_max) for i in ids])
+    ladder_gap = 0.008
+    r2 = r2_binary + lr_rank * ladder_gap                        # continuous radius (fine)
     linf_max = max([float(x) for x in list(p2.values())[0]["linf_succ"].keys()])
-    rinf = np.array([rad(p2[i]["rinf"], linf_max) for i in ids])
+    rinf = np.array([rad(p2[i]["rinf"], linf_max) for i in ids if "rinf" in p2[i]])
+    rinf_ids = [i for i in ids if "rinf" in p2[i]]
     # binary label: jailbroken at the MEDIAN L2 budget (design budget eps* ~ ASR 0.5)
-    budget = np.median(r2)
-    label = (r2 <= budget).astype(int)   # 1 = jailbroken at/below the design budget (vulnerable)
+    budget = np.median(r2_binary)
+    label = (r2_binary <= budget).astype(int)   # 1 = jailbroken at/below the design budget
+    out_loss = {"loss_ref_eps": l2_ref}
 
     out = {"n": len(ids), "l2_budget_star": float(budget),
            "asr_at_budget": float(label.mean()),
@@ -136,6 +149,19 @@ def main():
     # second partial controlling the radius-adjacent margin only
     out["R1_partial_R2_given_M_only"] = float(partial_spearman(R2, r2, [M]))
 
+    # ---- R1b: JUDGE-INDEPENDENT signal. Attack loss at the reference eps is a continuous
+    #      jailbreakability measure that does not pass through the (noisy) judge. LOW loss =>
+    #      easy to jailbreak => should correlate with LOW R2. Expect POSITIVE Spearman(R2, loss_ref).
+    finite = np.isfinite(loss_ref)
+    if finite.sum() > 10:
+        out["R1_spearman_R2_lossref_JUDGEFREE"] = bootstrap_ci(
+            lambda a, b: spearman(a, b), R2[finite], loss_ref[finite])
+        out["R1_spearman_M_lossref"] = bootstrap_ci(
+            lambda a, b: spearman(a, b), M[finite], loss_ref[finite])
+        out["R1_partial_R2_lossref_given_cleanrefuse_M_JUDGEFREE"] = float(
+            partial_spearman(R2[finite], loss_ref[finite],
+                             [clean_refuse[finite], M[finite]]))
+
     # ---- R3: Consistency null ----
     out["R3_spearman_C_r2"] = bootstrap_ci(lambda a, b: spearman(a, b), Cval, r2)
     out["R3_spearman_Cagr_r2"] = bootstrap_ci(lambda a, b: spearman(a, b), Cagr, r2)
@@ -152,8 +178,12 @@ def main():
     # ---- threat matching: R2 vs r2 should beat Rinf vs r2, and Rinf vs rinf beat R2 vs rinf ----
     out["TM_spearman_R2_r2"] = float(spearman(R2, r2))
     out["TM_spearman_Rinf_r2"] = float(spearman(Rinf, r2))
-    out["TM_spearman_Rinf_rinf"] = float(spearman(Rinf, rinf))
-    out["TM_spearman_R2_rinf"] = float(spearman(R2, rinf))
+    if len(rinf_ids) > 10:
+        R2_ri = np.array([p1[i]["R2"] for i in rinf_ids])
+        Rinf_ri = np.array([p1[i]["Rinf"] for i in rinf_ids])
+        out["TM_spearman_Rinf_rinf"] = float(spearman(Rinf_ri, rinf))
+        out["TM_spearman_R2_rinf"] = float(spearman(R2_ri, rinf))
+        out["TM_n_linf"] = len(rinf_ids)
 
     # ---- KILL check ----
     aR = out["R1_auroc_R2"][0]
