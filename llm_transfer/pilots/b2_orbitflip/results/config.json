@@ -1,0 +1,24 @@
+{
+  "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+  "doses": [
+    0.0,
+    0.2,
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "k_max_paraphrases": 6,
+  "orbit_flip_def": "model correct on x AND model_answer(edit)==model_answer(x) AND != oracle(edit)",
+  "oracle": "DETERMINISTIC (negation/antonym/harmful->benign); NLI model is paraphrase filter ONLY",
+  "distance_geometries": [
+    "token_edit_dist (Levenshtein)",
+    "emb_disp = ||e(x_edit)-e(x)||_2"
+  ],
+  "invariance_dose_axis": "within-model: consistency system prompt (d>0) + marginalize over round(d*k_max) paraphrases",
+  "measured_invariance": "paraphrase-consistency: agreement of model answer over k_max paraphrases of x",
+  "sensitivity_axis": "eta/L reused from T-DISS diagnostics (M, ||grad||_{2,1}, R2, Rinf)",
+  "kill_criterion": "KILL iff rho_G does NOT fall as invariance rises (Spearman(rho_G,dose) not <= -0.6 and not significantly negative) OR orbit-flip rate ~ 0. Honest negative is the result -- report, do not fabricate.",
+  "budget_law": "prop:rhoG: an adversarial edit of size eps succeeds (invariant flip) only when eps >= rho_G; fraction >= ~90%",
+  "seed": 0
+}

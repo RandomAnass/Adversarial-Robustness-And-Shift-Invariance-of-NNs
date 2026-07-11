@@ -1,0 +1,19 @@
+{
+  "nli_model": "MoritzLaurer/deberta-v3-large-zeroshot-v2.0",
+  "nli_role": "paraphrase-validity FILTER + oracle SANITY-CHECK only; NEVER the flip oracle",
+  "oracle_meaning_change": {
+    "sentiment": {
+      "n": 150,
+      "frac_meaning_changed": 0.96
+    },
+    "nli": {
+      "n": 150,
+      "frac_meaning_changed": 0.9866666666666667
+    },
+    "safety": {
+      "n": 150,
+      "frac_meaning_changed": 0.9933333333333333
+    }
+  },
+  "paraphrase_filter_pass_rate": 0.82
+}
