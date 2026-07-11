@@ -14,3 +14,18 @@ clean attack-free eta/L + shift-consistency vs AutoAttack (APGD-CE+DLR, +Square)
 
 ## T-DISS (text ratio vs consistency) — RUNNING (GPU 0, phase2 ~380/920 radius search, ~1 day)
 ## B2 (orbit-flip radius rho_G) — RUNNING (GPU 1, ~12-25 GPU-h)
+
+## DIRECTION (2026-07-11, author): LLM campaign -> its OWN paper. Priority = correct literature + correct
+## experimental design + correct implementation. Skip nothing. (lora_gauge dropped - not our run.)
+Verification pass launched (adversarial, find-every-flaw):
+- C1_verification (GPU 1): audit code (eta/L, AutoAttack, consistency, stats); resolve the n=6 / "eta/L just
+  detects adversarial training" confound via the PER-IMAGE axis (>=1000 imgs) + a WIDER non-AT tower panel
+  (>=10-12 towers spanning eta/L, not just AT-vs-non-AT); resolve the consistency-metric nuance (agreement
+  -0.52 flat vs cosine +0.94 -> which is the fair null); lit re-verify (RDI 2504.18556, CLIP-Lipschitz). 
+- B2_verification (no GPU): audit code; CRITICAL check = is "eps<rho_G on 100%" a real finding or a
+  DEFINITIONAL artifact (rho_G = smallest flipping edit, so nothing flips below it trivially?); oracle
+  non-circularity; is the trade-off KILL real or a weak-dose-knob artifact; label-extraction bug check on
+  the 100%-entailment/97%-refusal degeneracy; lit re-verify (LGIP 2511.13494).
+- T-DISS_verification: queued for when its run completes (~1 day, GPU 0).
+Then: deep literature pass for the paper-candidate claims -> build the standalone LLM paper from the
+VERIFIED, correctly-scoped results only.
