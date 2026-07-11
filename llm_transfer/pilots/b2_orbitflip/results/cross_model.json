@@ -1,0 +1,64 @@
+{
+  "llama": {
+    "n": 1600,
+    "orbit_flip_rate": 0.564375,
+    "rho_emb_median": 0.8390237092971802,
+    "rho_emb_mean": 1.4575605251860382,
+    "measured_invariance": 0.9220535714285714,
+    "base_acc": 0.79,
+    "budget_law_fraction": 1.0,
+    "n_flip": 903
+  },
+  "qwen": {
+    "n": 1600,
+    "orbit_flip_rate": 0.489375,
+    "rho_emb_median": 1.2655926942825317,
+    "rho_emb_mean": 2.8010566682194384,
+    "measured_invariance": 0.9334821428571428,
+    "base_acc": 0.8775,
+    "budget_law_fraction": 1.0,
+    "n_flip": 783
+  },
+  "llama_per_family": {
+    "nli": {
+      "n": 500,
+      "flip": 0.468,
+      "measured_inv": 1.0
+    },
+    "safety": {
+      "n": 400,
+      "flip": 0.6025,
+      "measured_inv": 0.7442857142857142
+    },
+    "sentiment": {
+      "n": 700,
+      "flip": 0.6114285714285714,
+      "measured_inv": 0.9679591836734693
+    }
+  },
+  "qwen_per_family": {
+    "nli": {
+      "n": 500,
+      "flip": 0.376,
+      "measured_inv": 0.9202857142857143
+    },
+    "safety": {
+      "n": 400,
+      "flip": 0.44,
+      "measured_inv": 0.8878571428571428
+    },
+    "sentiment": {
+      "n": 700,
+      "flip": 0.5985714285714285,
+      "measured_inv": 0.9689795918367347
+    }
+  },
+  "between_model_tradeoff": {
+    "more_invariant_model": "Qwen",
+    "more_invariant_minv": 0.9334821428571428,
+    "less_invariant_minv": 0.9220535714285714,
+    "more_invariant_flip": 0.489375,
+    "less_invariant_flip": 0.564375,
+    "tradeoff_holds": false
+  }
+}

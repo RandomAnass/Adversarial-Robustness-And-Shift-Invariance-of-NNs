@@ -64,7 +64,7 @@ def main():
     ax2.plot(doses, all_rates, "-ks", lw=2.2, label="ALL", zorder=5)
     ax2.set_xlabel("imposed invariance dose")
     ax2.set_ylabel("orbit-flip rate")
-    ax2.set_title("(b) orbit-flip rate rises with imposed invariance (Tramèr)")
+    ax2.set_title("(b) dose response is family-dependent (sentiment↑, nli flat, safety↓*)")
     ax2.legend(fontsize=8); ax2.grid(alpha=0.3)
     fig.tight_layout(); fig.savefig(os.path.join(FIG, "fig1_rhoG_and_fliprate.png"), dpi=140)
     plt.close(fig)
@@ -80,7 +80,7 @@ def main():
     ax1.plot(doses, means_all, "-ks", lw=2.2, label="ALL", zorder=5)
     ax1.set_xlabel("imposed invariance dose")
     ax1.set_ylabel(r"mean $\rho_G$  (inf $\to$ sentinel %.1f)" % SENT)
-    ax1.set_title(r"(a) $\rho_G$ shrinks as imposed invariance rises")
+    ax1.set_title(r"(a) $\rho_G$ vs imposed invariance (family-dependent; not monotone)")
     ax1.legend(fontsize=8); ax1.grid(alpha=0.3)
     # per-item measured invariance vs rho_G (dose 0): negative slope
     minv = [r["per_dose"]["0.0"]["measured_invariance"] for r in rows]
@@ -98,7 +98,7 @@ def main():
     ax2.plot(bc, bm, "-ro", lw=2, label=f"binned mean (Spearman={sp:+.2f})")
     ax2.set_xlabel("measured paraphrase-invariance of the model on x (dose 0)")
     ax2.set_ylabel(r"$\rho_G$ (inf$\to$sentinel)")
-    ax2.set_title("(b) more measured invariance ⇒ smaller room")
+    ax2.set_title("(b) measured invariance vs room (saturated: weak per-item signal)")
     ax2.legend(fontsize=8); ax2.grid(alpha=0.3)
     fig.tight_layout(); fig.savefig(os.path.join(FIG, "fig2_tradeoff.png"), dpi=140)
     plt.close(fig)

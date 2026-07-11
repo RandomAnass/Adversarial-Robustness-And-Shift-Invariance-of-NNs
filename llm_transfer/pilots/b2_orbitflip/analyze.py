@@ -104,6 +104,27 @@ def main():
 
     fams = sorted({r["family"] for r in rows})
 
+    # ---------------- Result 0: constant-classifier degeneracy check (lem:ratiodegen) ----------------
+    # If a task-head answer collapses to ONE label for ~all x, the model is a constant classifier on
+    # that task -> rho_G = the minimal meaning-changing edit on 100% of correct items (no room). This
+    # is the exact empirical instance of lem:ratiodegen (over-invariant / constant classifier).
+    print("--- R0: constant-classifier degeneracy per family (lem:ratiodegen) ---")
+    r0 = {}
+    for fam in fams:
+        fr = [r for r in rows if r["family"] == fam]
+        answers = [r["per_dose"]["0.0"]["model_answer_x"] for r in fr]
+        from collections import Counter as _C
+        top, cnt = _C(answers).most_common(1)[0]
+        frac_const = cnt / len(answers)
+        corr = [r for r in fr if r["per_dose"]["0.0"]["correct"]]
+        flip_among_correct = float(np.mean([r["per_dose"]["0.0"]["orbit_flip"] for r in corr])) if corr else float("nan")
+        r0[fam] = {"dominant_answer": top, "frac_dominant": frac_const,
+                   "flip_rate_among_correct": flip_among_correct, "n_correct": len(corr)}
+        print(f"  {fam:10s}: dominant answer '{top}' on {frac_const*100:.0f}% of x; "
+              f"orbit-flip among CORRECT items = {flip_among_correct:.3f} (n_correct={len(corr)})"
+              + ("   <== CONSTANT CLASSIFIER (ratiodegen)" if frac_const > 0.97 else ""))
+    out["R0_constant_classifier"] = r0
+
     # ---------------- Result 1: rho_G distribution + orbit-flip rate ----------------
     print("--- R1: rho_G distribution & orbit-flip rate (per dose) ---")
     r1 = {}
@@ -269,18 +290,37 @@ def main():
                    "imposed_ok": bool(imposed_ok), "measured_ok": bool(measured_ok),
                    "flip_nontrivial": bool(flip_nontrivial)}
 
-    # ---------------- per-family breakdown ----------------
-    print("\n--- Per-family flip rates (dose0 -> doseMax) ---")
+    # ---------------- per-family breakdown (incl. imposed-dose trade-off + base-acc confound) ----------------
+    print("\n--- Per-family: flip rate, imposed-dose trade-off, base-acc confound ---")
+    from scipy.stats import binomtest
+    dvec = np.array(doses)
     for fam in fams:
         fr = [r for r in rows if r["family"] == fam]
         a = np.mean([float(r["per_dose"][dmin]["orbit_flip"]) for r in fr])
         b = np.mean([float(r["per_dose"][dmax]["orbit_flip"]) for r in fr])
+        acc0 = np.mean([float(r["per_dose"][dmin]["correct"]) for r in fr])
+        accM = np.mean([float(r["per_dose"][dmax]["correct"]) for r in fr])
         minv = [r["per_dose"][dmin]["measured_invariance"] for r in fr]
         rho = [rho_enc(r, doses[0]) for r in fr]
         spf_, splo_, sphi_, nf = boot_corr(minv, rho, "spearman")
+        # imposed-dose trade-off: per-item dose->flip Spearman + McNemar
+        f0 = np.array([float(r["per_dose"][dmin]["orbit_flip"]) for r in fr])
+        fM = np.array([float(r["per_dose"][dmax]["orbit_flip"]) for r in fr])
+        g = int(((fM == 1) & (f0 == 0)).sum()); l = int(((fM == 0) & (f0 == 1)).sum())
+        pmc = binomtest(min(g, l), g + l, 0.5).pvalue if (g + l) > 0 else float("nan")
+        rhos = []
+        for r in fr:
+            v = np.array([float(r["per_dose"][str(d)]["orbit_flip"]) for d in doses])
+            if v.std() > 0:
+                rhos.append(stats.spearmanr(dvec, v)[0])
+        dfr = float(np.mean(rhos)) if rhos else float("nan")
         out["by_family"][fam] = {"n": len(fr), "flip0": float(a), "flipM": float(b),
-                                 "spearman_minv_rho": [spf_, splo_, sphi_]}
-        print(f"  {fam:10s} n={len(fr):4d} flip {a:.3f}->{b:.3f}  Spearman(minv,rho)={spf_:+.3f} [{splo_:+.3f},{sphi_:+.3f}]")
+                                 "base_acc0": float(acc0), "base_accM": float(accM),
+                                 "spearman_minv_rho": [spf_, splo_, sphi_],
+                                 "dose_flip_spearman": dfr, "mcnemar_gained": g, "mcnemar_lost": l,
+                                 "mcnemar_p": float(pmc)}
+        print(f"  {fam:10s} n={len(fr):4d} flip {a:.3f}->{b:.3f}  base-acc {acc0:.3f}->{accM:.3f}  "
+              f"dose-flip-rho {dfr:+.3f}  McNemar +{g}/-{l} p={pmc:.1e}")
 
     # ---------------- sensitivity (eta/L) x invariance (rho_G) two-axis stats ----------------
     print("\n--- Two-axis: sensitivity eta/L vs invariance rho_G (decoupling) ---")

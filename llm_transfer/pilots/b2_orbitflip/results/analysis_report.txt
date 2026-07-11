@@ -1,0 +1,45 @@
+/home/students/code/Anas/adversarial-robustness-shift-invariance/llm_transfer/pilots/b2_orbitflip/analyze.py:65: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  f = (lambda a, b: stats.spearmanr(a, b)[0]) if kind == "spearman" else (lambda a, b: stats.pearsonr(a, b)[0])
+=== B2 orbit-flip analysis: 1600 items, doses [0.0, 0.2, 0.4, 0.6, 0.8, 1.0] ===
+
+--- R0: constant-classifier degeneracy per family (lem:ratiodegen) ---
+  nli       : dominant answer 'entailment' on 100% of x; orbit-flip among CORRECT items = 1.000 (n_correct=234)   <== CONSTANT CLASSIFIER (ratiodegen)
+  safety    : dominant answer 'refuse' on 97% of x; orbit-flip among CORRECT items = 0.620 (n_correct=389)   <== CONSTANT CLASSIFIER (ratiodegen)
+  sentiment : dominant answer 'negative' on 54% of x; orbit-flip among CORRECT items = 0.668 (n_correct=641)
+--- R1: rho_G distribution & orbit-flip rate (per dose) ---
+  dose 0.0: flip-rate 0.564 [0.541,0.588] n_flip=903  rho_emb median=0.8390237092971802
+  dose 0.2: flip-rate 0.571 [0.547,0.594] n_flip=914  rho_emb median=0.8390237092971802
+  dose 0.4: flip-rate 0.520 [0.496,0.544] n_flip=832  rho_emb median=0.8390237092971802
+  dose 0.6: flip-rate 0.512 [0.491,0.537] n_flip=820  rho_emb median=0.8390237092971802
+  dose 0.8: flip-rate 0.526 [0.501,0.550] n_flip=841  rho_emb median=0.8390237092971802
+  dose 1.0: flip-rate 0.519 [0.492,0.544] n_flip=831  rho_emb median=0.8390237092971802
+
+--- R2: the trade-off (imposed & measured invariance vs rho_G / flip-rate) ---
+  (a) IMPOSED dose 0.0->1.0: flip-rate 0.564 -> 0.519 (delta -0.045 [-0.062,-0.028])
+  (a') rho_G(emb, inf->sentinel 7.4) mean 4.05 -> 4.33 (delta +0.28 [+0.18,+0.40]; negative = trade-off)
+  (a'') per-item Spearman(dose, orbit-flip), items that change (n=280): mean -0.221 [-0.291,-0.153] (POSITIVE = imposed trade-off)
+       McNemar dose0->max: gained 61 flips, lost 133 (p=2.54e-07; more gained = imposed invariance adds orbit-flips)
+  (b) per-item Spearman(measured-invariance, rho_G-emb) @dose0 = +0.051 [+0.005,+0.100] (n=1600; NEGATIVE = trade-off)
+      per-item Spearman(measured-invariance, orbit-flip) @dose0 = -0.034 [-0.082,+0.017] (POSITIVE = trade-off)
+  (c) partial Spearman(minv,rho|len)=-0.005  partial(minv,rho|correct)=-0.072 (n=1600)
+
+--- R3: budget law (prop:rhoG): an invariant meaning-flip of size eps succeeds only when eps >= rho_G ---
+  dose 0.0: prop:rhoG holds on 100.0% of 903 flipping items (no invariant flip below rho_G). invariant ASR at max-eps = 0.564
+  dose 1.0: prop:rhoG holds on 100.0% of 831 flipping items (no invariant flip below rho_G). invariant ASR at max-eps = 0.519
+
+--- KILL CHECK ---
+  orbit-flip rate @dose0 = 0.564 (non-trivial: True)
+  trade-off signal present: False (imposed_ok=False, measured_ok=False)
+    imposed: delta>0&sig=False; dose-flip-Spearman>0&sig=False; McNemar gained>lost&sig=False
+    measured: minv-vs-rho<0&sig=False; minv-vs-flip>0&sig=False
+  ==> KILL TRIGGERED: True
+
+--- Per-family: flip rate, imposed-dose trade-off, base-acc confound ---
+  nli        n= 500 flip 0.468->0.468  base-acc 0.468->0.468  dose-flip-rho +nan  McNemar +0/-0 p=nan
+  safety     n= 400 flip 0.603->0.390  base-acc 0.973->0.757  dose-flip-rho -0.445  McNemar +14/-99 p=6.1e-17
+  sentiment  n= 700 flip 0.611->0.630  base-acc 0.916->0.919  dose-flip-rho +0.119  McNemar +47/-34 p=1.8e-01
+
+--- Two-axis: sensitivity eta/L vs invariance rho_G (decoupling) ---
+  Spearman(eta/L R2, rho_G-emb) = -0.110 [-0.157,-0.063] (n=1600; ~0 = decoupled axes)
+
+wrote /home/students/code/Anas/adversarial-robustness-shift-invariance/llm_transfer/pilots/b2_orbitflip/results/summary.json
