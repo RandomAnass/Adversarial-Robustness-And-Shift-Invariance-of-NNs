@@ -29,3 +29,19 @@ Verification pass launched (adversarial, find-every-flaw):
 - T-DISS_verification: queued for when its run completes (~1 day, GPU 0).
 Then: deep literature pass for the paper-candidate claims -> build the standalone LLM paper from the
 VERIFIED, correctly-scoped results only.
+
+## B2 VERIFICATION VERDICT (2026-07-11) — major honest corrections (verify/B2_verification.md)
+- BUDGET-LAW "eps<rho_G 100%" = DEFINITIONAL ARTIFACT (rho_G := min flipping edit; 1511/1600 have 1 edit;
+  only 8/1600 non-vacuous). DROP. A real budget test needs a graded family of increasing-size edits/item.
+- TRADE-OFF KILL = BROKEN-MANIPULATION artifact (dose knob does nothing to NLI, jailbreaks safety 2.8->24%);
+  the trade-off was never fairly tested -> KILL does NOT count as a negative.
+- eta/L ⊥ rho_G (-0.11) MIS-SPECIFIED (reused T-DISS refusal margin on sentiment/NLI). RECOMPUTE with task-class margin.
+- SURVIVES (real): rho_G as a measurable orbit-flip radius (oracle verified non-circular); the CONSTANT-
+  CLASSIFIER DEGENERACY (Llama 100% entailment on MoNLI / 97% refuse; Qwen doesn't -> model-dependent) = a
+  clean empirical instance of lem:ratiodegen and B2's best standalone finding.
+- DEFENSIBLE CLAIM: generative LLMs have a measurable rho_G upper-bounding the oracle-robust radius
+  (prop:rhoG), and Llama-3-8B shows a model-dependent constant-classifier collapse on negation-NLI + harmful
+  requests (excessive-invariance failure LGIP's rate metrics can't express). Trade-off + budget-law = NO-GO.
+- B2 FIXES QUEUED (need GPU, after C1 verifier frees GPU1): (1) recompute eta/L with per-task-class margin;
+  (2) report flip-rate PER-FAMILY (sentiment/NLI/safety), not pooled 0.564; (3) either design a graded-edit
+  family for a real budget test + a FAIR invariance intervention, or drop both and keep rho_G-dist + degeneracy.
