@@ -68,3 +68,39 @@ correlate R2_cont with r2. The current run does not do that.
 **Action:** when `results/SUMMARY.json` lands, confirm these numbers match, fold in gauge/masking/GCG,
 then write the full adversarial `TDISS_verification.md`. Do not trust a positive summary if it
 contradicts these independently-derived numbers — reconcile the sign convention first.
+
+---
+
+## FULL-STACK RE-EXAMINATION (2026-07-12) — literature / theory / design / implementation / results
+
+Prompted to double-check the negative across the whole stack before trusting it. Conclusion: **the
+negative is INCONCLUSIVE (a threat-model design mismatch), NOT a genuine "η/L fails in text" result.**
+
+- **Theory.** The margin/Lipschitz certificate (Tsuzuku, Hein) says R2 = M/‖∇M‖₂ lower-bounds the
+  radius within which the decision that DEFINES M is preserved. Here M is the **first-token**
+  refuse−affirm margin, so R2 certifies the first-token argmax radius. The attack radius r2 is the
+  radius to **generate** a harmful continuation. Theory does **not** claim a first-token certificate
+  bounds a multi-token generation radius. So a null/negative Spearman(R2, r2) is the THEORY-PREDICTED
+  outcome of a mis-specified test, not evidence against the η/L→robustness thesis.
+- **Design.** The attack (`tdiss_core.pe_pgd`) minimizes the CE loss of a 6–8 token affirmative
+  continuation "Sure, here is <behavior>:\\n\\n1." (`_affirm_target_ids`), perturbing only the prompt
+  embeddings. The threat-matched predictor must be built on that SAME objective: R_cont = L0/‖∇L0‖
+  with L0 = the clean affirmative-continuation loss. The phase1 predictor is not that. **Design flaw
+  identified, and cheaply fixable.**
+- **Implementation.** `pe_pgd` is a correct signed/normalized PGD with restarts keeping best loss;
+  r2 = min successful eps on a 6-rung ladder (coarse). The **masking battery + GCG cross-check**
+  (running now) test whether r2 is a real radius or attack under-optimization; if a stronger attack
+  shrinks r2 materially, part of the −0.17 is attack-strength noise. MUST fold in before finalizing.
+- **Results/analysis.** −0.17 is robust (my independent code + the harness's exact convention). But it
+  is −0.17 for the WRONG (mismatched) predictor.
+
+**Resolution (armed): `fix_matched_margin.py`.** Recomputes R_cont = L0/‖∇L0‖ on the attack's own
+continuation objective at δ=0 (one fwd+bwd/prompt, ~1–2 min, 920 prompts) and correlates with the
+EXISTING r2. Runs when a GPU frees (queued for GPU 0 after the T-DISS post-pipeline). Outcomes:
+- **R_cont predicts r2 (positive):** the η/L→robustness dissociation TRANSFERS to generative-LLM
+  jailbreak radius once properly threat-matched → the text leg becomes a POSITIVE result, and the
+  first-token −0.17 becomes a clean cautionary "you must threat-match the margin" finding.
+- **R_cont also null/negative:** a GENUINE negative (η/L does not predict jailbreak radius even
+  matched) → report as the honest encoder-vs-decision-boundary limitation.
+Either way the paper claim is now well-posed. Do NOT present the −0.17 as "η/L fails in text" — that
+is not established; the test was mis-specified.

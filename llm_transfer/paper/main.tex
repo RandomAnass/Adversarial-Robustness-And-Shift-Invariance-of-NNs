@@ -1,0 +1,203 @@
+\documentclass{article}
+\usepackage[preprint]{neurips_2026}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts,amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\newcommand{\etaL}{\ensuremath{\eta/L}}
+\newcommand{\rhoG}{\ensuremath{\rho_G}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+
+\title{Invariance is not robustness: a margin-to-Lipschitz view of foundation models}
+
+\author{Anass Al Ammiri\\
+  Technical University of Munich\\
+  \texttt{anass.al-ammiri@tum.de}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A common intuition holds that a model which is more invariant to nuisance changes of its input, such
+as small shifts of an image or rewordings of a prompt, is also more robust to adversarial attacks. We
+show that this intuition does not survive contact with strong attacks in foundation models. Working
+with a threat-matched margin-to-Lipschitz ratio \etaL{}, defined as the mean classification margin on
+clean inputs divided by the mean dual-norm of the input gradient of that margin, we find a clean
+dissociation. Through frozen vision-language encoders, \etaL{} computed on clean images alone, without
+running any attack, ranks eleven towers by their AutoAttack robustness and orders the per-image
+certified radius, while shift-consistency does neither. The ranking survives removing the effect of
+adversarial training as a covariate, whereas a cosine-similarity form of consistency does not: it only
+appeared to work because it detects adversarial training. In instruction-tuned language models the two
+notions become measurably independent. A sensitivity axis (the same ratio \etaL{}) and an
+excessive-invariance axis (an orbit-flip radius \rhoG{}, the size of the smallest meaning-changing edit
+a model wrongly ignores) are uncorrelated across prompts, and we relate \rhoG{} to a certificate on the
+model's robust radius. We also show that the apparent link between invariance and robustness is an
+artifact of weak attacks: on every non-robust vision-language tower, single-step FGSM reports
+16--46\% robust accuracy that AutoAttack erases to zero. We close by reporting, honestly, where the
+transfer stops.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+% CONTRIBUTIONS (locked):
+% 1. VLM: eta/L is an attack-free cross-tower AND per-image robustness predictor; shift-consistency is not.
+% 2. LLM: sensitivity (eta/L) and invariance (rho_G) are orthogonal; rho_G certifies a robust radius.
+% 3. weak-attack artifact in frozen VLM towers (FGSM overstates, AutoAttack erases).
+% 4. honest scope: encoder-level; first-token margin does not predict multi-token jailbreak radius (matched-margin test).
+% Define eta/L, threat-matched, gauge-free, shift-consistency, rho_G here at first use.
+\textbf{[DRAFT PENDING — write after §4/§5 lock. Define \etaL{} = mean signed margin
+$M(x)=f_y(x)-\max_{j\neq y}f_j(x)$ over correctly-classified clean inputs, divided by the mean
+dual-norm input gradient $\lVert\nabla_x M\rVert_q$ ($q{=}1$ for $\ell_\infty$, $q{=}2$ for $\ell_2$).
+State gauge-freeness (invariant under $f\to cf$) and the certificate reading (robust radius
+$\geq \etaL$). List the four contributions above.]}
+
+\section{Related work}
+\label{sec:related}
+% Must-cite + one-line distinction each (see SYNTHESIS_lit_and_framing.md, verified with verbatim quotes):
+% Attack-free ranking: GREAT Score (2304.09875, generative-manifold, plain classifiers), RDI (2504.18556, feature-cluster).
+% Margin/Lipschitz predictors: Ngnawe (2406.18451, within-model per-sample bare margin, no L); MaCS (2603.05812, training regularizer, noise/blur consistency not shift, no towers).
+% Invariance vs robustness: Singla-Ge (2103.02695, causal margin, vision, no eta/L, no AT, no strong-attack artifact); Tramer 2020 (2002.04599, population tradeoff, not measured orthogonality).
+% Certified NLP (opposite direction): CERT-ED 2408.00728, RS-Del 2302.01757, Text-CRS 2307.16630.
+% Weak-attack / gradient masking: Athalye 2018 (1802.00420) parent phenomenon.
+% VLM robustness governed by tower: 2407.11121; FARE 2402.12336; anti-aliasing Zhang 2019 (1904.11486).
+\textbf{[DRAFT PENDING.]}
+
+\section{Background: the dissociation on image classifiers}
+\label{sec:cifar}
+% One paragraph + cite prior CIFAR work: eta/L predicts robustness (Pearson ~0.998 across arms),
+% shift-consistency anti-predicts under AT (Linf -0.88), threat-matched eta/L predicts AutoAttack (+0.90);
+% FGSM shows invariance helping, AutoAttack erases it. Sets up the generalization to foundation models.
+\textbf{[DRAFT PENDING — brief recap of the prior CIFAR result, cited as the origin.]}
+
+\section{Vision-language encoders}
+\label{sec:vlm}
+We first ask whether \etaL{} predicts adversarial robustness across frozen vision-language towers,
+and whether shift-consistency does. This is the setting where the two notions are most often
+conflated, because an encoder that assigns nearby representations to shifted views of an image is
+routinely described as robust.
+
+\paragraph{Setup.}
+We take a panel of eleven frozen vision towers used for zero-shot classification on ImageNet-100:
+four adversarially trained encoders (FARE at two radii, TeCoA at two radii), a base CLIP tower, a
+DINOv2 tower, and five further CLIP variants spanning pretraining corpus, patch size, and capacity.
+For each tower we compute, on clean correctly-classified images only, the margin $M(x)$ of the
+zero-shot logits, the ratio \etaL{} with $L$ the mean $\ell_1$ norm of $\nabla_x M$ (the dual norm of
+an $\ell_\infty$ attack), and a shift-consistency score, the fraction of integer pixel shifts under
+which the top-1 label is unchanged. We then measure adversarial robustness directly with AutoAttack,
+reported as the APGD-CE plus APGD-T ensemble, both as a per-tower robust accuracy and as a per-image
+certified radius from a fine grid. All quantities use the same set of clean, correctly-classified
+images per tower, and \etaL{} is gauge-free, so a tower's logit temperature cannot affect it.
+
+\paragraph{Across towers, \etaL{} predicts robustness and consistency does not.}
+The ratio \etaL{} correlates with per-tower robust accuracy at Pearson $+0.953$
+($95\%$ CI $[0.92, 1.0]$, permutation $p=0.0009$). The concern with an eleven-tower panel is that any
+quantity separating adversarially trained from ordinary towers will correlate with robustness, since
+the four trained towers carry almost all of the robustness. We therefore remove an adversarial-training
+indicator as a covariate. The partial correlation of \etaL{} with robustness, controlling for that
+indicator, is $+0.51$, and controlling for both the indicator and clean accuracy it is $+0.56$: the
+ratio carries robustness information that ``this tower was adversarially trained'' does not. A
+cosine-similarity form of consistency looks strong at first ($+0.81$) but collapses to $+0.15$ under
+the same control, because it works only by detecting adversarial training. The prediction-agreement
+form of shift-consistency, the version the anti-aliasing literature tracks, does not order robustness
+at all (Pearson $+0.37$, not significant). Used as a selection rule, picking the tower with the
+largest \etaL{} costs 5 points of robust accuracy against the oracle, while picking by
+prediction-agreement consistency or by clean accuracy costs 88 points.
+% Fig: results/c1_tower/figures c1_dissociation_main + a partial-correlation bar (regenerate for n=11).
+
+\paragraph{Per image, the dissociation is sharper and is not an artifact of adversarial training.}
+The powered version of the claim is per image. Pooling correctly-classified images across the four
+adversarially trained towers, the per-image \etaL{} orders the per-image robust radius at Spearman
+$+0.78$ ($95\%$ CI $[0.75, 0.81]$, $n=1200$), while per-image shift-consistency orders it at
+$+0.12$ ($[0.06, 0.18]$). With a finer radius grid the ordinary CLIP towers also acquire a real spread
+of per-image radii, and within each of them \etaL{} orders the radius at Spearman between $+0.54$ and
+$+0.79$, every confidence interval above zero. The per-image dissociation therefore holds inside
+ordinary, non-robust towers as well, so it is not a byproduct of the trained-versus-untrained split.
+% Fig: per_image_*.pt -> the per-image eta/L vs radius scatter (AT pooled + within non-AT). Headline figure.
+
+\paragraph{What survives and what to state honestly.}
+The implementation was checked line by line and no result changes sign under any check; there is no
+gradient masking, since APGD $\leq$ PGD-40 $\leq$ FGSM and a black-box Square attack does not beat
+APGD on any tower. The honest limitation is that the seven non-robust towers all sit at essentially
+zero robust accuracy under strong attack, so the range of tower-level robustness comes from the
+trained towers; the covariate control removes the confound in the ranking, and the powered claim rests
+on the per-image axis, which stands on both trained and ordinary towers.
+
+\section{Weak-attack robustness is an artifact}
+\label{sec:weakattack}
+% PROMOTE from bonus to full section, pending the novelty verification (agent ac324...) + added controls.
+% Verified core: every non-AT CLIP tower has FGSM robust acc 0.16-0.46 at eps 2/255-4/255 but APGD=PGD40=0.0.
+% Planned additions (if novel): FGSM vs PGD-k monotonicity k=1,2,5,10,20,40; Square black-box; per-tower gradient-norm/loss-landscape diagnostic.
+\textbf{[DRAFT PENDING novelty verification. Core result: on every non-robust tower, single-step FGSM
+reports 16--46\% robust accuracy that APGD and PGD-40 drive to zero, so any ``more invariant is more
+robust'' reading measured with a weak attack does not survive AutoAttack.]}
+
+\section{Instruction-tuned language models}
+\label{sec:llm}
+% LOCKED except final framing. Sources: verify/B2_verification.md §3e.
+\paragraph{Sensitivity and excessive invariance are independent axes.}
+We move to instruction-tuned language models (Llama-3-8B-Instruct, with Qwen-2.5-7B as a contrast) and
+a corpus of 1600 items across sentiment, negation natural-language inference, and harmful-request
+tasks, each with a deterministic, non-circular oracle for a meaning-changing edit. Two robustness
+notions are available here. The sensitivity ratio \etaL{}, computed with the task-appropriate class
+margin, measures how far a correct decision sits from the boundary relative to how fast the margin
+moves. The excessive-invariance radius \rhoG{} measures the size of the smallest meaning-changing edit
+(an antonym swap, a negation, or a harmful-to-benign rewrite) that the model wrongly answers the same
+way. Across items these two are uncorrelated: Spearman$(\etaL, \rhoG) = -0.025$ ($95\%$ CI
+$[-0.09, +0.04]$). Sensitivity to small worst-case perturbations and invariance to large
+meaning-changing edits are, in these models, orthogonal axes.
+% Fig: results eta/L vs rho_G scatter, null.
+
+\paragraph{An orbit-flip radius and its certificate.}
+\begin{proposition}[informal]
+\label{prop:rhoG}
+For a prompt $x$ with oracle label $y(x)$, let \rhoG$(x)$ be the size of the smallest edit that
+changes the meaning yet leaves the model's answer unchanged. Then \rhoG$(x)$ is an upper bound on the
+oracle-robust radius of $x$: no smaller edit both changes the meaning and is answered correctly.
+\end{proposition}
+This inverts the direction of the certified-NLP literature, which certifies that a prediction is
+\emph{unchanged} within a radius as a virtue; here the same geometry certifies that staying unchanged
+past \rhoG{} is a failure. We report the distribution of \rhoG{} in token-edit and embedding distance
+rather than the tautological statement that no meaning-changing edit is smaller than the smallest one.
+
+\paragraph{Excessive invariance, decomposed honestly.}
+The pooled rate at which the model wrongly ignores a meaning-changing edit is $0.564$, but this pools
+two very different phenomena and we do not report it as a single number. On sentiment, where the model
+is a genuine classifier (it answers negative on $54\%$ and positive on $46\%$ of inputs, at $92\%$
+accuracy), it wrongly ignores a meaning-changing edit on $0.67$ of the items it gets right, and on the
+clean antonym subset alone on $0.673$; this is genuine excessive invariance. On negation inference and
+on harmful requests the same rate is instead a constant-classifier degeneracy: the model answers
+``entailment'' on all $500$ inference items regardless of the gold label, and refuses $97\%$ of
+requests, so a high invariance rate simply re-encodes the label prior. This degeneracy is
+model-dependent, since Qwen-2.5-7B is not constant on the same corpus. We treat the constant-classifier
+case as a boundary condition and relate it to the known observation that a constant classifier attains
+an unbounded margin ratio with no real robustness.
+% Table: per-family flip decomposition (verify/B2_verification.md §3e).
+
+\section{Where the transfer stops}
+\label{sec:tdiss}
+% PENDING the matched-margin run (fix_matched_margin.py) + masking/GCG.
+% Preliminary: a FIRST-TOKEN refuse margin does NOT predict the multi-token L2 jailbreak radius
+% (Spearman -0.17, partial -0.067). Gauge-invariance mechanism confirmed. Diagnosed as a threat-model
+% mismatch (first-token margin vs multi-token generation attack); matched-margin R_cont=L0/||grad L0||
+% test resolves whether it transfers when properly matched. FINALIZE after that run + masking/GCG.
+\textbf{[DRAFT PENDING matched-margin result. Honest reporting: a first-token refuse margin does not
+predict the multi-token jailbreak radius; the gauge-invariance mechanism is confirmed; we identify the
+threat-model mismatch and report the threat-matched test.]}
+
+\section{Discussion}
+\label{sec:discussion}
+\textbf{[DRAFT PENDING. Limitations: encoder-level vs decision-boundary transfer; model-dependence of
+the degeneracy; per-image is the powered axis on the tower side; embedding geometry of \rhoG{} is
+coarse.]}
+
+\bibliographystyle{plainnat}
+% \bibliography{refs}   % build refs.bib from SYNTHESIS_lit_and_framing.md must-cite lists
+\end{document}
