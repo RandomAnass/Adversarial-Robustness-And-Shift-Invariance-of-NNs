@@ -19,10 +19,32 @@ headline to the powered PER-IMAGE axis, then the extended run broke the confound
 - VERDICT: **GO, confound-controlled.** eta/L is a near-oracle attack-free encoder-selection rule; shift-consistency
   (prediction-agreement) and clean accuracy fail; cosine-consistency only "works" by co-detecting AT (dissolved by partials).
 
-## T-DISS (text ratio vs consistency) — MAIN RUN DONE 2026-07-12 14:04 (phase2 920/920). Post-pipeline
-##   (gauge sweep -> masking battery -> GCG 128x250 -> validations -> analyze -> summary -> figures) NOW RUNNING
-##   on GPU 0 (run_post.sh, PID 630390). Was deadlocked on a self-matching-pgrep monitor; fixed 2026-07-12.
-##   Adversarial verification queued for when results/SUMMARY.json lands.
+## T-DISS (text ratio vs consistency) — MAIN RUN DONE 2026-07-12; PRELIMINARY VERDICT = NEGATIVE.
+##   Independent replication of the harness's exact analysis (verify/TDISS_preliminary_independent.md):
+##   Spearman(R2, r2 jailbreak radius) = -0.17 (harness EXPECTS +; VLM analog +0.78); AUROC(-R2->vuln)
+##   = 0.31 (<0.5); PRIMARY partial(R2, r2 | clean_refuse, M) = -0.067 (kill needed >+0.15) -> FAILS.
+##   Consistency null holds but MOOT (R2 also fails -> no dissociation). Gauge-invariance MECHANISM
+##   confirmed (gauge.json: R2_mean exactly const under logit scaling; fixed-thresh R2 stable, raw-M's
+##   moves) but on a task where the predictor doesn't work. LIKELY CAUSE: threat-model mismatch (M =
+##   FIRST-TOKEN refuse-margin vs r2 = MULTI-TOKEN affirmative-continuation attack radius). Post-pipeline
+##   (masking battery -> GCG 128x250 -> analyze -> summary) still running on GPU 0 to confirm r2 is a real
+##   radius (not attack under-optimization) before finalizing. NOT a positive text leg.
+##
+## DEEP LITERATURE PASS DONE 2026-07-12 (3 agents + my source-verification -> SYNTHESIS_lit_and_framing.md):
+##   - C1/VLM: NOT SCOOPED. New verified neighbors: GREAT Score (2304.09875), MaCS (2603.05812, keyword
+##     collision). Must-distinguish: +RDI 2504.18556, Ngnawe 2406.18451, Singla-Ge 2103.02695.
+##   - B2-A (rho_G radius/certificate): NOT SCOOPED (direction INVERTED vs CERT-ED/RS-Del/Text-CRS which
+##     certify meaning-PRESERVING; ours certifies meaning-CHANGING invariance as failure).
+##   - B2-B (eta/L ⊥ rho_G orthogonality): NOT SCOOPED (Tramer 2002.04599 proves a TRADEOFF, not measured
+##     per-item orthogonality).
+##   - B2-C (constant-classifier degeneracy): DEMOTE to a LENS. The FACT (Llama negation-blindness:
+##     Naysayers 2306.08189, Identical-Replies EMNLP-2025 on LLaMA-3.1-8B) and the LEMMA (trivial
+##     classifier -> inf ratio: ACR-poor-metric 2410.06895, VERIFIED) are BOTH already published. Novel =
+##     only the unification (negation-blindness + over-refusal under one rho_G) + model-contrast diagnostic.
+##   - FRAMING: ONE cross-modal paper, VLM-PRIMARY (C1 = load-bearing new leg), LLM = generalization
+##     frontier (B2 orthogonality + rho_G + degeneracy-as-boundary), T-DISS = honest negative/limitation.
+##     Venue ICML/NeurIPS main, fallback TMLR. Weak-attack artifact = named instance of gradient-masking
+##     (Athalye 1802.00420). SEE SYNTHESIS_lit_and_framing.md for must-cite lists + reviewer pre-empts.
 ## B2 (orbit-flip radius rho_G) — DONE + VERIFIED + CORRECTED (see verdict below). Fixes still queued.
 
 ## DIRECTION (2026-07-11, author): LLM campaign -> its OWN paper. Priority = correct literature + correct

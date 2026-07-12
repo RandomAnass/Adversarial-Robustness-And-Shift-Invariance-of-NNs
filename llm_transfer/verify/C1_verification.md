@@ -273,6 +273,37 @@ support.
   as a *training regularizer on single supervised classifiers*, never a cross-tower attack-free
   selector on frozen VLMs. **No scoop found.**
 
+### Deep scoop-hunt 2026-07-12 (agent + my source-verification of the 2 most dangerous hits)
+
+A fresh adversarial sweep (11 papers read, ~10 query families) found **no scoop**; two new
+nearest-neighbors surfaced that were NOT in the prior list and that I verified directly against
+their arXiv abstracts (both real, both accurately characterized by the agent):
+
+- **GREAT Score (2304.09875, Li/Chen/Ho, ICLR 2023)** — VERIFIED. The closest true *attack-free
+  robustness ranker*: *"a mean certified attack-proof perturbation level … high correlation and
+  significantly reduced computation cost when compared to the attack-based model ranking on
+  RobustBench."* Distinguish: its estimator is a **generative-manifold confidence margin**, not an
+  input-gradient dual-norm Lipschitz ratio; it ranks **plain RobustBench classifiers**, not frozen
+  CLIP/RobustVLM/DINOv2 towers; no per-image certified-radius ordering; no shift-consistency null.
+  **Must cite as the nearest attack-free-ranking prior.**
+- **MaCS (2603.05812, Khazem, 2026)** — VERIFIED (abstract). The keyword-collision danger: it shares
+  the margin idea, the word "consistency," and a **margin-to-sensitivity ratio with a radius bound**
+  (*"a provable robustness radius bound scaling with the margin-to-sensitivity ratio"*). Distinguish:
+  it is a **training regularizer** (hinge margin + KL-consistency between clean and **noise/blur**
+  views), not an attack-free predictor; its "consistency" is noise/blur KL, **not pixel-shift
+  prediction-agreement** (our null); it evaluates supervised CNNs/ViTs, **no frozen foundation
+  towers**, no AutoAttack cross-tower ranking. A referee scanning keywords WILL raise it → cite and
+  separate explicitly on all three axes.
+- Also confirmed nearest-neighbors: **RDI (2504.18556)** closest attack-free *feature-cluster*
+  ranker on plain classifiers; **Ngnawe (2406.18451)** closest *within-one-model per-sample* bare-
+  margin (no L) detector; **Singla-Ge (2103.02695)** motivation for the null.
+
+**Post-verification novelty (intact):** the combination {frozen VLM/foundation towers} × {threat-
+matched η/L = margin over dual-norm input-gradient} × {both cross-tower AutoAttack ranking AND
+per-image certified-radius ordering} × {paired shift-consistency null that fails} is not found in
+the literature. Related work MUST cite+distinguish: 2304.09875, 2603.05812, 2504.18556, 2406.18451,
+2103.02695.
+
 ### Defensible novelty after hardening
 
 Unclaimed and intact: **a threat-matched margin-to-Lipschitz ratio (η/L, L = mean dual-norm Linf
