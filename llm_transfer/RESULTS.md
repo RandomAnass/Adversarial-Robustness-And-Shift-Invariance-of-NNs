@@ -1,19 +1,29 @@
 # LLM-transfer campaign — pilot results
 
-## C1 (VLM tower diagnostic) — COMPLETE, strong PASS (commit fdb6249)
-Frozen open_clip tower panel (base CLIP, FARE2/4 + TeCoA2/4 robust, DINOv2 widener), zero-shot ImageNet-100,
-clean attack-free eta/L + shift-consistency vs AutoAttack (APGD-CE+DLR, +Square) robustness. 6 towers
-(7th anti-aliased-stem widener OOM'd on GPU — dropped, not core).
-- **eta/L1 vs AutoAttack robustness: Pearson +0.91, Spearman +0.93 (perm-p 0.014).**
-- **shift-consistency vs robustness: -0.31 / -0.52 (perm-p 0.49, n.s.)** — the field's invariance metric does NOT order robustness; DINOv2 has the HIGHEST consistency (0.989) yet ZERO robustness (the VLM analog of our exactly-invariant arm).
-- **partial corr eta/L | clean-acc = +0.95** (not a clean-accuracy proxy; clean-acc itself anti-predicts -0.75).
-- **Selection rule:** pick tower by eta/L -> 5-pt robustness regret (near-oracle); by shift-consistency -> 88-pt regret (picks the zero-robust DINOv2). Same catastrophic 88-pt for clean-acc.
-- **No gradient masking** (APGD<=PGD40<=FGSM, Square>=APGD, all towers/eps). **KILL not triggered.**
-- Nuance: a cosine-embedding consistency variant DOES correlate (+0.94) — but the standard prediction-agreement shift-consistency the literature uses fails. Handle in writeup.
-- VERDICT: the eta/L-vs-shift-consistency dissociation transfers to VLM vision towers cleanly; eta/L is a near-perfect attack-free encoder-selection rule where shift-consistency (and clean accuracy) fail catastrophically.
+## C1 (VLM tower diagnostic) — COMPLETE + VERIFIED + EXTENDED, strong PASS (verify/C1_verification.md)
+Frozen open_clip tower panel, zero-shot ImageNet-100, clean attack-free eta/L + shift-consistency vs
+AutoAttack (APGD-CE + APGD-T ensemble) robustness. **Extended to n=11 towers = 4 AT (FARE2/4, TeCoA2/4)
++ 7 non-AT (base CLIP, DINOv2, + 5 CLIP variants over corpus/patch/capacity)**; metaclip dropped (11 not 12).
+The verifier demoted the original +0.91 tower number (was partly an AT-detector at n=6), re-scoped the
+headline to the powered PER-IMAGE axis, then the extended run broke the confound outright:
+- **Tower axis (n=11): eta/L1 vs robustness Pearson +0.953** [0.92,1.0], perm-p 0.0009. **Survives partialling
+  out the AT indicator: partial(eta/L1, S | is-AT) = +0.51, | clean&is-AT = +0.56.** Cosine-consistency's
+  +0.81 **collapses to +0.15** under the same control (it was the AT co-detector). SC_pred (fair null) n.s. +0.37.
+- **HEADLINE — per-image dissociation:** Spearman(per-image eta/L1, robust radius) = **+0.78** [0.75,0.81] pooled
+  over AT towers, and **+0.54 … +0.79 WITHIN each non-AT CLIP tower** (finer grid gave them radius spread) —
+  vs shift-consistency **+0.12 / ≈0**. The dissociation is NOT an AT artifact; holds on AT and non-AT towers.
+- **Selection rule (n=11):** eta/L1 -> 5-pt regret (near-oracle); SC_pred -> 88-pt; clean-acc -> 88-pt.
+- **Bonus cross-domain confirmation:** the main paper's weak-attack artifact replicates in VLMs — every non-AT
+  CLIP tower has S_fgsm 0.16–0.46 but S_apgd = S_pgd40 = 0.0 (FGSM shows "robustness" AutoAttack erases).
+- **No gradient masking** (APGD<=PGD40<=FGSM, Square>=APGD). Implementation verified line-by-line; no sign flips.
+- VERDICT: **GO, confound-controlled.** eta/L is a near-oracle attack-free encoder-selection rule; shift-consistency
+  (prediction-agreement) and clean accuracy fail; cosine-consistency only "works" by co-detecting AT (dissolved by partials).
 
-## T-DISS (text ratio vs consistency) — RUNNING (GPU 0, phase2 ~380/920 radius search, ~1 day)
-## B2 (orbit-flip radius rho_G) — RUNNING (GPU 1, ~12-25 GPU-h)
+## T-DISS (text ratio vs consistency) — MAIN RUN DONE 2026-07-12 14:04 (phase2 920/920). Post-pipeline
+##   (gauge sweep -> masking battery -> GCG 128x250 -> validations -> analyze -> summary -> figures) NOW RUNNING
+##   on GPU 0 (run_post.sh, PID 630390). Was deadlocked on a self-matching-pgrep monitor; fixed 2026-07-12.
+##   Adversarial verification queued for when results/SUMMARY.json lands.
+## B2 (orbit-flip radius rho_G) — DONE + VERIFIED + CORRECTED (see verdict below). Fixes still queued.
 
 ## DIRECTION (2026-07-11, author): LLM campaign -> its OWN paper. Priority = correct literature + correct
 ## experimental design + correct implementation. Skip nothing. (lora_gauge dropped - not our run.)
@@ -42,6 +52,14 @@ VERIFIED, correctly-scoped results only.
 - DEFENSIBLE CLAIM: generative LLMs have a measurable rho_G upper-bounding the oracle-robust radius
   (prop:rhoG), and Llama-3-8B shows a model-dependent constant-classifier collapse on negation-NLI + harmful
   requests (excessive-invariance failure LGIP's rate metrics can't express). Trade-off + budget-law = NO-GO.
-- B2 FIXES QUEUED (need GPU, after C1 verifier frees GPU1): (1) recompute eta/L with per-task-class margin;
-  (2) report flip-rate PER-FAMILY (sentiment/NLI/safety), not pooled 0.564; (3) either design a graded-edit
-  family for a real budget test + a FAIR invariance intervention, or drop both and keep rho_G-dist + degeneracy.
+- B2 FIXES DONE 2026-07-12 (fix_etaL.py + analyze_fixes.py; results/etaL_taskmargin.jsonl, fixes.json):
+  (1) eta/L recomputed with TASK-CLASS margin -> M>0 now == base acc per family (was 97-100% negative on
+      sentiment/NLI). Pooled Spearman(eta/L, rho_G_emb) = -0.025 [-0.09,+0.04], a CLEAN NULL. The old -0.11
+      "decoupling" was a mis-specified-margin artifact, RETRACTED. New claim (upgraded NO-GO->GO): eta/L and
+      rho_G are ORTHOGONAL axes (sensitivity-robustness ⊥ excessive-invariance radius).
+  (2) 0.564 DECOMPOSED: sentiment 0.67 among-correct (GENUINE excessive invariance; clean-antonym subset 0.673,
+      survives the negation-oracle caveat) vs NLI 1.00 & safety 0.62 (CONSTANT-CLASSIFIER degeneracy: model says
+      'entailment' on 100%, 'refuse' on 97%). NLI flip == P(gold=entailment) exactly. Never report pooled.
+  (3) graded-edit budget test + fair invariance intervention: STILL DEFERRED (needs new corpus design; budget-law
+      + trade-off remain NO-GO). Defensible B2 paper parts now: rho_G radius (prop:rhoG theorem) + orthogonality
+      + sentiment genuine-invariance + NLI/safety constant-classifier degeneracy (model-dependent).

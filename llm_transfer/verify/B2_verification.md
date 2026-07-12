@@ -15,6 +15,13 @@ weak evidence against the trade-off hypothesis. **GO** on ρ_G-as-a-radius + the
 characterization + oracle framing; **NO-GO** on the budget law as an empirical result and on
 the trade-off transfer (either direction) as currently instrumented; **FIX** the η/L axis.
 
+**UPDATE 2026-07-12 — both fixes applied (§3e).** (1) η/L recomputed with the task-class margin:
+the mis-specified −0.11 "decoupling" is retracted; the corrected pooled Spearman(η/L, ρ_G) = −0.025
+[−0.09,+0.04] is a clean **null → η/L and ρ_G are orthogonal axes** (upgraded NO-GO → GO). (2) The
+0.564 flip rate is decomposed: **sentiment 0.67 (genuine excessive invariance, clean-antonym 0.673)**
+vs **NLI 1.00 / safety 0.62 (constant-classifier degeneracy)** — never reported pooled (upgraded to
+GO-decomposed). The budget-law and trade-off verdicts stand as NO-GO.
+
 ---
 
 ## 1. IMPLEMENTATION audit
@@ -173,7 +180,7 @@ also has higher base accuracy (0.878 vs 0.79), so this too is accuracy-confounde
   must not be sold as "the model is 56% excessively invariant." The degeneracy being
   model-dependent (Llama yes, Qwen no) is itself a clean, reportable result.
 
-### 3c. η/L ⊥ ρ_G (Spearman −0.11) — **the η/L here is NOT computed consistently with the theory; the decoupling number is largely meaningless for 75% of items.**
+### 3c. η/L ⊥ ρ_G (Spearman −0.11) — **the η/L here is NOT computed consistently with the theory; the decoupling number is largely meaningless for 75% of items.** → **FIXED 2026-07-12, see §3e.**
 
 `b2_model.eta_L` reuses `tdiss_core.diagnostics`, which computes M as the **refusal margin**
 `refuse_logit − affirm_logit` (`tdiss_core.py:68`). The theory's M (`main.tex:135`) is the
@@ -186,6 +193,68 @@ Spearman(R2, ρ_G) = −0.11 is dominated by this mis-specified margin and shoul
 "η/L decouples from ρ_G." To make the two-axis claim, η/L must use the task-appropriate class
 margin (positive−negative logit gap for sentiment; yes−no for NLI; refuse−comply for safety), the
 same heads the flip uses. As-is, this result is a **NO-GO**.
+
+---
+
+## 3e. FIXES APPLIED (2026-07-12) — `fix_etaL.py` + `analyze_fixes.py`
+
+Both queued fixes are done. Code: `fix_etaL.py` (GPU recompute of the task-class margin over all
+1600 corpus items → `results/etaL_taskmargin.jsonl`) and `analyze_fixes.py` (CPU decomposition →
+`results/fixes_report.txt`, `fixes.json`).
+
+**FIX 1 — η/L recomputed with the task-class margin (pos−neg / yes−no / refuse−comply, signed to the
+oracle label).** Sanity check confirms the old margin was mis-specified and the new one is correct:
+
+| family | old M>0 | **new M>0** | base acc | old mean M | new mean M |
+|---|---|---|---|---|---|
+| sentiment | 0.031 | **0.914** | 0.916 | −1.51 | +8.25 |
+| nli | 0.002 | **0.468** | 0.468 | −2.96 | +0.365 |
+| safety | 0.988 | 0.988 | 0.973 | +14.34 | +14.34 (unchanged — already refuse−comply) |
+
+The new `M>0` fraction equals base accuracy per family (M>0 ⇔ model correct), exactly as the theory
+margin requires. The old refusal margin was negative on 97–100% of sentiment/NLI items.
+
+**Corrected decoupling — R2 = M/‖∇M‖₂ vs ρ_G, over items that orbit-flip (embedding geometry, the
+meaningful one; token geometry is degenerate at dist=1):**
+
+| subset | n_flip | OLD Spearman(R2, ρ_G_emb) | **NEW (task margin)** |
+|---|---|---|---|
+| sentiment | 428 | −0.030 [−0.12,+0.06] | +0.150 [+0.06,+0.24] |
+| nli | 234 | −0.060 | +0.001 [−0.12,+0.13] |
+| safety | 241 | −0.098 | −0.098 (unchanged) |
+| **POOLED** | **903** | **−0.153 [−0.21,−0.09]** | **−0.025 [−0.09,+0.04]** |
+
+**Verdict flip: the old −0.11/−0.15 "decoupling" was a mis-specified-margin artifact and is
+retracted. With the correct task-class margin the pooled correlation is −0.025 with a CI straddling
+0 — a clean null. The defensible, and more interesting, statement is that the sensitivity ratio η/L
+and the excessive-invariance radius ρ_G are ORTHOGONAL axes (Spearman ≈ 0), not weakly anti-correlated.
+This upgrades §3c from NO-GO to a GO on an orthogonality claim.**
+
+**FIX 2 — the pooled orbit-flip rate 0.564 decomposed per family and per edit-type:**
+
+| family | flip/all | flip/among-correct | base acc | dominant answer | frac dominant |
+|---|---|---|---|---|---|
+| sentiment | 0.611 | **0.668** | 0.916 | negative | 0.541 |
+| nli | 0.468 | **1.000** | 0.468 | entailment | **1.000** |
+| safety | 0.603 | 0.620 | 0.973 | refuse | **0.973** |
+| POOLED | **0.564** | — | — | — | — |
+
+Per edit-type among base-correct: **sentiment antonym (clean oracle) 0.673**, sentiment negation
+(unreliable oracle) 0.581, nli negation 1.000, safety harmful→benign 0.620.
+
+**The decomposition cleanly separates the two phenomena the pooled number conflated:**
+- **Genuine excessive invariance: sentiment.** The model is a real 54/46 classifier (dominant only
+  0.541, base acc 0.916), yet it stays invariant to meaning-flipping edits on **0.668** of items it
+  gets right — and on the **clean antonym subset alone it is 0.673**, so the finding survives the
+  §2 sentiment-negation oracle caveat. This is the load-bearing genuine-invariance evidence.
+- **Constant-classifier degeneracy (lem:ratiodegen): NLI and safety.** NLI flip-among-correct is
+  **1.000** and the flip rate (0.468) equals P(gold=entailment) exactly while the model answers
+  "entailment" on **100%** of x — a pure re-encoding of the label prior under a constant classifier,
+  NOT invariance to a distinction the model could draw. Safety is a near-constant "refuse" (0.973).
+  Both are honest lem:ratiodegen instances, model-dependent (Qwen is not constant, §3b).
+
+So the paper reports **sentiment 0.67 (genuine excessive invariance)** and **NLI/safety as
+constant-classifier degeneracy**, never the pooled 0.564 as "56% excessively invariant."
 
 ---
 
@@ -221,11 +290,11 @@ a broken knob — so neither the positive nor a strong negative claim is earned)
 |---|---|---|
 | ρ_G is a real, measurable radius (distribution, both geometries) | **GO** (with caveat) | Sound measurement; embedding geometry is coarse/quantized, lead with token-edit distance |
 | Oracle is deterministic & non-circular | **GO** | Clean separation verified; NLI is filter/diagnostic only |
-| Orbit-flip rate 0.564 as "excessive invariance" | **GO only if decomposed** | Pool mixes genuine invariance with NLI/safety constant-classifier artifact; report per-family, not pooled headline |
+| Orbit-flip rate 0.564 as "excessive invariance" | **GO — DECOMPOSED (§3e)** | Split done: sentiment 0.67 (genuine, clean-antonym 0.673) vs NLI 1.00 / safety 0.62 (constant-classifier degeneracy). Never report pooled 0.564. |
 | Constant-classifier degeneracy (lem:ratiodegen instance) | **GO** | Real behavior, correctly detected, model-dependent — a genuine finding |
 | Budget law ε<ρ_G "holds on 100%" | **NO-GO** | Definitional artifact (1 edit/item); non-vacuous on 8/1600. Replace with prop:rhoG-as-theorem + ρ_G distribution |
 | Invariance–sensitivity trade-off (transfers / KILL) | **NO-GO (re-run)** | KILL is a broken-dose-knob artifact (jailbreaks safety, no-ops NLI); needs a genuine invariance operator with accuracy control before any claim |
-| η/L ⊥ ρ_G decoupling (−0.11) | **NO-GO (fix)** | η/L uses refusal margin on non-refusal tasks for 75% of items; recompute with task-class margin |
+| η/L ⊥ ρ_G decoupling (−0.11) | **GO — FIXED (§3e)** | Recomputed with task-class margin: pooled Spearman −0.025 [−0.09,+0.04], a clean null. η/L and ρ_G are ORTHOGONAL axes; old −0.11 was a margin artifact, retracted. |
 | Sentiment negation oracle | **FIX** | Polarity assignment unreliable on 206 negation-only items; restrict to antonym or hand-audit |
 
 **Bottom line for the paper:** B2 supports a *narrower* standalone claim than "the Tramèr

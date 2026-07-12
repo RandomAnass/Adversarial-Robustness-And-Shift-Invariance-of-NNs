@@ -160,12 +160,25 @@ CLIP_TOWERS = {
     "fare4":  ("hf-hub:chs20/fare4-clip", None),
     "tecoa2": ("hf-hub:chs20/tecoa2-clip", None),
     "tecoa4": ("hf-hub:chs20/tecoa4-clip", None),
+    # --- extended panel: NON-AT CLIP towers spanning a range of eta/L and SC (verifier) ---
+    # These widen the invariance x robustness plane away from the AT-vs-non-AT split, so the
+    # eta/L ranking is tested against genuinely diverse non-AT encoders (different pretraining
+    # corpora, patch sizes, capacities). All are Linf-non-robust (S~0), so they test whether
+    # (i) low eta/L uniformly co-occurs with S~0 across diverse non-AT towers, and (ii) whether
+    # SC_cos "predicts" S only because it co-detects AT (it should collapse on this non-AT sweep).
+    "clip_l14_laion2b": ("ViT-L-14", "laion2b_s32b_b82k"),
+    "clip_l14_datacomp": ("ViT-L-14", "datacomp_xl_s13b_b90k"),
+    "clip_b16_openai":  ("ViT-B-16", "openai"),
+    "clip_b16_laion2b": ("ViT-B-16", "laion2b_s34b_b88k"),
+    "clip_b32_laion2b": ("ViT-B-32", "laion2b_s34b_b79k"),
+    "clip_l14_metaclip": ("ViT-L-14-quickgelu", "metaclip_fullcc"),
 }
 
 
 def load_clip_tower(name, class_names, device, anti_alias=False, blur_size=3):
     """Load an open_clip tower and attach a frozen zero-shot head at COMMON_RES."""
     arch, pretrained = CLIP_TOWERS[name] if not anti_alias else CLIP_TOWERS["clip"]
+    # RobustVLM/base share a ViT-L-14 text tower; extended non-AT towers carry their own tag.
     if pretrained is not None:
         model, _, _ = open_clip.create_model_and_transforms(arch, pretrained=pretrained)
         tokenizer = open_clip.get_tokenizer(arch)

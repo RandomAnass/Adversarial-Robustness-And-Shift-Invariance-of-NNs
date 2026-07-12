@@ -1,0 +1,91 @@
+{
+  "n": 1600,
+  "by_family": {
+    "sentiment": {
+      "R2new_vs_rhoemb": {
+        "r": 0.1504847225775244,
+        "ci": [
+          0.05847933811089606,
+          0.2415834292093609
+        ],
+        "n": 428,
+        "old_r": -0.029926982611281648
+      },
+      "flip_all": 0.6114285714285714,
+      "flip_correct": 0.6677067082683308,
+      "base_acc": 0.9157142857142857,
+      "dominant_ans": "negative",
+      "frac_dominant": 0.5414285714285715,
+      "edit_types": {
+        "antonym": {
+          "n": 450,
+          "flip_rate": 0.6733333333333333
+        },
+        "negation": {
+          "n": 272,
+          "flip_rate": 0.5808823529411765
+        }
+      }
+    },
+    "nli": {
+      "R2new_vs_rhoemb": {
+        "r": 0.0013172916894969642,
+        "ci": [
+          -0.12435488105832483,
+          0.1292483795105243
+        ],
+        "n": 234,
+        "old_r": -0.05958438580871107
+      },
+      "flip_all": 0.468,
+      "flip_correct": 1.0,
+      "base_acc": 0.468,
+      "dominant_ans": "entailment",
+      "frac_dominant": 1.0,
+      "edit_types": {
+        "negation": {
+          "n": 234,
+          "flip_rate": 1.0
+        }
+      }
+    },
+    "safety": {
+      "R2new_vs_rhoemb": {
+        "r": -0.09829653689014574,
+        "ci": [
+          -0.221414651580869,
+          0.03392010985507133
+        ],
+        "n": 241,
+        "old_r": -0.09829653689014574
+      },
+      "flip_all": 0.6025,
+      "flip_correct": 0.6195372750642674,
+      "base_acc": 0.9725,
+      "dominant_ans": "refuse",
+      "frac_dominant": 0.9725,
+      "edit_types": {
+        "harmful2benign": {
+          "n": 389,
+          "flip_rate": 0.6195372750642674
+        }
+      }
+    },
+    "POOLED": {
+      "R2new_vs_rhoemb": {
+        "r": -0.024633945361686282,
+        "ci": [
+          -0.09228169927764122,
+          0.04168291749152605
+        ],
+        "n": 903,
+        "old_r": -0.15281139544058306
+      }
+    }
+  },
+  "nli_degeneracy": {
+    "p_gold_entailment": 0.468,
+    "p_model_entailment": 1.0,
+    "nli_flip_rate": 0.468
+  }
+}
