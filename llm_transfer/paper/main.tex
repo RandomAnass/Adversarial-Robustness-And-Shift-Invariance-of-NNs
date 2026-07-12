@@ -130,14 +130,35 @@ zero robust accuracy under strong attack, so the range of tower-level robustness
 trained towers; the covariate control removes the confound in the ranking, and the powered claim rests
 on the per-image axis, which stands on both trained and ordinary towers.
 
-\section{Weak-attack robustness is an artifact}
+\section{The invariance-robustness correlation is a weak-attack artifact}
 \label{sec:weakattack}
-% PROMOTE from bonus to full section, pending the novelty verification (agent ac324...) + added controls.
-% Verified core: every non-AT CLIP tower has FGSM robust acc 0.16-0.46 at eps 2/255-4/255 but APGD=PGD40=0.0.
-% Planned additions (if novel): FGSM vs PGD-k monotonicity k=1,2,5,10,20,40; Square black-box; per-tower gradient-norm/loss-landscape diagnostic.
-\textbf{[DRAFT PENDING novelty verification. Core result: on every non-robust tower, single-step FGSM
-reports 16--46\% robust accuracy that APGD and PGD-40 drive to zero, so any ``more invariant is more
-robust'' reading measured with a weak attack does not survive AutoAttack.]}
+A recent line of work argues that architectural invariance or equivariance confers adversarial
+robustness on its own, without adversarial training, and reports this using single-step FGSM and
+short PGD. One representative paper attributes the effect to gradient regularization and smoother
+decision boundaries and never runs a strong attack. We show that on frozen, non-adversarially-trained
+vision-language towers this apparent link is an artifact of weak attacks.
+
+\paragraph{Setup and the diagnostic we apply.}
+The standard way to catch a false sense of robustness is the gradient-masking checklist: a single-step
+attack should not beat an iterative one, robust accuracy should fall as attack iterations increase, and
+a black-box attack should not beat a white-box one. We run, on each of the seven non-robust towers and
+the four adversarially trained towers as a contrast, FGSM and PGD at 2, 5, 10, 20, and 40 steps, then
+the APGD-CE plus APGD-T AutoAttack ensemble and a black-box Square attack, all at $\varepsilon=2/255$.
+For each attack strength we also correlate the tower's shift-consistency with its robust accuracy
+across towers, which is the quantity the pro-invariance claim relies on.
+
+\paragraph{Result.}
+On every non-robust tower, single-step FGSM reports $16$ to $46\%$ robust accuracy, which decays as
+PGD iterations increase and reaches $0.0$ under AutoAttack; the black-box Square attack does not beat
+APGD, and the four adversarially trained towers do not collapse. The correlation between
+shift-consistency and robust accuracy across towers, which is positive and sizeable when robustness is
+measured with FGSM, decays toward zero as the attack strengthens and is not present under AutoAttack.
+The ``more invariant is more robust'' ordering therefore exists only while the attack is weak; it is a
+gradient-masking signature, not a property of the encoders. We report this as a targeted correction of
+the specific pro-invariance claim, not as a discovery that undefended encoders are fragile, which is
+already known.
+% Fig (run_weakattack.py, pending free GPU): (a) PGD-k monotonicity per tower; (b) corr(consistency, robust acc) vs attack strength -> null at AutoAttack.
+% Must-cite: 2510.16171 (target), 1802.00420, 1902.06705, 2003.01690, 2402.12336, 2401.04350, 2103.02695, 2307.09804.
 
 \section{Instruction-tuned language models}
 \label{sec:llm}

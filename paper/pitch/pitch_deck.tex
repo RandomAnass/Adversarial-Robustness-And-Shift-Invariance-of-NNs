@@ -490,6 +490,101 @@
 \end{frame}
 
 %==============================================================================
+% SECTION DIVIDER: does it generalize -- foundation models
+%==============================================================================
+{\setbeamercolor{normal text}{fg=paper,bg=accent}
+\setbeamertemplate{footline}{}
+\usebeamercolor[fg]{normal text}
+\begin{frame}[plain]
+  \begin{center}
+    \vfill
+    {\color{paper}\Huge\bfseries Does it generalize?}\\[0.6em]
+    {\color{paper!85}\large The same dissociation in frozen VLM encoders, LLMs, and transformers}
+    \vfill
+  \end{center}
+\end{frame}}
+
+%==============================================================================
+% G1. VLM -- eta/L ranks frozen vision towers
+%==============================================================================
+\begin{frame}{Generalization 1: frozen vision-language encoders}{\etaL{} on clean images ranks eleven towers by AutoAttack robustness; consistency does not}
+  \vspace{0.3em}
+  \begin{center}
+  \small
+  \begin{tabular}{lcc}
+    \toprule
+    predictor (clean, attack-free) & \multicolumn{1}{c}{tower rank vs robust acc} & \multicolumn{1}{c}{after removing ``is-AT''}\\
+    \midrule
+    \good{threat-matched \etaL{}}            & \good{$+0.953$} & \good{$+0.51$}\\
+    cosine ``consistency''                   & $+0.81$         & \bad{$+0.15$ (only detects AT)}\\
+    shift-consistency (prediction)           & \bad{$+0.37$ n.s.} & --\\
+    clean accuracy                           & \bad{$-0.07$}   & --\\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vspace{0.2em}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \footnotesize \good{Per image} (the powered claim): \etaL{} orders the certified radius at
+      Spearman \good{$+0.78$} pooled over robust towers, and \good{$+0.54$--$+0.79$ within each
+      ordinary CLIP tower} --- so it is \emph{not} an artifact of adversarial training. Consistency:
+      \bad{$+0.12$}.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \footnotesize \acc{Selection rule.} Pick the tower by \etaL{} $\rightarrow$ \good{5 pts} of
+      robust accuracy behind the oracle. Pick by consistency or clean accuracy $\rightarrow$
+      \bad{88 pts} behind (both choose the zero-robust tower).
+    \end{column}
+  \end{columns}
+  \takeaway{The CIFAR dissociation is not a CIFAR quirk: it holds through \emph{frozen} CLIP / RobustVLM / DINOv2 towers, attack-free.}
+\end{frame}
+
+%==============================================================================
+% G2. LLM -- sensitivity vs excessive-invariance are orthogonal
+%==============================================================================
+\begin{frame}{Generalization 2: instruction-tuned language models}{Sensitivity (\etaL) and excessive invariance ($\rho_G$) are \emph{independent} axes}
+  \vspace{0.3em}
+  \begin{itemize}\footnotesize\itemsep3pt
+    \item \keyword{Two robustness notions, one model.} \etaL{} = how far a correct decision sits from
+    the boundary vs how fast the margin moves. \acc{$\rho_G$} = the size of the smallest
+    \emph{meaning-changing} edit (antonym, negation, harmful$\to$benign) the model wrongly ignores ---
+    an orbit-flip radius, with a certificate $\rho_G \ge$ the oracle-robust radius.
+    \item \keyword{They are orthogonal.} Across $1600$ prompts, Spearman$(\etaL,\rho_G) =
+    \good{-0.025}$ $[-0.09,+0.04]$: sensitivity to worst-case perturbations and invariance to large
+    meaning-changing edits are \emph{unrelated} in LLMs. (This inverts the certified-NLP direction,
+    which certifies staying unchanged as a virtue.)
+    \item \keyword{Excessive invariance, decomposed honestly.} On sentiment, a genuine $54/46$
+    classifier wrongly ignores a meaning flip on \warmt{$0.67$} of correct items (clean antonyms
+    $0.673$) --- \good{real excessive invariance}. On negation-NLI and refusal it is a
+    \bad{constant classifier} (``entailment'' on $100\%$, ``refuse'' on $97\%$; \emph{Qwen is not}),
+    a boundary condition we report as such, not a headline.
+  \end{itemize}
+  \takeaway{In text the two notions become measurably distinct axes --- the dissociation restated with modality-native instruments.}
+\end{frame}
+
+%==============================================================================
+% G3. what transfers, what is open
+%==============================================================================
+\begin{frame}{What transfers, and where we stop honestly}{}
+  \vspace{0.4em}
+  \begin{itemize}\footnotesize\itemsep4pt
+    \item[\good{\checkmark}] \keyword{The weak-attack artifact replicates in VLMs.} Every non-robust
+    CLIP tower shows \warmt{FGSM robust accuracy $0.16$--$0.46$} that \good{AutoAttack drives to
+    $0.0$} --- the same ``invariance helps is an FGSM mirage'' we saw on CIFAR, now in foundation
+    encoders.
+    \item[\good{\checkmark}] \keyword{One gauge-free ratio, three settings.} CIFAR classifiers,
+    frozen VLM towers, and LLMs: \etaL{} predicts, invariance does not.
+    \item[\warmt{?}] \keyword{Where it stops.} A \emph{first-token} refuse margin does \emph{not}
+    predict an LLM's \emph{multi-token} jailbreak radius (Spearman $-0.17$). We trace this to a
+    threat-model mismatch and test the matched continuation margin --- the honest boundary of the
+    encoder-level result, not a contradiction of it.
+    \item[\acc{$\Rightarrow$}] \keyword{One cross-modal paper.} Vision + VLM primary, LLM as the
+    generalization frontier. Target: a main-track venue; deeper representation analysis $\to$ ICLR.
+  \end{itemize}
+  \takeaway{The claim is a property of foundation models, not a dataset artifact --- stated with its limits.}
+\end{frame}
+
+%==============================================================================
 % SECTION DIVIDER: how to pitch
 %==============================================================================
 {\setbeamercolor{normal text}{fg=paper,bg=accent}
