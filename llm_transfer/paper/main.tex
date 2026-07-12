@@ -53,11 +53,34 @@ transfer stops.
 % 3. weak-attack artifact in frozen VLM towers (FGSM overstates, AutoAttack erases).
 % 4. honest scope: encoder-level; first-token margin does not predict multi-token jailbreak radius (matched-margin test).
 % Define eta/L, threat-matched, gauge-free, shift-consistency, rho_G here at first use.
-\textbf{[DRAFT PENDING — write after §4/§5 lock. Define \etaL{} = mean signed margin
-$M(x)=f_y(x)-\max_{j\neq y}f_j(x)$ over correctly-classified clean inputs, divided by the mean
-dual-norm input gradient $\lVert\nabla_x M\rVert_q$ ($q{=}1$ for $\ell_\infty$, $q{=}2$ for $\ell_2$).
-State gauge-freeness (invariant under $f\to cf$) and the certificate reading (robust radius
-$\geq \etaL$). List the four contributions above.]}
+A model that assigns the same output to a shifted image, or the same answer to a reworded prompt, is
+often described as robust, and this invariance is frequently offered as an explanation for, or a route
+to, adversarial robustness. The two properties are not the same. Invariance is about ignoring changes
+that should not matter; adversarial robustness is about not being flipped by a small worst-case change.
+This paper asks whether invariance predicts adversarial robustness in modern foundation models, and
+finds that it does not, while a simple margin-based quantity does.
+
+That quantity is a threat-matched margin-to-Lipschitz ratio. For an input $x$ with correct label $y$,
+let the margin be $M(x) = f_y(x) - \max_{j\neq y} f_j(x)$, the gap between the correct logit and the
+strongest competitor. Let $\eta$ be the mean of $M$ over correctly-classified clean inputs, and let $L$
+be the mean of $\lVert \nabla_x M \rVert_q$, the size of the input gradient of that margin measured in
+the norm dual to the attack ($q=1$ for an $\ell_\infty$ attack, $q=2$ for an $\ell_2$ attack). The
+ratio $\etaL$ has two properties that make it the right scalar. It is threat-matched, since the dual
+norm is chosen to match the attack. And it is gauge-free: multiplying all logits by a constant $c$
+scales $\eta$ and $L$ by the same $c$, so the ratio is unchanged, which means a model's logit
+temperature cannot inflate or deflate it. A first-order argument gives the certificate that the robust
+radius of $x$ is at least $\etaL$, so a larger ratio should mean a more robust input.
+
+We make four claims. First, computed through frozen vision-language towers on clean images alone,
+$\etaL$ ranks eleven towers by their AutoAttack robustness and orders the per-image certified radius,
+while shift-consistency does neither; the ranking survives removing adversarial training as a
+covariate, and a cosine form of consistency does not. Second, in instruction-tuned language models the
+sensitivity axis $\etaL$ and an excessive-invariance axis, an orbit-flip radius $\rho_G$, are
+measurably independent, and $\rho_G$ upper-bounds the model's oracle-robust radius. Third, the apparent
+link between invariance and robustness is an artifact of weak attacks: on every non-robust tower,
+single-step FGSM reports robust accuracy that AutoAttack erases, a gradient-masking signature. Fourth,
+we report honestly where the transfer stops, at the boundary between an encoder-level margin and a
+multi-token generation attack.
 
 \section{Related work}
 \label{sec:related}
@@ -75,7 +98,17 @@ $\geq \etaL$). List the four contributions above.]}
 % One paragraph + cite prior CIFAR work: eta/L predicts robustness (Pearson ~0.998 across arms),
 % shift-consistency anti-predicts under AT (Linf -0.88), threat-matched eta/L predicts AutoAttack (+0.90);
 % FGSM shows invariance helping, AutoAttack erases it. Sets up the generalization to foundation models.
-\textbf{[DRAFT PENDING — brief recap of the prior CIFAR result, cited as the origin.]}
+The dissociation was first established on image classifiers, which we recap briefly as the origin of
+the present study. Across a family of CIFAR-10 models that vary only in how much shift-invariance they
+build in, the threat-matched $\etaL$ tracks robustness closely (Pearson around $+0.998$ under an
+$\ell_2$ threat model on standard-trained arms), while shift-consistency is uninformative to
+anti-predictive. Under adversarial training the split is sharper: shift-consistency anti-predicts
+AutoAttack robustness (around $-0.88$ under an $\ell_\infty$ threat model), and the exactly invariant
+arm, which has perfect consistency, is the least robust, while the threat-matched $\etaL$ still
+predicts (around $+0.90$). The same two patterns hold across MNIST, Fashion-MNIST, a ResNet backbone,
+and ImageNet-100, where clean accuracy is flat across arms so the difference is margin geometry rather
+than underfitting. The natural question, which this paper answers, is whether these patterns are a
+property of small convolutional classifiers or of learned representations more broadly.
 
 \section{Vision-language encoders}
 \label{sec:vlm}
