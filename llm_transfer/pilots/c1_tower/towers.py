@@ -172,7 +172,26 @@ CLIP_TOWERS = {
     "clip_b16_laion2b": ("ViT-B-16", "laion2b_s34b_b88k"),
     "clip_b32_laion2b": ("ViT-B-32", "laion2b_s34b_b79k"),
     "clip_l14_metaclip": ("ViT-L-14-quickgelu", "metaclip_fullcc"),
+    # --- ROBUST-PANEL EXPANSION (review round 1 fix: power the tower axis, more robust encoders) ---
+    # 6 more chs20 FARE/TeCoA robust towers at new backbones (eps=4/255), open_clip hf-hub drop-ins.
+    "fare4_b32":   ("hf-hub:chs20/FARE4-ViT-B-32-laion2B-s34B-b79K", None),
+    "tecoa4_b32":  ("hf-hub:chs20/TeCoA4-ViT-B-32-laion2B-s34B-b79K", None),
+    "fare4_b16":   ("hf-hub:chs20/FARE4-ViT-B-16-laion2B-s34B-b88K", None),
+    "tecoa4_b16":  ("hf-hub:chs20/TeCoA4-ViT-B-16-laion2B-s34B-b88K", None),
+    "fare4_cnxt":  ("hf-hub:chs20/FARE4-convnext_base_w-laion2B-s13B-b82K-augreg", None),
+    "tecoa4_cnxt": ("hf-hub:chs20/TeCoA4-convnext_base_w-laion2B-s13B-b82K-augreg", None),
+    # Delta-CLIP (Double Visual Defense, distinct method, SOTA robust) -- open_clip hf-hub; verify load.
+    "delta_l14":   ("hf-hub:zw123/delta_clip_l14_224", None),
 }
+
+# adversarially-robust towers (for the AT indicator in analysis)
+ROBUST_TOWERS = {"fare2", "fare4", "tecoa2", "tecoa4",
+                 "fare4_b32", "tecoa4_b32", "fare4_b16", "tecoa4_b16",
+                 "fare4_cnxt", "tecoa4_cnxt"}
+# 6 verified-loadable robust encoders to run for the panel expansion (4 -> 10 robust towers).
+# delta_l14 (Double Visual Defense, SOTA) deferred: zw123 hf-hub config incompatible with this
+# open_clip (CLIPTextCfg vocab_path); add via vision-state_dict if more power is needed.
+NEW_ROBUST = ["fare4_b32", "tecoa4_b32", "fare4_b16", "tecoa4_b16", "fare4_cnxt", "tecoa4_cnxt"]
 
 
 def load_clip_tower(name, class_names, device, anti_alias=False, blur_size=3):
