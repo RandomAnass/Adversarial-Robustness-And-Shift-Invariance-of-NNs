@@ -181,15 +181,17 @@ For each attack strength we also correlate the tower's shift-consistency with it
 across towers, which is the quantity the pro-invariance claim relies on.
 
 \paragraph{Result.}
-On every non-robust tower, single-step FGSM reports $16$ to $46\%$ robust accuracy, which decays as
-PGD iterations increase and reaches $0.0$ under AutoAttack; the black-box Square attack does not beat
-APGD, and the four adversarially trained towers do not collapse. The correlation between
-shift-consistency and robust accuracy across towers, which is positive and sizeable when robustness is
-measured with FGSM, decays toward zero as the attack strengthens and is not present under AutoAttack.
-The ``more invariant is more robust'' ordering therefore exists only while the attack is weak; it is a
-gradient-masking signature, not a property of the encoders. We report this as a targeted correction of
-the specific pro-invariance claim, not as a discovery that undefended encoders are fragile, which is
-already known.
+On every non-robust tower, single-step FGSM reports $16$ to $61\%$ robust accuracy (mean $0.38$ at
+$\varepsilon=2/255$), which falls to exactly $0.0$ under both PGD-40 and AutoAttack, while the four
+adversarially trained towers stay robust (AutoAttack robust accuracy $0.75$ to $0.88$). The quantity
+the pro-invariance claim relies on is the correlation, across towers, between shift-consistency and
+robust accuracy. Across the seven non-robust towers that correlation is Pearson $+0.82$ when robustness
+is measured with FGSM: more shift-consistent towers do look more robust. Under AutoAttack every one of
+those towers sits at $0.0$, so there is no robustness left to order and the correlation is not present.
+The ``more invariant is more robust'' ordering therefore exists only while the attack is weak, which is
+the gradient-masking signature that a single-step attack overstates robustness. We report this as a
+targeted correction of the specific pro-invariance claim, not as a discovery that undefended encoders
+are fragile, which is already known.
 % Fig (run_weakattack.py, pending free GPU): (a) PGD-k monotonicity per tower; (b) corr(consistency, robust acc) vs attack strength -> null at AutoAttack.
 % Must-cite: 2510.16171 (target), 1802.00420, 1902.06705, 2003.01690, 2402.12336, 2401.04350, 2103.02695, 2307.09804.
 

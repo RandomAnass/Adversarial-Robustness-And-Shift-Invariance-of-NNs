@@ -35,14 +35,9 @@ AT_TOWERS = {"fare2", "fare4", "tecoa2", "tecoa4"}
 PGD_KS = [1, 2, 5, 10, 20, 40]     # k=1 is FGSM (run separately), rest via PGD steps
 
 
-def _load_cache():
-    d = torch.load(CACHE, map_location="cpu")
-    if isinstance(d, dict):
-        imgs = d.get("images", d.get("imgs"))
-        labels = d.get("labels", d.get("y"))
-        class_names = d.get("class_names", d.get("classes"))
-    else:
-        imgs, labels, class_names = d
+def _load_cache(n_diag):
+    class_names = data.get_class_names()
+    imgs, labels = data.load_val(n=n_diag, seed=0, cache_path=CACHE)
     return imgs, labels, class_names
 
 
@@ -123,10 +118,11 @@ def main():
     ap.add_argument("--sc_max_images", type=int, default=800)
     ap.add_argument("--apgd_iters", type=int, default=100)
     ap.add_argument("--square_queries", type=int, default=2000)
+    ap.add_argument("--n_diag", type=int, default=2000)
     ap.add_argument("--out", default=os.path.join(RESULTS, "weakattack.json"))
     args = ap.parse_args()
     device = "cuda"
-    imgs, labels, class_names = _load_cache()
+    imgs, labels, class_names = _load_cache(args.n_diag)
     print(f"[wa] cache: {len(labels)} imgs, {len(class_names)} classes; eps={args.eps:.5f} "
           f"({args.eps*255:.1f}/255); {len(args.towers)} towers", flush=True)
     rows = []

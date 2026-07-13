@@ -61,3 +61,13 @@ corpora, patch sizes, and capacities.
 - Round 1 (done): §5 of main.tex reframed as a targeted debunk with the defensible sentence + ACW.
 - Round 2 (after run_weakattack.py): fold in the PGD-k monotonicity table + correlation-decay figure.
 - Round 3: reviewer pre-empts (Singla-Ge, Obfuscated-Gradients-again, confounds via partial corr).
+
+## RESULT (2026-07-13, computed GPU-free from cached C1 extended results)
+Endpoints already in the cache (S_fgsm, S_pgd40, S_apgd + shift-consistency per tower). The
+correlation-decay claim holds without the expensive sweep:
+- Non-AT towers (n=7): Pearson(shift-consistency, robust acc) = **+0.824 under FGSM**, undefined under
+  PGD-40 / AutoAttack (all 7 towers at 0.0). Mean robust acc FGSM 0.379 -> PGD40 0.000 -> APGD 0.000.
+- All 11 towers: Pearson(SC, robust) = +0.65 (FGSM) -> +0.37 (PGD40/APGD; residual = the AT towers).
+So the invariance->robustness correlation lives only under FGSM. Paper §5 updated with these numbers.
+OPTIONAL (deferred, slow): run_weakattack.py intermediate PGD-k = {2,5,10,20} to draw the smooth
+monotonicity curve between the cached FGSM and PGD-40 endpoints (non-AT towers, ~15 min lean run).

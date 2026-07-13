@@ -50,6 +50,29 @@ Section-only, do NOT attach to jailbreak radius (T-DISS negative).
 **REJECTED Angle G** — η/L predicts hallucination: SCOOPED (Grad-Detect 2606.24790, EPGS 2605.00939).
 Do not run.
 
+## ANGLE B RESULT (2026-07-13, run_angleB.py on GPU 1, 1200 sentiment/NLI items) — HONEST, MODEST
+
+The naive hypothesis (excessive invariance ⇒ MORE sycophancy) is WRONG, and instructively so:
+excessive invariance means the model WON'T change its answer, and sycophancy means it DOES change its
+answer under social pressure — these are OPPOSITE behaviors. Data (base-correct n=875, sycophancy rate
+0.058): excessively-invariant items (orbit_flip=1) sycophant at 0.027 vs 0.155 for meaning-tracking
+items; AUROC(orbit_flip→sycophancy)=0.286 (anti). So ρ_G does NOT predict sycophancy.
+
+What DOES predict sycophancy-resistance is the SENSITIVITY axis η/L:
+- Spearman(R2 η/L, sycophancy) = **−0.368** [−0.42,−0.31] (high ratio ⇒ resists pressure).
+- BUT raw margin M alone = −0.382 (≈ same); the ratio adds only modest signal beyond margin
+  (partial(R2, syco | M) = −0.227). Not a length confound (partial|xlen = −0.381).
+- Driven by SENTIMENT (Spearman −0.427, n=641); NLI has ZERO sycophancy (n=234) because it is the
+  constant "entailment" classifier — it never changes its answer, consistent with the degeneracy.
+
+**Honest verdict: MODEST, not a headline.** "Confident (high-margin) decisions resist sycophancy" is
+partly intuitive, and the gauge-free ratio only modestly beats raw margin. BUT the result is
+CONCEPTUALLY COHERENT and enriches the orthogonality story for §5: the two orthogonal axes correspond
+to two OPPOSITE behavioral failure modes — the sensitivity axis η/L predicts sycophancy (pliability),
+the invariance axis ρ_G is the opposite (excessive invariance / stubbornness). Use it as a one-figure
+enrichment of the η/L⊥ρ_G section, NOT as a standalone contribution. Angle A/E (gauge confound) remains
+the stronger un-run orthogonal candidate.
+
 ## To run when GPU 0 frees (queue, disjoint infra)
 1. (cheap, resolves T-DISS) `fix_matched_margin.py` — matched continuation margin vs jailbreak radius.
 2. (weak-attack section) `run_weakattack.py` — PGD-k monotonicity + consistency-vs-robustness decay.

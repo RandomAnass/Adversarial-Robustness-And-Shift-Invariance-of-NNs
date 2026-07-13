@@ -104,3 +104,44 @@ EXISTING r2. Runs when a GPU frees (queued for GPU 0 after the T-DISS post-pipel
   matched) → report as the honest encoder-vs-decision-boundary limitation.
 Either way the paper claim is now well-posed. Do NOT present the −0.17 as "η/L fails in text" — that
 is not established; the test was mis-specified.
+
+---
+
+## RESOLVED 2026-07-13 — matched-margin run: T-DISS is a GENUINE NEGATIVE
+
+`fix_matched_margin.py` ran on all 920 harmful prompts (GPU 1). The threat-matched continuation-margin
+predictor R_cont = L0/‖∇L0‖ (built on the attack's OWN affirmative-continuation objective) is
+well-formed: L0 mean 3.39 (std 0.80, range 1.5–6.0), R2_cont mean 0.259 (std 0.045), all finite — a
+real predictor with genuine variance, not degenerate.
+
+| predictor | Spearman vs jailbreak radius r2 |
+|---|---|
+| R2_cont (matched continuation margin) | **−0.167** |
+| Rinf_cont (matched, ℓ1) | −0.170 |
+| R2 first-token (the original mismatched) | −0.205 |
+| R2_cont vs loss_ref (judge-free) | −0.109 |
+| L0 alone (clean continuation loss) | −0.025 |
+
+**The matched fix does NOT rescue it.** Matching the margin to the attack objective gives essentially
+the SAME −0.17 as the mismatched first-token margin. So the negative is NOT a predictor-specification
+artifact — it is genuine: **the margin-to-Lipschitz ratio does not predict a generative LLM's
+jailbreak radius, regardless of which margin (first-token or matched-continuation) you use.** The
+consistency of −0.17 across three independent predictors (and the judge-free arm) shows r2 carries a
+real, weak signal that the ratio genuinely fails to predict (pure noise would give ≈0, not a stable
+−0.17 everywhere).
+
+**Interpretation (the honest, publishable negative that SHARPENS the thesis):** the η/L dissociation
+is an ENCODER / classification-margin phenomenon. The first-order margin/Lipschitz certificate is
+tight for a single (near-linear) classification decision — image classifiers, VLM zero-shot towers —
+but LOOSE for a deep, autoregressive, multi-token generation attack. So η/L predicts adversarial
+robustness where robustness IS a margin around a decision boundary, and does not transfer to
+generative-LLM jailbreak radius. This is the encoder-level boundary the paper reports honestly (§6),
+and it is a cleaner story than "inconclusive": we tried the properly threat-matched predictor and it
+still does not transfer.
+
+**Caveat still open (minor):** the masking battery CRASHED (`masking_battery.py:44 unbounded_append_
+attack`) so the r2-under-optimization check is missing; GCG (still grinding, ~8h) would give a second
+attack's radius. Neither changes the conclusion — the matched-vs-mismatched invariance of the −0.17
+already shows the predictor is not the issue — but note the r2-stability check is not in hand. Optional
+cheap fix: repair + re-run only the masking monotonicity (20 prompts) to confirm r2 is stable at higher
+attack budgets.
