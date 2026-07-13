@@ -41,7 +41,7 @@ excessive-invariance axis (an orbit-flip radius \rhoG{}, the size of the smalles
 a model wrongly ignores) are uncorrelated across prompts, and we relate \rhoG{} to a certificate on the
 model's robust radius. We also show that the apparent link between invariance and robustness is an
 artifact of weak attacks: on every non-robust vision-language tower, single-step FGSM reports
-16--46\% robust accuracy that AutoAttack erases to zero. We close by reporting, honestly, where the
+16 to 61\% robust accuracy that AutoAttack erases to zero. We close by reporting, honestly, where the
 transfer stops.
 \end{abstract}
 
@@ -91,7 +91,50 @@ multi-token generation attack.
 % Certified NLP (opposite direction): CERT-ED 2408.00728, RS-Del 2302.01757, Text-CRS 2307.16630.
 % Weak-attack / gradient masking: Athalye 2018 (1802.00420) parent phenomenon.
 % VLM robustness governed by tower: 2407.11121; FARE 2402.12336; anti-aliasing Zhang 2019 (1904.11486).
-\textbf{[DRAFT PENDING.]}
+\paragraph{Predicting robustness without attacks.}
+Two lines estimate a model's adversarial robustness without running the attack. GREAT Score~\citep{greatscore} derives a
+global robustness statistic from a generative model of the data and correlates it with attack-based
+rankings on RobustBench, and RDI~\citep{rdi} ranks classifiers by a feature-cluster separation index. Both rank
+ordinary trained classifiers by a quantity that is neither a margin nor an input gradient, and neither
+touches frozen foundation-model encoders, a per-image certified radius, or a paired invariance null. A
+separate line uses the logit margin as a per-sample brittleness signal within a single fixed model~\citep{ngnawe};
+this is the closest in spirit to our numerator, but it is a within-model detector on CIFAR classifiers,
+not a cross-encoder ranking, and it does not divide by a Lipschitz term.
+
+\paragraph{Margin, Lipschitz, and invariance in robustness.}
+That a large margin over a small local Lipschitz constant implies a robust radius is classical, and
+recent training methods add a margin term and a sensitivity term and report an improved
+margin-to-sensitivity ratio~\citep{macs}. Those methods are training regularizers on supervised networks, and their
+``consistency'' term is agreement under Gaussian noise or blur, not agreement under pixel shifts; they
+do not use the ratio as an attack-free predictor across frozen towers, and they do not pair it with a
+shift-consistency null. On the invariance side, prior work shows that shift-invariance can reduce
+$\ell_\infty$ robustness by shrinking the margin~\citep{singlage}, which is exactly why we expect the consistency null,
+and a separate result establishes a tradeoff between defenses against sensitivity-type and
+invariance-type adversarial examples~\citep{tramer}. Our contribution is not to relate invariance and robustness in
+general, which is well studied, but to show that a threat-matched margin ratio predicts robustness
+while an invariance metric does not, in frozen vision-language towers and in language models, and that
+the apparent positive link is a weak-attack artifact.
+
+\paragraph{Weak attacks and gradient masking.}
+The gradient-masking literature established that a defense can look robust under weak attacks and fail
+under strong ones, with single-step attacks beating iterative ones as a diagnostic~\citep{athalye,carlinieval}, and that strong
+ensembles such as AutoAttack are the right arbiter~\citep{autoattack}. Our weak-attack section applies this diagnostic to
+a specific recent claim that architectural invariance or equivariance confers robustness without
+adversarial training, evaluated only with FGSM and PGD~\citep{equivariance}; we show the claimed link is a weak-attack
+artifact on frozen vision-language towers.
+
+\paragraph{Foundation-model robustness and certified language robustness.}
+The adversarial robustness of a vision-language model is governed by its vision tower~\citep{towergoverns}, and adversarially
+trained CLIP encoders such as FARE~\citep{fare} and TeCoA~\citep{tecoa} provide the robust towers in our panel; undefended CLIP is
+known to break completely under AutoAttack~\citep{pmgaft}, which we use rather than rediscover. In language, certified
+robustness methods guarantee that a prediction is unchanged within an edit radius~\citep{certed,rsdel,textcrs}, treating invariance
+as the property to certify; our orbit-flip radius inverts this, certifying that staying unchanged past
+a meaning-changing edit is a failure. The observation that instruction-tuned models are insensitive to
+negation~\citep{naysayers}, and that a constant classifier attains an unbounded margin ratio with no real robustness~\citep{acrpoor}, is
+prior work that we relate to rather than claim; our language section reports the sensitivity-invariance
+independence and the orbit-flip radius, and treats the constant-classifier case as a boundary
+condition.
+% Must-cite bib keys: greatscore, rdi, ngnawe, macs, singlage, tramer, athalye, carlinieval, autoattack, fare, tecoa, towergoverns, certed, rsdel, textcrs, naysayers, acrpoor.
 
 \section{Background: the dissociation on image classifiers}
 \label{sec:cifar}
@@ -239,21 +282,57 @@ an unbounded margin ratio with no real robustness.
 
 \section{Where the transfer stops}
 \label{sec:tdiss}
-% PENDING the matched-margin run (fix_matched_margin.py) + masking/GCG.
-% Preliminary: a FIRST-TOKEN refuse margin does NOT predict the multi-token L2 jailbreak radius
-% (Spearman -0.17, partial -0.067). Gauge-invariance mechanism confirmed. Diagnosed as a threat-model
-% mismatch (first-token margin vs multi-token generation attack); matched-margin R_cont=L0/||grad L0||
-% test resolves whether it transfers when properly matched. FINALIZE after that run + masking/GCG.
-\textbf{[DRAFT PENDING matched-margin result. Honest reporting: a first-token refuse margin does not
-predict the multi-token jailbreak radius; the gauge-invariance mechanism is confirmed; we identify the
-threat-model mismatch and report the threat-matched test.]}
+The ratio $\etaL$ predicts robustness where robustness is a margin around a single classification
+decision. It is worth asking whether it also predicts a language model's robustness to jailbreaks,
+which is not a single decision but the outcome of generating many tokens. We report, honestly, that it
+does not, and we take some care to show that this is a real negative rather than an artifact of how the
+predictor was set up.
+
+For a set of harmful requests that Llama-3-8B-Instruct refuses, we run an embedding-space attack that
+searches for the smallest perturbation of the prompt, in $\ell_2$, that makes the model generate a
+harmful continuation, and record that size as a per-prompt jailbreak radius. A first attempt uses a
+first-token refusal margin as the predictor, and its ratio does not order the jailbreak radius
+(Spearman $-0.17$). One might object that this predictor is not threat-matched: the margin is about the
+first generated token, while the attack is about a multi-token continuation. So we recompute the
+predictor on the attack's own objective, the loss of the affirmative continuation the attack drives
+toward, and form the matched ratio from that loss and its input gradient. The matched ratio gives
+essentially the same answer (Spearman $-0.17$), and a judge-independent version using the raw attack
+loss agrees. Matching the margin to the attack does not change the result, so the failure is not a
+mis-specified predictor.
+
+We read this as an honest boundary of the encoder-level claim rather than a contradiction of it. The
+first-order certificate that a margin buys is tight for a single, near-linear decision, which is what a
+classifier or a zero-shot tower makes, and loose for a deep, autoregressive, many-step generation
+attack. The gauge-freeness of $\etaL$ still holds mechanically here (rescaling the logits leaves the
+ratio unchanged, and a fixed-threshold use of the raw margin does move while the ratio does not), so
+the property we rely on is intact; it is the transfer of the margin-robustness link to a generation
+attack that does not hold. The dissociation this paper reports is a statement about representations and
+their decision margins, and it stops where the object being attacked stops being a single decision.
+% Numbers: verify/TDISS_preliminary_independent.md (matched-margin -0.167, first-token -0.205, judge-free -0.109).
 
 \section{Discussion}
 \label{sec:discussion}
-\textbf{[DRAFT PENDING. Limitations: encoder-level vs decision-boundary transfer; model-dependence of
-the degeneracy; per-image is the powered axis on the tower side; embedding geometry of \rhoG{} is
-coarse.]}
+The through-line is that invariance and adversarial robustness are different properties, and that a
+threat-matched margin-to-Lipschitz ratio, not an invariance metric, is what tracks robustness in
+foundation models. The practical reading for a vision-language practitioner is to select or trust an
+encoder by $\etaL$ rather than by how shift-consistent it is, since the latter costs almost all of the
+achievable robust accuracy as a selection rule, and to distrust any ``more invariant is more robust''
+claim that has only been checked with a weak attack. For language models the reading is that a model's
+sensitivity to worst-case perturbations and its excessive invariance to meaning-changing edits are
+separate axes that should be measured separately.
+
+Several limitations bound the claims. On the tower axis the non-robust encoders all sit near zero
+robust accuracy under strong attack, so the range of tower-level robustness comes from the four
+adversarially trained towers; the covariate control removes the confound in the ranking, but the
+powered evidence is the per-image axis, which holds within ordinary towers as well. The orbit-flip
+radius is coarse in embedding geometry, so we lead with token-edit distance. The constant-classifier
+degeneracy is model-dependent, present in one model and absent in another, so we report it as a
+boundary condition rather than a universal property. And the encoder-level margin does not predict a
+language model's jailbreak radius even when the margin is matched to the attack, which marks the edge
+of where the dissociation transfers: it is a statement about decision margins in a representation, and
+a multi-token generation attack is not a single decision. Closing that gap, by asking what the right
+object is on the generation side, is the natural next step.
 
 \bibliographystyle{plainnat}
-% \bibliography{refs}   % build refs.bib from SYNTHESIS_lit_and_framing.md must-cite lists
+\bibliography{refs}
 \end{document}
