@@ -112,6 +112,55 @@ def fig5():
     print(f"fig5_orthogonality.pdf  (n={len(R2)}, Spearman {sp:+.3f})")
 
 
+def fig3():
+    """Weak-attack: consistency correlates with robust acc under FGSM, vanishes under AutoAttack."""
+    T = load_towers()
+    non = [r for r in T if not r["at"]]
+    at = [r for r in T if r["at"]]
+    # need FGSM + APGD per tower
+    raw = {r["tower"]: r for r in json.load(open(os.path.join(C1, "c1_results_main.json")))["results"]
+           + json.load(open(os.path.join(C1, "c1_results_ext.json")))["results"]}
+    def get(t, k): return raw[t["name"]].get(k, {}).get(EPS)
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9, 3.6), sharey=True)
+    for ax, key, ttl in [(a1, "S_fgsm", "under FGSM (weak)"), (a2, "S_apgd", "under AutoAttack (strong)")]:
+        for r in non:
+            ax.scatter(r["sc"], get(r, key), c=BLUE, s=44, edgecolor="w", linewidth=0.6, zorder=3)
+        for r in at:
+            ax.scatter(r["sc"], get(r, key), c=ORANGE, s=44, edgecolor="w", linewidth=0.6, zorder=3)
+        ax.set_xlabel("shift-consistency"); ax.set_title(ttl, fontsize=10)
+    # correlation among non-AT
+    scn = np.array([r["sc"] for r in non])
+    fgsm = np.array([get(r, "S_fgsm") for r in non])
+    pr = stats.pearsonr(scn, fgsm)[0]
+    a1.set_ylabel("robust accuracy")
+    a1.text(0.05, 0.92, f"non-AT: Pearson $={pr:+.2f}$", transform=a1.transAxes, fontsize=9, color=BLUE)
+    a2.text(0.05, 0.92, "non-AT: all $=0$ (no signal)", transform=a2.transAxes, fontsize=9, color=BLUE)
+    a1.scatter([], [], c=ORANGE, label="adv. trained"); a1.scatter([], [], c=BLUE, label="non-AT")
+    a1.legend(frameon=False, fontsize=8, loc="center right")
+    fig.suptitle("Invariance looks like robustness only under a weak attack", fontsize=11, y=1.02)
+    fig.tight_layout(); fig.savefig(os.path.join(OUT, "fig3_weakattack.pdf"), bbox_inches="tight")
+    plt.close(fig)
+    print(f"fig3_weakattack.pdf (non-AT Pearson(SC,FGSM)={pr:+.2f})")
+
+
+def fig4():
+    """rho_G distribution (token-edit + embedding) over orbit-flip items, by family."""
+    peri = [json.loads(l) for l in open(os.path.join(B2, "peritem.jsonl"))]
+    fams = {"sentiment": BLUE, "nli": ORANGE, "safety": GREY}
+    fig, ax = plt.subplots(figsize=(5.2, 3.6))
+    for fam, c in fams.items():
+        vals = [r["per_dose"]["0.0"]["rho_G_emb"] for r in peri
+                if r["family"] == fam and r["per_dose"]["0.0"]["orbit_flip"]
+                and np.isfinite(r["per_dose"]["0.0"]["rho_G_emb"])]
+        if vals:
+            ax.hist(vals, bins=25, alpha=0.55, color=c, label=f"{fam} (n={len(vals)})", density=True)
+    ax.set_xlabel(r"orbit-flip radius $\rho_G$ (embedding $\ell_2$)")
+    ax.set_ylabel("density"); ax.legend(frameon=False, fontsize=8)
+    ax.set_title(r"Measured $\rho_G$: smallest ignored meaning-changing edit", fontsize=10)
+    fig.tight_layout(); fig.savefig(os.path.join(OUT, "fig4_rhoG.pdf")); plt.close(fig)
+    print("fig4_rhoG.pdf")
+
+
 if __name__ == "__main__":
-    fig1(); fig2(); fig5()
+    fig1(); fig2(); fig3(); fig4(); fig5()
     print("all figures ->", OUT)
