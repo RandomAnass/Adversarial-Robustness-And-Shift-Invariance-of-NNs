@@ -131,7 +131,8 @@ we use as the arbiter rather than rediscover.
 % shift-consistency anti-predicts under AT (Linf -0.88), threat-matched eta/L predicts AutoAttack (+0.90);
 % FGSM shows invariance helping, AutoAttack erases it. Sets up the generalization to foundation models.
 The dissociation was first established on image classifiers, which we recap briefly as the origin of
-the present study. Across a family of CIFAR-10 models that vary only in how much shift-invariance they
+the present study. Across a family of CIFAR-10 models, each of which we call an arm, that vary only in
+how much shift-invariance they
 build in, the threat-matched $\etaL$ tracks robustness closely (Pearson around $+0.998$ under an
 $\ell_2$ threat model on standard-trained arms), while shift-consistency is uninformative to
 anti-predictive. Under adversarial training the split is sharper: shift-consistency anti-predicts
@@ -157,8 +158,8 @@ For each tower we compute, on clean correctly-classified images only, the margin
 zero-shot logits, the ratio \etaL{} with $L$ the mean $\ell_1$ norm of $\nabla_x M$ (the dual norm of
 an $\ell_\infty$ attack), and a shift-consistency score, the fraction of integer pixel shifts under
 which the top-1 label is unchanged. We then measure adversarial robustness directly with AutoAttack,
-reported as the APGD-CE plus APGD-T ensemble, both as a per-tower robust accuracy and as a per-image
-certified radius from a fine grid. All quantities use the same set of clean, correctly-classified
+the standard strong ensemble of Auto-PGD with a cross-entropy loss (APGD-CE) and with a targeted loss
+(APGD-T), both as a per-encoder robust accuracy and as a per-image certified radius from a fine grid. All quantities use the same set of clean, correctly-classified
 images per tower, and \etaL{} is gauge-free, so a tower's logit temperature cannot affect it.
 
 \paragraph{Across towers, \etaL{} tracks robustness, but the panel is small.}
@@ -226,11 +227,12 @@ on the per-image axis, which stands on both trained and ordinary towers.
 
 \section{The invariance-robustness correlation is a weak-attack artifact}
 \label{sec:weakattack}
-A recent line of work argues that architectural invariance or equivariance confers adversarial
-robustness on its own, without adversarial training, and reports this using single-step FGSM and
-short PGD. One representative paper attributes the effect to gradient regularization and smoother
-decision boundaries and never runs a strong attack. We show that on frozen, non-adversarially-trained
-vision-language towers this apparent link is an artifact of weak attacks.
+The same eleven encoders let us examine a stronger claim from a recent line of work, which argues that
+architectural invariance or equivariance confers adversarial robustness on its own, without adversarial
+training, and reports this using single-step FGSM and short PGD. One representative paper~\citep{equivariance}
+attributes the effect to gradient regularization and smoother decision boundaries and never runs a
+strong attack. We show that on the seven frozen, non-adversarially-trained encoders in our panel this
+apparent link is an artifact of weak attacks.
 
 \paragraph{Setup and the diagnostic we apply.}
 The standard way to catch a false sense of robustness is the gradient-masking checklist: a single-step
