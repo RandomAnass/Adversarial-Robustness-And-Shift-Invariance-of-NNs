@@ -192,19 +192,19 @@ axis (Figure~\ref{fig:perimage}) is the powered evidence.}
 \label{fig:tower}
 \end{figure}
 
-\paragraph{Per image, the dissociation holds within towers and is not an artifact of adversarial
-training.}
-The powered version of the claim is per image, within a fixed tower, where the trained-versus-untrained
-split cannot act as a confound. In each of the four adversarially trained towers the per-image \etaL{}
-orders the per-image robust radius at Spearman $+0.74$ to $+0.85$ (mean $+0.79$, $n=300$ per tower),
-while per-image shift-consistency orders it far less, at $+0.27$ to $+0.37$ (mean $+0.33$). Consistency
-is therefore not uninformative about the per-image radius, but the threat-matched ratio orders it more
-than twice as strongly. With a finer radius grid the ordinary CLIP towers also acquire a real spread of
-per-image radii, and within each of them \etaL{} orders the radius at Spearman between $+0.54$ and
-$+0.79$, every confidence interval above zero. The per-image dissociation therefore holds inside
-ordinary, non-robust towers as well, so it is not a byproduct of the trained-versus-untrained split. We
-report the per-tower ranges rather than a single pooled number, because pooling images across towers
-with a coarse, tied radius grid distorts the weaker consistency signal.
+\paragraph{Per image, the dissociation holds within every robust encoder.}
+The powered version of the claim is per image, within a fixed encoder, where the trained-versus-untrained
+split cannot act as a confound. Across all ten adversarially robust encoders, the per-image \etaL{}
+orders the per-image adversarial radius at Spearman $+0.74$ to $+0.96$, while per-image shift-consistency
+orders it far less, from $+0.37$ down to essentially zero ($-0.03$ to $+0.37$ across encoders). The gap
+is significant in a paired bootstrap on the difference of the two dependent correlations in every one of
+the ten encoders. On the six encoders with the finest radius grid the separation is starkest: \etaL{}
+orders the radius at about $+0.94$ while shift-consistency is at zero. Two honest caveats accompany this
+result. First, the per-image \etaL{} lower-bounds the radius by the first-order argument of
+Section~\ref{sec:intro}, and the bound is tight here (the actual radius is a median $1.1$ times the
+ratio), so the load-bearing part of the dissociation is that shift-consistency fails to order the radius,
+not that the margin succeeds. Second, we report per-encoder ranges rather than a pooled number, since
+pooling across encoders with a coarse radius grid distorts the weaker consistency signal.
 
 \begin{figure}[t]
 \centering
@@ -217,13 +217,27 @@ threat-matched ratio orders the radius more than twice as strongly.}
 \label{fig:perimage}
 \end{figure}
 
+\paragraph{Why shift-consistency fails: it is saturated.}
+There is a simple reason shift-consistency cannot order these encoders. Across all sixteen encoders in
+the panel it ranges only from $0.963$ to $0.988$: every modern CLIP encoder, robust or not, is already
+almost perfectly consistent under integer pixel shifts. A metric with that little spread cannot rank
+anything, and this is not specific to adversarial robustness. When we measure each encoder's accuracy
+under mild common corruptions (noise, blur, contrast, brightness, and a large translation),
+shift-consistency appears to predict corruption robustness at Spearman $+0.72$, but the effect is a
+clean-accuracy confound: clean accuracy predicts corruption robustness at $+0.97$, and once it is
+controlled for, shift-consistency's partial correlation with corruption robustness is $-0.65$. So
+shift-consistency does not order adversarial robustness, and it does not order corruption robustness
+either beyond what clean accuracy already explains. The reason it is treated as a robustness signal is
+not that it measures one, but that it is saturated in a regime where it looks stable.
+
 \paragraph{What survives and what to state honestly.}
 The implementation was checked line by line and no result changes sign under any check; there is no
-gradient masking, since APGD $\leq$ PGD-40 $\leq$ FGSM and a black-box Square attack does not beat
-APGD on any tower. The honest limitation is that the seven non-robust towers all sit at essentially
-zero robust accuracy under strong attack, so the range of tower-level robustness comes from the
-trained towers; the covariate control removes the confound in the ranking, and the powered claim rests
-on the per-image axis, which stands on both trained and ordinary towers.
+gradient masking, since APGD $\leq$ PGD-40 $\leq$ FGSM and a black-box Square attack does not beat APGD
+on any encoder where it was run. The honest limitation is on the tower axis: the seven non-robust
+encoders all sit at essentially zero robust accuracy under strong attack, and among the ten robust
+encoders neither \etaL{} nor shift-consistency significantly orders robustness (Spearman $+0.38$ and
+$+0.32$, both not significant at this panel size). So the tower axis shows that \etaL{} detects which
+encoders are robust, not that it ranks robustness among them; the powered claim is the per-image axis.
 
 \section{The invariance-robustness correlation is a weak-attack artifact}
 \label{sec:weakattack}
