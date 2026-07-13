@@ -45,3 +45,37 @@ caution; (c) two honest negatives (jailbreak transfer, constant-classifier degen
 
 Next: run Angle A/E (to give the LLM leg a real result), and decide with the user whether to invest
 GPU in expanding the robust-tower panel for a main-track VLM claim, or re-scope.
+
+---
+
+## PANEL EXPANSION RESULT (2026-07-13) — the tower claim is UNFIXABLE (second reckoning)
+
+User chose "invest for main, VLM-only, cut LLM." Executed the referee's #1 fix: expanded the robust
+panel 4 → 10 (added FARE4/TeCoA4 at ViT-B/32, B/16, ConvNeXt — 6 verified encoders, real backbone +
+robustness variance, S_apgd 0.71–0.84). Recomputed the tower-level correlation on the 17-tower panel:
+
+| test | value | verdict |
+|---|---|---|
+| Full panel Pearson(η/L, S), n=17 | +0.931 (perm p≈0) | strong but = robust-vs-nonrobust detection |
+| partial(η/L, S \| is-robust) | +0.32 Pearson / +0.33 Spearman, **perm p=0.22 / 0.21** | **STILL not significant** |
+| **AMONG 10 robust: Spearman(η/L, S)** | **+0.38 (perm p=0.28)** | **not significant** |
+| AMONG 10 robust: Spearman(consistency, S) | +0.32 (perm p=0.37) | ≈ η/L! |
+
+**The expansion did NOT rescue the tower claim, and revealed it is fundamentally unfixable.** Among
+robust encoders η/L (+0.38) is no better than shift-consistency (+0.32), both n.s. η/L *detects* which
+encoders are robust (the +0.93 full-panel) but does not *rank* robustness among robust encoders, and
+neither does consistency. Going 4→10 robust towers moved the within-robust η/L from +0.80 (n=4, lucky
+small sample) to +0.38 (n=10) — adding towers made it weaker, so more won't help. **The tower-level
+dissociation does not exist among robust encoders; it is a robust-detector, honestly stated.**
+
+**Consequence:** the paper's only powered, significant dissociation is the PER-IMAGE axis (η/L orders
+the per-image radius, consistency far less; significant per tower). Caveat: per-image η/L→radius is
+partly definitional (η/L is the first-order certificate of the radius), so the load-bearing surprise is
+that shift-consistency — the field's invariance metric — fails to order the radius (+0.33) where η/L
+succeeds. The per-image η/L→radius is +0.74–0.96 across all 10 robust towers (extending the claim from
+4 to 10 towers, backbone-diverse). Weak-attack debunk stands as a caution.
+
+**HONEST venue read:** "invest for main by powering the tower" has hit a wall — the tower claim can't
+be made. The defensible paper is: per-image dissociation (10 robust towers) + weak-attack caution,
+which is a strong TMLR fit or a borderline main-track submission on the per-image + negative-result
+framing. This needs a user decision (the main-track premise failed).
