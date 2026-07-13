@@ -26,20 +26,21 @@
 \maketitle
 
 \begin{abstract}
-A model that assigns the same label to shifted views of an image is often called robust, and this
-shift-invariance is treated as a route to adversarial robustness. We show, on frozen vision-language
-image encoders, that shift-invariance does not order adversarial robustness while a threat-matched
-margin-to-Lipschitz ratio \etaL{} does. The ratio is the mean classification margin on clean images
-divided by the mean dual-norm of the input gradient of that margin; it needs no attack to compute and
-is unchanged by rescaling a model's logits. Our powered result is per image, within a fixed encoder,
-where adversarial training cannot act as a confound: the per-image \etaL{} orders the per-image
-certified adversarial radius at Spearman $+0.74$ to $+0.85$, more than twice as strongly as per-image
-shift-consistency ($+0.27$ to $+0.37$), and the gap is significant in a paired test. Across a panel of
-frozen encoders \etaL{} also ranks tower-level AutoAttack robustness, though this axis is limited by
-how few adversarially robust encoders exist. We further show that the apparent link between
-shift-invariance and robustness is a weak-attack artifact: on every non-robust encoder, single-step
-FGSM reports 16 to 61\% robust accuracy that AutoAttack erases to zero, so a recent claim that
-architectural invariance confers robustness without adversarial training does not survive a strong
+A model that assigns the same label to shifted views of an image is often called robust, and
+shift-consistency is treated as a signal for adversarial robustness. We show, on sixteen frozen
+vision-language image encoders, that this is the wrong lens. Shift-consistency is saturated: it ranges
+only from $0.963$ to $0.988$ across encoders, robust or not, so it cannot order them by robustness, and
+once clean accuracy is controlled it does not predict corruption robustness either. A threat-matched
+margin-to-Lipschitz ratio \etaL{}, the mean classification margin on clean images divided by the mean
+dual-norm of the input gradient of that margin, does track adversarial robustness. Our powered result
+is per image, within a fixed encoder, where adversarial training cannot act as a confound: across all
+ten adversarially robust encoders the per-image \etaL{} orders the per-image adversarial radius at
+Spearman $+0.74$ to $+0.96$ while per-image shift-consistency orders it from $+0.37$ down to essentially
+zero, and the gap is significant in a paired test in every encoder. The ratio needs no attack to
+compute and is unchanged by rescaling a model's logits. Finally, the apparent link between
+shift-invariance and adversarial robustness is a weak-attack artifact: on every non-robust encoder,
+single-step FGSM reports 16 to 61\% robust accuracy that AutoAttack erases to zero, so a recent claim
+that architectural invariance confers robustness without adversarial training does not survive a strong
 attack. Throughout we use AutoAttack as the arbiter and check for gradient masking.
 \end{abstract}
 
