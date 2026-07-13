@@ -1,0 +1,242 @@
+[
+  {
+    "tower": "clip",
+    "clean": 0.9175,
+    "nuisance": 0.8973999999999999,
+    "corr": {
+      "noise": 0.877,
+      "blur": 0.8805,
+      "contrast": 0.9105,
+      "bright": 0.9105,
+      "shift": 0.9085
+    },
+    "sc_pred": 0.9841667413711548,
+    "eta_over_L1": 0.0003278762926674056,
+    "S_apgd": 0.0
+  },
+  {
+    "tower": "clip_l14_laion2b",
+    "clean": 0.9,
+    "nuisance": 0.8666,
+    "corr": {
+      "noise": 0.808,
+      "blur": 0.8645,
+      "contrast": 0.9085,
+      "bright": 0.877,
+      "shift": 0.875
+    },
+    "sc_pred": 0.9819791913032532,
+    "eta_over_L1": 0.00024645741441153336,
+    "S_apgd": 0.0
+  },
+  {
+    "tower": "clip_l14_datacomp",
+    "clean": 0.9275,
+    "nuisance": 0.9152000000000001,
+    "corr": {
+      "noise": 0.894,
+      "blur": 0.915,
+      "contrast": 0.9245,
+      "bright": 0.921,
+      "shift": 0.9215
+    },
+    "sc_pred": 0.9869791269302368,
+    "eta_over_L1": 0.0003412667146487253,
+    "S_apgd": 0.0
+  },
+  {
+    "tower": "clip_b16_openai",
+    "clean": 0.852,
+    "nuisance": 0.8130000000000001,
+    "corr": {
+      "noise": 0.7815,
+      "blur": 0.7755,
+      "contrast": 0.8305,
+      "bright": 0.8415,
+      "shift": 0.836
+    },
+    "sc_pred": 0.9629167318344116,
+    "eta_over_L1": 0.0004989014121650454,
+    "S_apgd": 0.0
+  },
+  {
+    "tower": "clip_b16_laion2b",
+    "clean": 0.867,
+    "nuisance": 0.8324999999999999,
+    "corr": {
+      "noise": 0.773,
+      "blur": 0.839,
+      "contrast": 0.85,
+      "bright": 0.8505,
+      "shift": 0.85
+    },
+    "sc_pred": 0.9794791340827942,
+    "eta_over_L1": 0.0006035973644567151,
+    "S_apgd": 0.0
+  },
+  {
+    "tower": "clip_b32_laion2b",
+    "clean": 0.8495,
+    "nuisance": 0.8057000000000001,
+    "corr": {
+      "noise": 0.752,
+      "blur": 0.8105,
+      "contrast": 0.826,
+      "bright": 0.821,
+      "shift": 0.819
+    },
+    "sc_pred": 0.9680208563804626,
+    "eta_over_L1": 0.0007109911634494492,
+    "S_apgd": 0.0
+  },
+  {
+    "tower": "fare2",
+    "clean": 0.9005,
+    "nuisance": 0.8629999999999999,
+    "corr": {
+      "noise": 0.8695,
+      "blur": 0.828,
+      "contrast": 0.843,
+      "bright": 0.893,
+      "shift": 0.8815
+    },
+    "sc_pred": 0.9855209589004517,
+    "eta_over_L1": 0.011717755310786025,
+    "S_apgd": 0.7533333333333333
+  },
+  {
+    "tower": "fare4",
+    "clean": 0.864,
+    "nuisance": 0.7841,
+    "corr": {
+      "noise": 0.823,
+      "blur": 0.7465,
+      "contrast": 0.669,
+      "bright": 0.8415,
+      "shift": 0.8405
+    },
+    "sc_pred": 0.9838542342185974,
+    "eta_over_L1": 0.012509344895517511,
+    "S_apgd": 0.8133333333333334
+  },
+  {
+    "tower": "tecoa2",
+    "clean": 0.916,
+    "nuisance": 0.8678000000000001,
+    "corr": {
+      "noise": 0.888,
+      "blur": 0.817,
+      "contrast": 0.8345,
+      "bright": 0.9005,
+      "shift": 0.899
+    },
+    "sc_pred": 0.9884374737739563,
+    "eta_over_L1": 0.0221381517128011,
+    "S_apgd": 0.83
+  },
+  {
+    "tower": "tecoa4",
+    "clean": 0.883,
+    "nuisance": 0.8045,
+    "corr": {
+      "noise": 0.851,
+      "blur": 0.751,
+      "contrast": 0.7085,
+      "bright": 0.852,
+      "shift": 0.86
+    },
+    "sc_pred": 0.9822916388511658,
+    "eta_over_L1": 0.016280846288772653,
+    "S_apgd": 0.88
+  },
+  {
+    "tower": "fare4_b32",
+    "clean": 0.7045,
+    "nuisance": 0.5816,
+    "corr": {
+      "noise": 0.6685,
+      "blur": 0.5835,
+      "contrast": 0.378,
+      "bright": 0.629,
+      "shift": 0.649
+    },
+    "sc_pred": 0.9665625095367432,
+    "eta_over_L1": 0.017464692620257908,
+    "S_apgd": 0.7133333333333334
+  },
+  {
+    "tower": "tecoa4_b32",
+    "clean": 0.766,
+    "nuisance": 0.6659,
+    "corr": {
+      "noise": 0.7485,
+      "blur": 0.636,
+      "contrast": 0.5215,
+      "bright": 0.71,
+      "shift": 0.7135
+    },
+    "sc_pred": 0.963854193687439,
+    "eta_over_L1": 0.023678330009532858,
+    "S_apgd": 0.8033333333333333
+  },
+  {
+    "tower": "fare4_b16",
+    "clean": 0.7605,
+    "nuisance": 0.6458,
+    "corr": {
+      "noise": 0.7045,
+      "blur": 0.621,
+      "contrast": 0.479,
+      "bright": 0.706,
+      "shift": 0.7185
+    },
+    "sc_pred": 0.9706249237060547,
+    "eta_over_L1": 0.019390612623001492,
+    "S_apgd": 0.74
+  },
+  {
+    "tower": "tecoa4_b16",
+    "clean": 0.794,
+    "nuisance": 0.7043,
+    "corr": {
+      "noise": 0.7675,
+      "blur": 0.6575,
+      "contrast": 0.5765,
+      "bright": 0.758,
+      "shift": 0.762
+    },
+    "sc_pred": 0.9746875166893005,
+    "eta_over_L1": 0.02577297697479121,
+    "S_apgd": 0.84
+  },
+  {
+    "tower": "fare4_cnxt",
+    "clean": 0.805,
+    "nuisance": 0.7159,
+    "corr": {
+      "noise": 0.763,
+      "blur": 0.678,
+      "contrast": 0.587,
+      "bright": 0.7765,
+      "shift": 0.775
+    },
+    "sc_pred": 0.9771875143051147,
+    "eta_over_L1": 0.02148790007448926,
+    "S_apgd": 0.7633333333333333
+  },
+  {
+    "tower": "tecoa4_cnxt",
+    "clean": 0.8125,
+    "nuisance": 0.7253000000000001,
+    "corr": {
+      "noise": 0.7845,
+      "blur": 0.686,
+      "contrast": 0.5935,
+      "bright": 0.7745,
+      "shift": 0.788
+    },
+    "sc_pred": 0.9767707586288452,
+    "eta_over_L1": 0.027817749849928956,
+    "S_apgd": 0.8433333333333334
+  }
+]

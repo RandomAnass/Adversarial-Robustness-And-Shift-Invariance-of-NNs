@@ -79,3 +79,27 @@ succeeds. The per-image η/L→radius is +0.74–0.96 across all 10 robust tower
 be made. The defensible paper is: per-image dissociation (10 robust towers) + weak-attack caution,
 which is a strong TMLR fit or a borderline main-track submission on the per-image + negative-result
 framing. This needs a user decision (the main-track premise failed).
+
+---
+
+## STRONGER-ANGLE HUNT (2026-07-13, user: "keep hunting") — 3 angles tested, no blockbuster
+
+1. **Tower expansion (4->10 robust)**: FAILED. Among 10 robust towers Spearman(eta/L,S)=+0.38 ~ consistency
+   +0.32, both n.s. eta/L is a robust-DETECTOR not a ranker. Fundamental (adding towers made it weaker).
+2. **Double dissociation (invariance->nuisance, margin->adversarial)**: FAILED. Raw pattern looked great
+   (SC->nuisance +0.72, SC->adversarial +0.10, eta/L->adversarial +0.82) BUT shift-consistency is
+   SATURATED (0.963-0.988 across ALL 16 towers -- almost no variance) so it can't discriminate anything;
+   the SC->nuisance is a clean-acc confound (clean->nuisance +0.965; partial SC->nuisance|clean = -0.65).
+   Retention metric (nuis/clean) still dominated by clean acc (+0.90). Double dissociation does not hold.
+3. **Certificate tightness**: eta/L is a TIGHT first-order ESTIMATOR of the per-image radius (median
+   radius/(eta/L) ~ 1.1, IQR [0.87,1.60]) -- but ratio <1 on ~30% of images, so eta/L is NOT a valid
+   certificate (PGD breaks it inside the bound); it's an accurate estimate, partly the expected Taylor
+   behavior at low curvature. Interesting but partly definitional.
+
+**HONEST BOTTOM LINE.** No hidden strong positive angle. The coherent, honest paper is a DIAGNOSTIC/
+CORRECTIVE contribution: (a) shift-consistency is SATURATED (~0.98) across modern CLIP encoders and
+predicts neither adversarial nor (clean-controlled) nuisance robustness -- the field's invariance metric
+has no discriminative power; (b) a threat-matched margin eta/L estimates per-image adversarial robustness
+attack-free (+0.95, tight); (c) the "invariance improves adversarial robustness" claims are weak-attack
+artifacts. Together: invariance is the wrong lens for VLM adversarial robustness, the margin is the right
+one. This is a solid corrective paper (borderline main / solid TMLR); further hunting = diminishing returns.
