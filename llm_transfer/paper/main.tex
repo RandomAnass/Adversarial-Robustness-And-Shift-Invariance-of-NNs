@@ -33,9 +33,9 @@ with a threat-matched margin-to-Lipschitz ratio \etaL{}, defined as the mean cla
 clean inputs divided by the mean dual-norm of the input gradient of that margin, we find a clean
 dissociation. Through frozen vision-language encoders, \etaL{} computed on clean images alone, without
 running any attack, ranks eleven towers by their AutoAttack robustness and orders the per-image
-certified radius, while shift-consistency does neither. The ranking survives removing the effect of
-adversarial training as a covariate, whereas a cosine-similarity form of consistency does not: it only
-appeared to work because it detects adversarial training. In instruction-tuned language models the two
+certified radius more than twice as strongly as shift-consistency does. The ranking survives removing
+the effect of adversarial training as a covariate, whereas a cosine-similarity form of consistency
+does not: it only appeared to work because it detects adversarial training. In instruction-tuned language models the two
 notions become measurably independent. A sensitivity axis (the same ratio \etaL{}) and an
 excessive-invariance axis (an orbit-flip radius \rhoG{}, the size of the smallest meaning-changing edit
 a model wrongly ignores) are uncorrelated across prompts, and we relate \rhoG{} to a certificate on the
@@ -72,9 +72,9 @@ temperature cannot inflate or deflate it. A first-order argument gives the certi
 radius of $x$ is at least $\etaL$, so a larger ratio should mean a more robust input.
 
 We make four claims. First, computed through frozen vision-language towers on clean images alone,
-$\etaL$ ranks eleven towers by their AutoAttack robustness and orders the per-image certified radius,
-while shift-consistency does neither; the ranking survives removing adversarial training as a
-covariate, and a cosine form of consistency does not. Second, in instruction-tuned language models the
+$\etaL$ ranks eleven towers by their AutoAttack robustness and orders the per-image certified radius
+more than twice as strongly as shift-consistency; the tower ranking survives removing adversarial
+training as a covariate, while a cosine form of consistency does not. Second, in instruction-tuned language models the
 sensitivity axis $\etaL$ and an excessive-invariance axis, an orbit-flip radius $\rho_G$, are
 measurably independent, and $\rho_G$ upper-bounds the model's oracle-robust radius. Third, the apparent
 link between invariance and robustness is an artifact of weak attacks: on every non-robust tower,
@@ -186,17 +186,43 @@ form of shift-consistency, the version the anti-aliasing literature tracks, does
 at all (Pearson $+0.37$, not significant). Used as a selection rule, picking the tower with the
 largest \etaL{} costs 5 points of robust accuracy against the oracle, while picking by
 prediction-agreement consistency or by clean accuracy costs 88 points.
-% Fig: results/c1_tower/figures c1_dissociation_main + a partial-correlation bar (regenerate for n=11).
 
-\paragraph{Per image, the dissociation is sharper and is not an artifact of adversarial training.}
-The powered version of the claim is per image. Pooling correctly-classified images across the four
-adversarially trained towers, the per-image \etaL{} orders the per-image robust radius at Spearman
-$+0.78$ ($95\%$ CI $[0.75, 0.81]$, $n=1200$), while per-image shift-consistency orders it at
-$+0.12$ ($[0.06, 0.18]$). With a finer radius grid the ordinary CLIP towers also acquire a real spread
-of per-image radii, and within each of them \etaL{} orders the radius at Spearman between $+0.54$ and
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig1_tower.pdf}
+\caption{Tower-level dissociation across the eleven-tower panel. \textbf{Left:} the attack-free ratio
+\etaL{}, computed on clean images, ranks the towers by AutoAttack robust accuracy (Pearson $+0.95$);
+adversarially trained towers in orange, ordinary towers in blue. \textbf{Right:} after removing an
+adversarial-training indicator as a covariate, \etaL{} still orders robustness ($+0.51$), while
+cosine-consistency collapses ($+0.15$) because its apparent signal was detection of adversarial
+training, and prediction-agreement consistency is not significant.}
+\label{fig:tower}
+\end{figure}
+
+\paragraph{Per image, the dissociation holds within towers and is not an artifact of adversarial
+training.}
+The powered version of the claim is per image, within a fixed tower, where the trained-versus-untrained
+split cannot act as a confound. In each of the four adversarially trained towers the per-image \etaL{}
+orders the per-image robust radius at Spearman $+0.74$ to $+0.85$ (mean $+0.79$, $n=300$ per tower),
+while per-image shift-consistency orders it far less, at $+0.27$ to $+0.37$ (mean $+0.33$). Consistency
+is therefore not uninformative about the per-image radius, but the threat-matched ratio orders it more
+than twice as strongly. With a finer radius grid the ordinary CLIP towers also acquire a real spread of
+per-image radii, and within each of them \etaL{} orders the radius at Spearman between $+0.54$ and
 $+0.79$, every confidence interval above zero. The per-image dissociation therefore holds inside
-ordinary, non-robust towers as well, so it is not a byproduct of the trained-versus-untrained split.
-% Fig: per_image_*.pt -> the per-image eta/L vs radius scatter (AT pooled + within non-AT). Headline figure.
+ordinary, non-robust towers as well, so it is not a byproduct of the trained-versus-untrained split. We
+report the per-tower ranges rather than a single pooled number, because pooling images across towers
+with a coarse, tied radius grid distorts the weaker consistency signal.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig2_perimage.pdf}
+\caption{Per-image dissociation, pooled over the four robust towers ($n=1200$). \textbf{Left:} the
+per-image ratio \etaL{} orders the per-image certified radius (Spearman $+0.76$ pooled, $+0.74$ to
+$+0.85$ per tower). \textbf{Right:} per-image shift-consistency orders the same radius far less
+strongly ($+0.33$ pooled). Consistency is weakly informative, not uninformative, but the
+threat-matched ratio orders the radius more than twice as strongly.}
+\label{fig:perimage}
+\end{figure}
 
 \paragraph{What survives and what to state honestly.}
 The implementation was checked line by line and no result changes sign under any check; there is no
@@ -251,8 +277,16 @@ moves. The excessive-invariance radius \rhoG{} measures the size of the smallest
 (an antonym swap, a negation, or a harmful-to-benign rewrite) that the model wrongly answers the same
 way. Across items these two are uncorrelated: Spearman$(\etaL, \rhoG) = -0.025$ ($95\%$ CI
 $[-0.09, +0.04]$). Sensitivity to small worst-case perturbations and invariance to large
-meaning-changing edits are, in these models, orthogonal axes.
-% Fig: results eta/L vs rho_G scatter, null.
+meaning-changing edits are, in these models, orthogonal axes (Figure~\ref{fig:ortho}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\linewidth]{figures/fig5_orthogonality.pdf}
+\caption{In a language model the sensitivity ratio \etaL{} and the excessive-invariance radius \rhoG{}
+are uncorrelated across prompts (Spearman $-0.03$), so they are independent robustness axes rather than
+two views of one quantity.}
+\label{fig:ortho}
+\end{figure}
 
 \paragraph{An orbit-flip radius and its certificate.}
 \begin{proposition}[informal]

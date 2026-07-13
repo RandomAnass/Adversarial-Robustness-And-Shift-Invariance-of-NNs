@@ -218,11 +218,26 @@ had floor_frac 0.997). Within each non-AT CLIP tower, **η/L₁ still orders the
 | clip_l14_datacomp | +0.651 | [0.583, 0.712] |
 | clip_b16_openai | +0.538 | [0.463, 0.607] |
 
-Plus the pooled-AT result reconfirmed: **Spearman(η/L₁, radius) = +0.782 [0.753, 0.807]** vs
-**Spearman(SC, radius) = +0.117 [0.057, 0.177]** (n=1200). **This is the key strengthening:** the
-per-image η/L→radius law is *not* an AT artifact — it holds inside ordinary non-AT CLIP encoders
-too (+0.54 … +0.79), while shift-consistency stays near zero. The headline dissociation is now
-robust across the AT/non-AT divide on both the tower and per-image axes.
+**CORRECTION 2026-07-13 (figure-generation caught a pooling artifact).** The earlier pooled
+"SC-radius = +0.117" was a **within-tower-rank-pooling artifact**: with a coarse, tied 5-level radius
+grid, rank-pooling across towers attenuates the weaker consistency signal. The **direct per-tower**
+Spearman(SC, radius) is **+0.27 to +0.37 (mean +0.33)** across the 4 AT towers — consistency is NOT
+near-zero for the per-image radius. The honest per-image dissociation is therefore GRADED:
+
+| per AT tower | Spearman(η/L₁, radius) | Spearman(SC, radius) |
+|---|---|---|
+| fare2 | +0.766 | +0.355 |
+| fare4 | +0.738 | +0.368 |
+| tecoa2 | +0.850 | +0.325 |
+| tecoa4 | +0.803 | +0.266 |
+| **mean / raw-pooled** | **+0.79 / +0.76** | **+0.33 / +0.33** |
+
+So η/L orders the per-image radius **~2.4× more strongly** than shift-consistency (+0.79 vs +0.33), a
+real dissociation, but consistency is weakly informative, not uninformative. Report per-tower ranges,
+NOT the +0.117 pooled number (retracted as a pooling artifact). The non-AT CLIP towers still show
+η/L₁→radius +0.54 … +0.79 per tower (AT-independent). **Paper §4 + abstract + intro corrected to
+"more than twice as strongly" / per-tower ranges; the "consistency stays near zero" phrasing is
+withdrawn.**
 
 ### 3c. Bonus — the paper's "invariance-helps is a weak-attack artifact" replicates in VLMs
 
