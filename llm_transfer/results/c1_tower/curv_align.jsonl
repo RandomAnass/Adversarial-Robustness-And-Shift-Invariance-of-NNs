@@ -1,0 +1,10 @@
+{"tower": "fare2", "q_align": -85.15107727050781, "anisotropy": 172.0746307373047, "S_apgd": 0.7533333333333333}
+{"tower": "fare4", "q_align": -90.06369018554688, "anisotropy": 154.91908264160156, "S_apgd": 0.8133333333333334}
+{"tower": "tecoa2", "q_align": -69.37625122070312, "anisotropy": 174.8323516845703, "S_apgd": 0.83}
+{"tower": "tecoa4", "q_align": -81.87142181396484, "anisotropy": 156.78172302246094, "S_apgd": 0.88}
+{"tower": "fare4_b32", "q_align": -42.18642807006836, "anisotropy": 196.8322296142578, "S_apgd": 0.7133333333333334}
+{"tower": "tecoa4_b32", "q_align": -30.18049430847168, "anisotropy": 194.15286254882812, "S_apgd": 0.8033333333333333}
+{"tower": "fare4_b16", "q_align": -40.29024887084961, "anisotropy": 176.7827606201172, "S_apgd": 0.74}
+{"tower": "tecoa4_b16", "q_align": -39.299312591552734, "anisotropy": 173.95428466796875, "S_apgd": 0.84}
+{"tower": "fare4_cnxt", "q_align": -43.32520294189453, "anisotropy": 166.55078125, "S_apgd": 0.7633333333333333}
+{"tower": "tecoa4_cnxt", "q_align": -33.47246170043945, "anisotropy": 162.08761596679688, "S_apgd": 0.8433333333333334}

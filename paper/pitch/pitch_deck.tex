@@ -11,7 +11,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
 
 %------------------------------------------------------------------ palette ----
 \definecolor{ink}{HTML}{1F2933}
@@ -210,25 +210,23 @@
 % FINDING 2: WEAK-ATTACK ARTIFACT
 %==============================================================================
 \begin{frame}{Finding 2: ``invariance helps'' is a weak-attack artifact}{The effect shows up under a cheap attack and vanishes under a strong one}
-  \vspace{0.5em}
-  \begin{center}
-  \small
-  \begin{tabular}{lcc}
-    \toprule
-    non-robust encoder & \warmt{weak attack (FGSM)} & \good{strong attack (AutoAttack)}\\
-    \midrule
-    robust accuracy & $16\%$ -- $61\%$ & \good{$0\%$}\\
-    \bottomrule
-  \end{tabular}
-  \end{center}
-  \vspace{0.6em}
-  \begin{itemize}\itemsep3pt
-    \item Under a single-step FGSM attack, more invariant models look more robust: the ``invariance
-      helps'' ordering appears.
-    \item Under AutoAttack, every non-robust encoder drops to zero. There is no robustness left to
-      order, and the correlation disappears.
-    \item This is a classic gradient-masking signature: a weak attack overstates robustness.
-  \end{itemize}
+  \vspace{0.2em}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{itemize}\footnotesize\itemsep4pt
+        \item Under a single-step FGSM attack, more invariant models look more robust: the
+          ``invariance helps'' ordering appears (left panel, a real trend).
+        \item Under AutoAttack, every non-robust encoder drops to \good{zero}. There is no robustness
+          left to order, and the trend disappears (right panel).
+        \item A weak attack simply overstates robustness, the classic gradient-masking signature.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \includegraphics[width=\linewidth]{../../llm_transfer/paper/figures/fig3_weakattack.pdf}\\[0.2em]
+      {\scriptsize\color{slate} Same encoders, same budget: shift-consistency looks like it predicts
+      robustness under FGSM, and predicts nothing under AutoAttack.}
+    \end{column}
+  \end{columns}
   \takeaway{Recent claims that architectural invariance gives robustness without adversarial training
   are measured with weak attacks. They do not survive a strong one.}
 \end{frame}
@@ -237,25 +235,32 @@
 % FINDING 3: eta/L PREDICTS
 %==============================================================================
 \begin{frame}{Finding 3: the margin ratio predicts robustness}{$\eta/L$ orders robustness where invariance does not, across three settings}
-  \vspace{0.4em}
-  \begin{center}
-  \small
-  \begin{tabular}{lcc}
-    \toprule
-    setting & \good{$\eta/L$ vs robustness} & \bad{shift-consistency vs robustness}\\
-    \midrule
-    CIFAR-10 classifiers        & \good{$+0.99$}          & \bad{uninformative}\\
-    ResNet on ImageNet-100      & \good{$+0.90$}          & \bad{anti-correlated}\\
-    Frozen CLIP encoders (per image) & \good{$+0.74$ to $+0.96$} & \bad{near zero}\\
-    \bottomrule
-  \end{tabular}
-  \end{center}
-  \vspace{0.6em}
-  \begin{itemize}\itemsep3pt
-    \item Same law from small CNNs to a ResNet to frozen foundation-model encoders.
-    \item Within a single robust encoder, image by image, $\eta/L$ tracks how large an attack it takes
-      to flip each image, while shift-consistency does not.
-  \end{itemize}
+  \vspace{0.2em}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \footnotesize
+      \begin{tabular}{lcc}
+        \toprule
+        setting & \good{$\eta/L$} & \bad{consistency}\\
+        \midrule
+        CIFAR-10 classifiers   & \good{$+0.99$} & \bad{uninformative}\\
+        ResNet, ImageNet-100   & \good{$+0.90$} & \bad{anti-corr.}\\
+        CLIP, per image        & \good{$+0.74$--$0.96$} & \bad{$\approx 0$}\\
+        \bottomrule
+      \end{tabular}
+      \vspace{0.6em}
+      \begin{itemize}\footnotesize\itemsep3pt
+        \item The same law from small CNNs to a ResNet to frozen foundation-model encoders.
+        \item Inside one robust encoder, image by image, $\eta/L$ tracks how large an attack each image
+          needs; shift-consistency does not.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \includegraphics[width=\linewidth]{../../llm_transfer/paper/figures/fig2_perimage.pdf}\\[0.2em]
+      {\scriptsize\color{slate} Per image, within a robust CLIP encoder: \good{$\eta/L$ (left)} orders
+      the attack size, \bad{shift-consistency (right)} does not.}
+    \end{column}
+  \end{columns}
   \takeaway{The right question is not ``how invariant is the model'' but ``how large is the margin
   relative to the sensitivity''. That is $\eta/L$.}
 \end{frame}
@@ -264,11 +269,22 @@
 % THE THEORY: two-sided bracket
 %==============================================================================
 \begin{frame}{Why it works: a two-sided bracket}{The ratio is not just a heuristic; it brackets the true robust radius}
-  \vspace{0.8em}
+  \vspace{0.6em}
   \begin{center}
-  {\Large $\displaystyle \frac{\eta}{L} \;\le\; \underbrace{r}_{\text{true robust radius}} \;\le\; \frac{\eta}{\alpha}$}
+  \begin{tikzpicture}[every node/.style={font=\small}]
+    \draw[-{Latex[length=2mm]},slate,line width=1pt] (-0.3,0)--(9.5,0);
+    \node[slate] at (9.9,0) {size};
+    \draw[good,line width=2.2pt] (2,-0.12)--(2,0.12); \node[good,above=2pt] at (2,0.14) {$\eta/L$};
+    \node[good,below=3pt,font=\scriptsize] at (2,-0.14) {certified safe};
+    \draw[accent,line width=2.6pt] (4.6,-0.16)--(4.6,0.16); \node[accent,above=2pt] at (4.6,0.18) {$r$};
+    \node[accent,below=3pt,font=\scriptsize] at (4.6,-0.18) {true radius};
+    \draw[warm,line width=2.2pt] (7,-0.12)--(7,0.12); \node[warm,above=2pt] at (7,0.14) {$\eta/\alpha$};
+    \node[warm,below=3pt,font=\scriptsize] at (7,-0.14) {must be unsafe};
+    \draw[decorate,decoration={brace,amplitude=4pt},slate] (2,0.55)--(7,0.55);
+    \node[slate,font=\scriptsize] at (4.5,0.95) {gap $=$ condition number $\kappa=L/\alpha$};
+  \end{tikzpicture}
   \end{center}
-  \vspace{0.8em}
+  \vspace{0.4em}
   \begin{itemize}\itemsep4pt
     \item The \keyword{lower bound} is the standard certificate: the model cannot be flipped by
       anything smaller than $\eta/L$.
@@ -315,17 +331,34 @@
           robust encoders where $\eta/L$ could not.
       \end{itemize}
     \end{column}
-    \begin{column}{0.42\textwidth}
-      \begin{beamercolorbox}[sep=7pt,rounded=true]{block body}
-        \footnotesize
-        We can prove it in a clean case: when the model's curvature lines up with its gradient, a more
-        spread gradient provably shrinks the robust radius, and the shrinkage grows with the spread.\\[0.4em]
-        The direction of the effect we see in real encoders matches this case.
-      \end{beamercolorbox}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.52,every node/.style={font=\scriptsize}]
+        % concentrated gradient (robust)
+        \draw[good,very thick,rounded corners] (0,0) rectangle (3,3);
+        \foreach \x in {0,1,2}\foreach \y in {0,1,2}\draw[rulec] (\x,\y) rectangle (\x+1,\y+1);
+        \draw[good,-{Latex[length=3mm]},line width=2.2pt] (1.5,1.5)--(2.35,1.5);
+        \node[good] at (1.5,-0.5) {concentrated};
+        \node[good] at (1.5,-1.05) {\bf robust};
+        % spread gradient (fragile)
+        \begin{scope}[xshift=4.2cm]
+        \draw[bad,very thick,rounded corners] (0,0) rectangle (3,3);
+        \foreach \x in {0,1,2}\foreach \y in {0,1,2}{\draw[rulec] (\x,\y) rectangle (\x+1,\y+1);
+          \draw[bad,-{Latex[length=1.6mm]},line width=0.9pt] (\x+0.5,\y+0.5)--(\x+0.85,\y+0.5);}
+        \node[bad] at (1.5,-0.5) {spread};
+        \node[bad] at (1.5,-1.05) {\bf fragile};
+        \end{scope}
+      \end{tikzpicture}\\[1.3em]
+      {\scriptsize\color{slate} An all-pixel attack wastes its budget on a concentrated gradient,
+      but exploits every arrow of a spread one.}
     \end{column}
   \end{columns}
-  \takeaway{Robustness among strong models is a matter of \emph{where} the model is sensitive, not
-  only how much. Gradient shape is the missing piece.}
+  \vspace{0.3em}
+  {\footnotesize\color{slate} There is a clean case where this is provable: when the curvature lines up
+  with the gradient, a more spread gradient shrinks the robust radius. Whether that is the exact
+  mechanism in real encoders is still open; the ranking itself is robust to every control we tried.}
+  \takeaway{Robustness among strong models is about \emph{where} the model is sensitive, not only how
+  much. Gradient shape is the missing piece; the reason it works is still being pinned down.}
 \end{frame}
 
 %==============================================================================

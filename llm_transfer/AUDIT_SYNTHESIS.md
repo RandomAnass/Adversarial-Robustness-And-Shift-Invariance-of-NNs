@@ -130,3 +130,16 @@ anisotropy RANKING is solid (-0.65, jackknife-robust) but the curvature-loosenes
 confirmed on real encoders. **Definitive test still needed: HVP measure sign(grad M)^T H sign(grad M) per
 encoder** (is it concave + gradient-aligned?). Honest paper framing: empirical finding + conditional
 proposition (proven) + sign consistent with alignment; direct curvature-alignment confirmation = future work.
+
+## CURVATURE-ALIGNMENT MECHANISM TEST (2026-07-14, run_curv_align.py per-tower, all 10 robust)
+Measured curvature along the ATTACK direction q_align = sign(grad M)^T H sign(grad M) / ||grad M||_1.
+- ALL 10 encoders CONCAVE along the attack (frac q<0 = 1.00, mean -55.5) -- the qualitative condition holds.
+- BUT the mechanism is REFUTED: Spearman(q_align, S_apgd)=+0.03 (null) -- concavity does NOT rank robustness;
+  Spearman(anisotropy A, q_align)=+0.53 (WRONG SIGN, theory predicted <0). The aligned-concave-curvature
+  proposition does NOT manifest on real encoders.
+- Anisotropy ranking SURVIVES the backbone confound: partial(A,S|is-L/14)=-0.62; within-backbone L/14 -0.40,
+  non-L/14 -0.71. So the empirical A->robustness ranking is REAL (survives method + eta/L + backbone + jackknife)
+  but its MECHANISM is OPEN (curvature story refuted; why anisotropy ranks robustness is unexplained).
+- HONEST paper framing: gradient anisotropy is a cheap attack-free predictor that ranks robust encoders where
+  eta/L cannot (robust empirical finding); the curvature proposition is a valid clean-case candidate but is NOT
+  the real-encoder mechanism -> present as empirical + open mechanism, do NOT claim the theory explains it.
