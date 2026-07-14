@@ -88,14 +88,17 @@ survive a strong attack.
 % Weak-attack / gradient masking: Athalye 2018 (1802.00420) parent phenomenon.
 % VLM robustness governed by tower: 2407.11121; FARE 2402.12336; anti-aliasing Zhang 2019 (1904.11486).
 \paragraph{Predicting robustness without attacks.}
-Two lines estimate a model's adversarial robustness without running the attack. GREAT Score~\citep{greatscore} derives a
-global robustness statistic from a generative model of the data and correlates it with attack-based
-rankings on RobustBench, and RDI~\citep{rdi} ranks classifiers by a feature-cluster separation index. Both rank
-ordinary trained classifiers by a quantity that is neither a margin nor an input gradient, and neither
-touches frozen foundation-model encoders, a per-image certified radius, or a paired invariance null. A
-separate line uses the logit margin as a per-sample brittleness signal within a single fixed model~\citep{ngnawe};
-this is the closest in spirit to our numerator, but it is a within-model detector on CIFAR classifiers,
-not a cross-encoder ranking, and it does not divide by a Lipschitz term.
+Attack-free robustness estimation has a long line. CLEVER~\citep{clever} is the first attack-independent
+robustness metric and, like our ratio, is a margin divided by a gradient-based Lipschitz estimate, but
+it estimates the local Lipschitz constant by extreme-value sampling to produce a per-sample radius on a
+single fixed classifier; it is not used to rank encoders and is not paired with an invariance metric.
+GREAT Score~\citep{greatscore} derives a global robustness statistic from a generative model of the data
+and correlates it with attack-based rankings on RobustBench, and RDI~\citep{rdi} ranks classifiers by a
+feature-cluster separation index. These rank ordinary trained classifiers, and none touches frozen
+foundation-model encoders, the saturation of the invariance metric, or a paired invariance null. A
+separate line uses the logit margin as a per-sample brittleness signal within a single fixed
+model~\citep{ngnawe}; this is the closest in spirit to our numerator, but it is a within-model detector
+on CIFAR classifiers, not a cross-encoder analysis, and it does not divide by a Lipschitz term.
 
 \paragraph{Margin, Lipschitz, and invariance in robustness.}
 That a large margin over a small local Lipschitz constant implies a robust radius is classical, and
@@ -120,11 +123,11 @@ adversarial training, evaluated only with FGSM and PGD~\citep{equivariance}; we 
 artifact on frozen vision-language towers.
 
 \paragraph{Foundation-model robustness and certified language robustness.}
-The adversarial robustness of a vision-language model is governed by its vision tower~\citep{towergoverns}, and
+The adversarial robustness of a vision-language model is governed by its vision tower~\citep{fare}, and
 adversarially trained CLIP encoders such as FARE~\citep{fare} and TeCoA~\citep{tecoa} provide the robust
 encoders in our panel; undefended CLIP is known to break completely under AutoAttack~\citep{pmgaft}, which
 we use as the arbiter rather than rediscover.
-% Must-cite bib keys: greatscore, rdi, ngnawe, macs, singlage, tramer, athalye, carlinieval, autoattack, fare, tecoa, towergoverns.
+% Must-cite bib keys: greatscore, rdi, clever, ngnawe, macs, singlage, tramer, athalye, carlinieval, autoattack, fare, tecoa
 
 \section{Background: the dissociation on image classifiers}
 \label{sec:cifar}
