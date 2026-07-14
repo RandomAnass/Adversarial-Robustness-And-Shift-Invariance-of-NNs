@@ -107,3 +107,26 @@ diagnostic. That is a main-track-shaped multi-contribution paper.
 - Promote the **per-sample sign-flip** (Paper A's most-novel finding) to a headline.
 - Reconcile the per-image tightness ratio (1.1 vs 1.57).
 - If Part 2's experiment confirms κ ranks robust encoders → that becomes the paper's strongest new positive.
+
+---
+
+## ANISOTROPY THEORY + NOVELTY (2026-07-14, agent + I verified by running the scripts)
+**Provable? Conditionally YES, unconditionally NO.** On a quadratic margin M(δ)=M0+w^T δ+½δ^T H δ, the
+L∞ attack's 2nd-order term is Q=½ sign(w)^T H sign(w) — depends on H and the SIGN of w only, NOT on the
+gradient magnitudes, so NOT on anisotropy A=||w||_1/||w||_2 in general.
+- **Naked claim FALSE**: generic H makes radius INCREASE with A (counterexample, verified verify_counterexample.py);
+  isotropic H=-cI makes radius FLAT in A (verify_quadratic T3) -> the mechanism is NOT dimensional.
+- **Conditional PROPOSITION TRUE**: if curvature is concave AND gradient-aligned (H=-c hat w hat w^T), then
+  Q=-c/2 A^2 and r_inf = (eta/L1)(1 - c/2 (eta/L1)^2 A^2), strictly decreasing in A; looseness
+  kappa_inf-1 propto A^2. Verified numerically to 4 decimals (verify_quadratic T2). **The empirical sign
+  (-0.65, higher A -> less robust) is itself evidence robust CLIP encoders sit in the aligned-concave regime**
+  (generic curvature reverses the sign).
+**Novel? YES.** Nearest: Simon-Gabriel 2019 (||grad||_1~sqrt(d)||grad||_2, but dimension-vs-vulnerability,
+not fixed-margin ranking), Chalasani 2020 (AT->sparse gradients, converse direction), GradDiv (opposite,
+ensemble dispersion), Ross-Doshi (gradient MAGNITUDE reg). The fixed-eta/L residual-ranker framing is new.
+**REAL-DATA MECHANISM: WEAK/UNCONFIRMED.** On the 10 robust encoders, Spearman(A, looseness eta/L1/r) =
++0.28 (n.s.); mean looseness ~1 (not >1 as concave curvature needs; radius grid is coarse). So the
+anisotropy RANKING is solid (-0.65, jackknife-robust) but the curvature-looseness MECHANISM is not yet
+confirmed on real encoders. **Definitive test still needed: HVP measure sign(grad M)^T H sign(grad M) per
+encoder** (is it concave + gradient-aligned?). Honest paper framing: empirical finding + conditional
+proposition (proven) + sign consistent with alignment; direct curvature-alignment confirmation = future work.
