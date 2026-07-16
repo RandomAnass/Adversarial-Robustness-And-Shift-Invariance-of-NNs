@@ -187,11 +187,74 @@ CLIP_TOWERS = {
 # adversarially-robust towers (for the AT indicator in analysis)
 ROBUST_TOWERS = {"fare2", "fare4", "tecoa2", "tecoa4",
                  "fare4_b32", "tecoa4_b32", "fare4_b16", "tecoa4_b16",
-                 "fare4_cnxt", "tecoa4_cnxt"}
+                 "fare4_cnxt", "tecoa4_cnxt",
+                 # HARDENED-DESIGN additions (vision-state_dict injected; see below)
+                 "simclip4", "simclip2", "delta_l14_vis"}
 # 6 verified-loadable robust encoders to run for the panel expansion (4 -> 10 robust towers).
 # delta_l14 (Double Visual Defense, SOTA) deferred: zw123 hf-hub config incompatible with this
 # open_clip (CLIPTextCfg vocab_path); add via vision-state_dict if more power is needed.
 NEW_ROBUST = ["fare4_b32", "tecoa4_b32", "fare4_b16", "tecoa4_b16", "fare4_cnxt", "tecoa4_cnxt"]
+
+
+# ===========================================================================
+# HARDENED-DESIGN robust-panel expansion (Crown-Jewel hardened; NEW, behind their own list).
+# These are robust CLIP VISION towers whose checkpoints are NOT open_clip `hf-hub:` drop-ins:
+# they ship the VISION submodule state_dict (Sim-CLIP: a bare `model.visual` state_dict) or a
+# full open_clip .bin (Delta-CLIP). We load an open_clip base (which supplies the SHARED,
+# frozen OpenAI text tower + tokenizer, exactly as for FARE/TeCoA -- those only fine-tune the
+# vision tower) and inject the robust vision weights via `model.visual.load_state_dict`.
+#
+# spec = (hf_repo, filename, arch, load_kind, at_note)
+#   load_kind "visual_sd"  : file IS the model.visual state_dict (Sim-CLIP)          -> load into model.visual
+#   load_kind "clip_visual": file is a full CLIP state_dict; take the visual.* subset (Delta-CLIP)
+#
+# DOWNLOAD-VERIFIED (this session, ImageNet-100 clean acc on 200 imgs with the shared OpenAI
+# 10-template head): simclip4 0.820, simclip2 0.875 (0 missing/unexpected keys; healthy).
+# delta_l14_vis is INCLUDED-BUT-FLAGGED: injecting only its visual.* keys into a stock ViT-L-14
+# gave ~chance acc (missing ln_pre + a QuickGELU/text-tower mismatch: Double Visual Defense also
+# adversarially trains the TEXT tower, so the shared OpenAI head is the wrong text space). It
+# needs its OWN text tower (ViT-L-14-quickgelu, no ln_pre) to be usable -> DEFERRED, not run.
+HARDENED_NEW_ROBUST_SPEC = {
+    # Sim-CLIP (Hossain & Imteaj, arXiv:2407.14971 / Sim-CLIP+ 2409.07353): Siamese/stop-grad
+    # unsupervised adversarial fine-tune of the CLIP vision tower. Distinct AT FAMILY vs FARE/TeCoA.
+    "simclip4": ("hossainzarif19/SimCLIP", "simclip4.pt", "ViT-L-14", "visual_sd",
+                 "Sim-CLIP, Linf 4/255 (verified: clean acc 0.820)"),
+    "simclip2": ("hossainzarif19/SimCLIP", "simclip2.pt", "ViT-L-14", "visual_sd",
+                 "Sim-CLIP, Linf 2/255 (verified: clean acc 0.875)"),
+    # Delta-CLIP / Double Visual Defense (Wang et al., arXiv:2501.09446): SOTA, but trains the
+    # TEXT tower too -> needs its own quickgelu text tower; FLAGGED, not in the run list below.
+    "delta_l14_vis": ("zw123/delta_clip_l14_224", "open_clip_pytorch_model.bin",
+                      "ViT-L-14-quickgelu", "clip_visual",
+                      "Double Visual Defense, Linf 4/255 (DEFERRED: needs own text tower)"),
+}
+# Robust encoders VERIFIED-LOADABLE this session and ready to add to the run panel (2 new).
+HARDENED_NEW_ROBUST = ["simclip4", "simclip2"]
+
+
+def load_vision_injected_tower(name, class_names, device):
+    """Load a HARDENED_NEW_ROBUST_SPEC tower: open_clip base (shared OpenAI text tower) with a
+    robust VISION state_dict injected. Mirrors load_clip_tower's head construction so the panel
+    stays internally consistent (same 10-template zero-shot head, CLIP normalization)."""
+    from huggingface_hub import hf_hub_download
+    repo, fname, arch, kind, _note = HARDENED_NEW_ROBUST_SPEC[name]
+    model, _, _ = open_clip.create_model_and_transforms(arch, pretrained="openai")
+    tokenizer = open_clip.get_tokenizer(arch)
+    sd = torch.load(hf_hub_download(repo, fname), map_location="cpu")
+    sd = sd.get("state_dict", sd)
+    sd = {(k[7:] if k.startswith("module.") else k): v for k, v in sd.items()}
+    if kind == "clip_visual":
+        sd = {k[len("visual."):]: v for k, v in sd.items() if k.startswith("visual.")}
+    missing, unexpected = model.visual.load_state_dict(sd, strict=False)
+    if missing or unexpected:
+        print(f"[towers] {name}: visual load missing={len(missing)} unexpected={len(unexpected)}")
+    model = model.to(device).eval()
+    for p in model.parameters():
+        p.requires_grad_(False)
+    text_features = build_text_features(model, tokenizer, class_names, device)
+    tower = ClipZeroShot(model, text_features, CLIP_MEAN, CLIP_STD).to(device).eval()
+    for p in tower.parameters():
+        p.requires_grad_(False)
+    return tower
 
 
 def load_clip_tower(name, class_names, device, anti_alias=False, blur_size=3):

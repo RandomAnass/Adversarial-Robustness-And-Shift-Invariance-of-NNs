@@ -174,6 +174,55 @@
 \end{frame}
 
 %==============================================================================
+% THE GEOMETRIC PICTURE: projection vs margin
+%==============================================================================
+\begin{frame}{The picture: two different directions}{Invariance moves \emph{along} the boundary; an attack moves \emph{across} it}
+  \vspace{0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1.0,every node/.style={font=\scriptsize}]
+        % regions + decision boundary
+        \fill[accent!8] (-0.2,-0.2) rectangle (2.35,3.3);
+        \fill[warm!8]  (2.35,-0.2) rectangle (5.0,3.3);
+        \draw[slate,line width=1pt] (2.6,-0.2) .. controls (2.2,1.3) and (2.6,2.0) .. (2.15,3.3);
+        \node[accent] at (0.7,3.05) {``cat''};
+        \node[warm]  at (4.3,3.05) {``dog''};
+        % the data point
+        \fill[ink] (1.15,1.6) circle (2.2pt); \node[ink,left=1pt] at (1.15,1.6) {$x$};
+        % invariance orbit: arc through x, staying inside the cat region (tangent ~ vertical)
+        \draw[accent,thick,dashed] (0.55,0.7) .. controls (1.5,1.2) and (1.5,2.0) .. (0.75,2.6);
+        \draw[accent,-{Latex[length=1.6mm]},thick] (1.28,1.15)--(1.42,1.55);
+        \draw[accent,-{Latex[length=1.6mm]},thick] (1.42,1.75)--(1.3,2.15);
+        \node[accent] at (0.35,1.65) {\rotatebox{90}{shift orbit}};
+        % adversarial direction: short arrow to boundary, ~perpendicular
+        \draw[bad,-{Latex[length=2mm]},line width=1.4pt] (1.15,1.6)--(2.05,1.72);
+        \node[bad,below=1pt] at (1.75,1.5) {attack};
+        % boundary point + margin bracket
+        \fill[bad] (2.12,1.72) circle (1.4pt);
+        % right-angle mark between orbit tangent (vertical) and attack (horizontal)
+        \draw[ink,line width=0.6pt] (1.15,1.78)--(1.31,1.78)--(1.31,1.62);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \vspace{0.8em}
+      \begin{itemize}\footnotesize\itemsep4pt
+        \item \acc{Invariance} is being \emph{flat along the shift orbit}: the dashed path stays inside
+          the ``cat'' region, so the label never changes.
+        \item \good{Robustness} is the \emph{margin to the boundary}: the red arrow is the smallest
+          change that crosses into ``dog''.
+        \item These are \keyword{different directions}. A long, flat orbit (very invariant) can still
+          sit a hair from the boundary (fragile).
+        \item Invariance is a \emph{projection}; robustness is a \emph{distance}. One says little about
+          the other.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \takeaway{Invariance and robustness live along near-orthogonal directions. This is the geometric
+  reason a good invariance score does not buy you robustness.}
+\end{frame}
+
+%==============================================================================
 % THE MEASURING STICK
 %==============================================================================
 \begin{frame}{The measuring stick: a margin-to-sensitivity ratio}{$\eta/L$, computed on clean images, no attack needed}
@@ -370,11 +419,42 @@
     \end{column}
   \end{columns}
   \vspace{0.3em}
-  {\footnotesize\color{slate} There is a clean case where this is provable: when the curvature lines up
-  with the gradient, a more spread gradient shrinks the robust radius. Whether that is the exact
-  mechanism in real encoders is still open; the ranking itself is robust to every control we tried.}
+  {\footnotesize\color{slate} We measured this shape by the gradient's \keyword{anisotropy}
+  $A=\|\nabla M\|_1/\|\nabla M\|_2$: near $1$ when concentrated, up to $\sqrt{d}$ when spread. It is
+  the same $\eta/L$ ingredients, read as a \emph{ratio of norms} instead of a size.}
   \takeaway{Robustness among strong models is about \emph{where} the model is sensitive, not only how
-  much. Gradient shape is the missing piece; the reason it works is still being pinned down.}
+  much. The gradient's shape is the missing piece, and it has a clean mechanism.}
+\end{frame}
+
+%==============================================================================
+% FINDING 4c: mechanism + real-data replication
+%==============================================================================
+\begin{frame}{Finding 4: why shape matters, and that it holds on real models}{An effective-dimension deficit, not curvature, and it replicates on 30 CIFAR models}
+  \vspace{-0.3em}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}\footnotesize\itemsep2pt
+        \item $\eta/L_1$ is only the start. A real attack also harvests the gradient's variations across
+          pixels, collecting \emph{more} when the gradient is spread over more coordinates.
+        \item This shrinks the true radius below $\eta/L_1$ by a factor growing with the spread:
+      \end{itemize}
+      \begin{beamercolorbox}[sep=4pt,rounded=true]{block body}
+        \centering $\displaystyle r \;\approx\; \frac{\eta/L_1}{1+C\,A}$
+      \end{beamercolorbox}
+      \begin{itemize}\footnotesize\itemsep2pt
+        \item A \keyword{transverse} effect, \emph{not} curvature along the attack (on-direction
+          curvature does \bad{not} rank robustness). A matched-margin synthetic model reproduces the
+          ordering exactly (rank corr.\ $-1.0$).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \includegraphics[width=0.96\linewidth]{figures/robustbench_aniso.pdf}\\[0.15em]
+      {\scriptsize\color{slate} 30 RobustBench CIFAR-10 models. \good{(a)} the shape $A$ ranks
+      robustness (rank corr.\ $-0.77$, survives a clean-accuracy control); \bad{(b)} the size
+      $\eta/L_1$ detects it but ranks weakly.}
+    \end{column}
+  \end{columns}
+  \takeaway{The shape law has a mechanism and replicates on 30 independent real robust models.}
 \end{frame}
 
 %==============================================================================
@@ -383,10 +463,10 @@
 \begin{frame}{Finding 5: adversarial training flips a hidden relationship}{A fingerprint of what robust training actually changes}
   \vspace{0.7em}
   \begin{itemize}\itemsep5pt
-    \item In an ordinary model, the images with the largest margin tend to have the \emph{largest}
-      gradients: confidence and sensitivity rise together.
-    \item After adversarial training, this reverses: high-margin images now have the \emph{smallest}
-      gradients.
+    \item In an ordinary model, the images with the largest margin tend to have the \emph{smallest}
+      gradients: they sit in flatter regions, so margin and robustness reinforce.
+    \item After adversarial training, this reverses: high-margin images now have the \emph{largest}
+      gradients, so the model buys margin partly by raising sensitivity.
     \item The per-image relationship between margin and sensitivity flips sign, consistently across
       dozens of models.
   \end{itemize}

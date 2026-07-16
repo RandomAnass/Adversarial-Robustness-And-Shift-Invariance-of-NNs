@@ -1,0 +1,568 @@
+% Core literature — shift invariance vs adversarial robustness
+% Verified against downloaded PDFs (literature/download.py).
+
+% ---- A. Supervisor's 4 comparison works ----
+@article{ge2021shift,
+  title={Shift Invariance Can Reduce Adversarial Robustness},
+  author={Ge, Songwei and Singla, Vasu and Basri, Ronen and Jacobs, David},
+  journal={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2021},
+  note={arXiv:2103.02695}
+}
+@inproceedings{kamath2021canwehaveitall,
+  title={Can we have it all? On the Trade-off between Spatial and Adversarial Robustness of Neural Networks},
+  author={Kamath, Sandesh and Deshpande, Amit and Subrahmanyam, K V and Balasubramanian, Vineeth N},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2021},
+  note={arXiv:2002.11318}
+}
+@misc{kamath2020invariance,
+  title={Invariance vs. Robustness of Neural Networks},
+  author={Kamath, Sandesh and Deshpande, Amit and Subrahmanyam, K V},
+  year={2020},
+  note={OpenReview HJxp9kBFDS (ICLR 2020 submission); earlier version of kamath2021canwehaveitall}
+}
+@inproceedings{galloway2019batchnorm,
+  title={Batch Normalization is a Cause of Adversarial Vulnerability},
+  author={Galloway, Angus and Golubeva, Anna and Tanay, Thomas and Moussa, Medhat and Taylor, Graham W},
+  booktitle={ICML 2019 Workshop on Identifying and Understanding Deep Learning Phenomena},
+  year={2019},
+  note={arXiv:1905.02161}
+}
+
+% ---- B. Foundational ----
+@inproceedings{zhang2019making,
+  title={Making Convolutional Networks Shift-Invariant Again},
+  author={Zhang, Richard},
+  booktitle={International Conference on Machine Learning (ICML)},
+  year={2019},
+  note={arXiv:1904.11486}
+}
+@article{azulay2019why,
+  title={Why do deep convolutional networks generalize so poorly to small image transformations?},
+  author={Azulay, Aharon and Weiss, Yair},
+  journal={Journal of Machine Learning Research},
+  volume={20}, pages={1--25}, year={2019},
+  note={arXiv:1805.12177}
+}
+@article{neyshabur2020towards,
+  title={Towards Learning Convolutions from Scratch},
+  author={Neyshabur, Behnam},
+  journal={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2020},
+  note={arXiv:2007.13657}
+}
+@inproceedings{rony2019decoupling,
+  title={Decoupling Direction and Norm for Efficient Gradient-Based L2 Adversarial Attacks and Defenses},
+  author={Rony, J{\'e}r{\^o}me and Hafemann, Luiz G and Oliveira, Luiz S and Ayed, Ismail Ben and Sabourin, Robert and Granger, Eric},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2019},
+  note={arXiv:1811.09600}
+}
+@article{xu2022understanding,
+  title={Understanding Adversarial Robustness from Feature Maps of Convolutional Layers},
+  author={Xu, Cong and Yang, Min},
+  journal={arXiv preprint arXiv:2202.12435},
+  year={2022}
+}
+@inproceedings{chen2023holistic,
+  title={Holistic Adversarial Robustness of Deep Learning Models},
+  author={Chen, Pin-Yu and Liu, Sijia},
+  booktitle={AAAI Conference on Artificial Intelligence},
+  year={2023},
+  note={arXiv:2202.07201}
+}
+
+% ---- C. Robustness / geometry fundamentals ----
+@inproceedings{goodfellow2015explaining,
+  title={Explaining and Harnessing Adversarial Examples},
+  author={Goodfellow, Ian J and Shlens, Jonathon and Szegedy, Christian},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2015},
+  note={arXiv:1412.6572}
+}
+@inproceedings{madry2018towards,
+  title={Towards Deep Learning Models Resistant to Adversarial Attacks},
+  author={Madry, Aleksander and Makelov, Aleksandar and Schmidt, Ludwig and Tsipras, Dimitris and Vladu, Adrian},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2018},
+  note={arXiv:1706.06083}
+}
+@inproceedings{tsipras2019robustness,
+  title={Robustness May Be at Odds with Accuracy},
+  author={Tsipras, Dimitris and Santurkar, Shibani and Engstrom, Logan and Turner, Alexander and Madry, Aleksander},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2019},
+  note={arXiv:1805.12152}
+}
+@inproceedings{engstrom2019exploring,
+  title={Exploring the Landscape of Spatial Robustness},
+  author={Engstrom, Logan and Tran, Brandon and Tsipras, Dimitris and Schmidt, Ludwig and Madry, Aleksander},
+  booktitle={International Conference on Machine Learning (ICML)},
+  year={2019},
+  note={arXiv:1712.02779}
+}
+@inproceedings{croce2020reliable,
+  title={Reliable Evaluation of Adversarial Robustness with an Ensemble of Diverse Parameter-free Attacks},
+  author={Croce, Francesco and Hein, Matthias},
+  booktitle={International Conference on Machine Learning (ICML)},
+  year={2020},
+  note={arXiv:2003.01690 (AutoAttack)}
+}
+
+% ---- D. Post-2023 (gap-check) ----
+@inproceedings{michaeli2023alias,
+  title={Alias-Free Convnets: Fractional Shift Invariance via Polynomial Activations},
+  author={Michaeli, Hagay and Michaeli, Tomer and Soudry, Daniel},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2023},
+  note={arXiv:2303.08085}
+}
+@inproceedings{saha2024improving,
+  title={Improving Shift Invariance in Convolutional Neural Networks with Translation Invariant Polyphase Sampling},
+  author={Saha, Sourajit and Gokhale, Tejas},
+  booktitle={IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+  year={2024},
+  note={arXiv:2404.07410}
+}
+@inproceedings{frei2023double,
+  title={The Double-Edged Sword of Implicit Bias: Generalization vs. Robustness in ReLU Networks},
+  author={Frei, Spencer and Vardi, Gal and Bartlett, Peter L and Srebro, Nathan},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2023},
+  note={arXiv:2303.01456}
+}
+@inproceedings{hein2017formal,
+  title={Formal Guarantees on the Robustness of a Classifier against Adversarial Manipulation},
+  author={Hein, Matthias and Andriushchenko, Maksym},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2017},
+  note={arXiv:1705.08475}
+}
+@inproceedings{bubeck2021law,
+  title={A Universal Law of Robustness via Isoperimetry},
+  author={Bubeck, S{\'e}bastien and Sellke, Mark},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2021},
+  note={arXiv:2105.12806}
+}
+@inproceedings{tsuzuku2018lipschitz,
+  title={Lipschitz-Margin Training: Scalable Certification of Perturbation Invariance for Deep Neural Networks},
+  author={Tsuzuku, Yusuke and Sato, Issei and Sugiyama, Masashi},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2018},
+  note={arXiv:1802.04034}
+}
+@inproceedings{jacot2018neural,
+  title={Neural Tangent Kernel: Convergence and Generalization in Neural Networks},
+  author={Jacot, Arthur and Gabriel, Franck and Hongler, Cl{\'e}ment},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2018},
+  note={arXiv:1806.07572}
+}
+@inproceedings{elesedy2021provably,
+  title={Provably Strict Generalisation Benefit for Invariance in Kernel Methods},
+  author={Elesedy, Bryn},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2021},
+  note={arXiv:2106.02346}
+}
+@inproceedings{melamed2023adversarial,
+  title={Adversarial Examples Exist in Two-Layer ReLU Networks for Low Dimensional Linear Subspaces},
+  author={Melamed, Odelia and Yehudai, Gilad and Vardi, Gal},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2023},
+  note={arXiv:2303.00783}
+}
+@article{survey2023data,
+  title={It Is All About Data: A Survey on the Effects of Data on Adversarial Robustness},
+  author={Xiong, Peiyu and others},
+  journal={ACM Computing Surveys},
+  year={2023},
+  note={arXiv:2303.09767; verify author list}
+}
+
+% ---- optimization-theory + round-2 refs (added for the technical report) ----
+@inproceedings{li2025feature,
+  title={Feature Averaging: An Implicit Bias of Gradient Descent Leading to Non-Robustness in Neural Networks},
+  author={Li, Binghui and Pan, Zhixuan and Lyu, Kaifeng and Li, Jian},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2025}, note={arXiv:2410.10322}}
+@inproceedings{min2024can,
+  title={Can Implicit Bias Imply Adversarial Robustness?},
+  author={Min, Hancheng and Vidal, Ren{\'e}},
+  booktitle={International Conference on Machine Learning (ICML)},
+  year={2024}, note={arXiv:2405.15942}}
+@inproceedings{tramer2020fundamental,
+  title={Fundamental Tradeoffs between Invariance and Sensitivity to Adversarial Perturbations},
+  author={Tram{\`e}r, Florian and Behrmann, Jens and Carlini, Nicholas and Papernot, Nicolas and Jacobsen, J{\"o}rn-Henrik},
+  booktitle={International Conference on Machine Learning (ICML)},
+  year={2020}}
+@inproceedings{huang2023revisiting,
+  title={Revisiting Residual Networks for Adversarial Robustness: An Architectural Perspective},
+  author={Huang, Shihua and others},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2023}, note={arXiv:2212.11005}}
+
+@inproceedings{ross2018improving,
+  title={Improving the Adversarial Robustness and Interpretability of Deep Neural Networks by Regularizing their Input Gradients},
+  author={Ross, Andrew Slavin and Doshi-Velez, Finale},
+  booktitle={AAAI Conference on Artificial Intelligence},
+  volume={32}, number={1}, pages={1660--1669}, year={2018}
+}
+@article{finlay2021scaleable,
+  title={Scaleable input gradient regularization for adversarial robustness},
+  author={Finlay, Chris and Oberman, Adam M},
+  journal={Machine Learning with Applications}, volume={3}, pages={100017}, year={2021}, publisher={Elsevier}
+}
+@article{hoffman2019robust,
+  title={Robust Learning with Jacobian Regularization},
+  author={Hoffman, Judy and Roberts, Daniel A and Yaida, Sho},
+  journal={arXiv preprint arXiv:1908.02729}, year={2019}
+}
+@inproceedings{moosavi2019robustness,
+  title={Robustness via Curvature Regularization, and Vice Versa},
+  author={Moosavi-Dezfooli, Seyed-Mohsen and Fawzi, Alhussein and Uesato, Jonathan and Frossard, Pascal},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, pages={9078--9086}, year={2019}
+}
+@inproceedings{rice2020overfitting,
+  title={Overfitting in Adversarially Robust Deep Learning},
+  author={Rice, Leslie and Wong, Eric and Kolter, J Zico},
+  booktitle={International Conference on Machine Learning (ICML)}, pages={8093--8104}, year={2020}
+}
+@inproceedings{ilyas2019adversarial,
+  title={Adversarial Examples Are Not Bugs, They Are Features},
+  author={Ilyas, Andrew and Santurkar, Shibani and Tsipras, Dimitris and Engstrom, Logan and Tran, Brandon and Madry, Aleksander},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)}, year={2019}
+}
+@inproceedings{chaman2021truly,
+  title={Truly Shift-Invariant Convolutional Neural Networks},
+  author={Chaman, Anadi and Dokmani{\'c}, Ivan},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages={3773--3783}, year={2021}
+}
+
+@inproceedings{cohen2019certified,
+  author    = {Jeremy M. Cohen and Elan Rosenfeld and J. Zico Kolter},
+  title     = {Certified Adversarial Robustness via Randomized Smoothing},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2019},
+  note      = {arXiv:1902.02918}
+}
+
+@inproceedings{leino2021globally,
+  author    = {Klas Leino and Zifan Wang and Matt Fredrikson},
+  title     = {Globally-Robust Neural Networks},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2021},
+  note      = {arXiv:2102.08452}
+}
+
+@article{grabinski2022aliasing,
+  author    = {Julia Grabinski and Janis Keuper and Margret Keuper},
+  title     = {Aliasing and adversarial robust generalization of {CNNs}},
+  journal   = {Machine Learning},
+  volume    = {111},
+  number    = {10},
+  pages     = {3925--3951},
+  year      = {2022},
+  doi       = {10.1007/s10994-022-06222-8}
+}
+
+@article{grabinski2023fix,
+  author    = {Julia Grabinski and Steffen Jung and Janis Keuper and Margret Keuper},
+  title     = {Fix your downsampling {ASAP}! Be natively more robust via Aliasing and Spectral Artifact free Pooling},
+  journal   = {arXiv preprint},
+  year      = {2023},
+  note      = {arXiv:2307.09804}
+}
+
+@article{rodriguezmunoz2022aliasing,
+  author    = {Adri\'{a}n Rodr\'{i}guez-Mu\~{n}oz and Antonio Torralba},
+  title     = {Aliasing is a Driver of Adversarial Attacks},
+  journal   = {arXiv preprint},
+  year      = {2022},
+  note      = {arXiv:2212.11760}
+}
+
+@inproceedings{vardi2022gradient,
+  author    = {Gal Vardi and Gilad Yehudai and Ohad Shamir},
+  title     = {Gradient Methods Provably Converge to Non-Robust Networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022},
+  note      = {arXiv:2202.04347}
+}
+
+@inproceedings{vardi2022margin,
+  author    = {Gal Vardi and Ohad Shamir and Nathan Srebro},
+  title     = {On Margin Maximization in Linear and {ReLU} Networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022},
+  note      = {arXiv:2110.02732}
+}
+
+@inproceedings{lyu2020gradient,
+  author    = {Kaifeng Lyu and Jian Li},
+  title     = {Gradient Descent Maximizes the Margin of Homogeneous Neural Networks},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2020},
+  note      = {arXiv:1906.05890}
+}
+
+@inproceedings{ji2020directional,
+  author    = {Ziwei Ji and Matus Telgarsky},
+  title     = {Directional Convergence and Alignment in Deep Learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2020},
+  note      = {arXiv:2006.06657}
+}
+
+@article{soudry2018implicit,
+  author  = {Daniel Soudry and Elad Hoffer and Mor Shpigel Nacson and Suriya Gunasekar and Nathan Srebro},
+  title   = {The Implicit Bias of Gradient Descent on Separable Data},
+  journal = {Journal of Machine Learning Research},
+  volume  = {19},
+  number  = {70},
+  pages   = {1--57},
+  year    = {2018}
+}
+
+@inproceedings{ngnawe2024detecting,
+  author    = {Jonas Ngnaw\'{e} and Sabyasachi Sahoo and Yann Pequignot and Fr\'{e}d\'{e}ric Precioso and Christian Gagn\'{e}},
+  title     = {Detecting Brittle Decisions for Free: Leveraging Margin Consistency in Deep Robust Classifiers},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2024},
+  note      = {arXiv:2406.18451}
+}
+
+@inproceedings{tramer2019multiple,
+  author    = {Florian Tram\`{e}r and Dan Boneh},
+  title     = {Adversarial Training and Robustness for Multiple Perturbations},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2019},
+  note      = {arXiv:1904.13000}
+}
+
+@inproceedings{simongabriel2019first,
+  author    = {Carl-Johann Simon-Gabriel and Yann Ollivier and L\'{e}on Bottou and Bernhard Sch\"{o}lkopf and David Lopez-Paz},
+  title     = {First-Order Adversarial Vulnerability of Neural Networks and Input Dimension},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2019},
+  note      = {arXiv:1802.01421}
+}
+
+@inproceedings{tsilivis2022what,
+  author    = {Nikolaos Tsilivis and Julia Kempe},
+  title     = {What Can the Neural Tangent Kernel Tell Us About Adversarial Robustness?},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022},
+  note      = {arXiv:2210.05577}
+}
+
+@inproceedings{gao2022limitations,
+  author    = {Yue Gao and Ilia Shumailov and Kassem Fawaz and Nicolas Papernot},
+  title     = {On the Limitations of Stochastic Pre-processing Defenses},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022},
+  note      = {arXiv:2206.09491}
+}
+
+@inproceedings{mao2023robust,
+  author    = {Chengzhi Mao and Lingyu Zhang and Abhishek Joshi and Junfeng Yang and Hao Wang and Carl Vondrick},
+  title     = {Robust Perception through Equivariance},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2023},
+  note      = {arXiv:2212.06079}
+}
+
+@inproceedings{wang2025bridging,
+  author    = {Longwei Wang and Ifrat Ikhtear Uddin and KC Santosh and Chaowei Zhang and Xiao Qin and Yang Zhou},
+  title     = {Bridging Symmetry and Robustness: On the Role of Equivariance in Enhancing Adversarial Robustness},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2025},
+  note      = {Spotlight; arXiv:2510.16171}
+}
+
+@inproceedings{bietti2019inductive,
+  author    = {Alberto Bietti and Julien Mairal},
+  title     = {On the Inductive Bias of Neural Tangent Kernels},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2019},
+  note      = {arXiv:1905.12173}
+}
+
+@inproceedings{chizat2019lazy,
+  author    = {L\'{e}na\"{i}c Chizat and Edouard Oyallon and Francis Bach},
+  title     = {On Lazy Training in Differentiable Programming},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2019},
+  note      = {arXiv:1812.07956}
+}
+
+@inproceedings{wang2023better,
+  author    = {Zekai Wang and Tianyu Pang and Chao Du and Min Lin and Weiwei Liu and Shuicheng Yan},
+  title     = {Better Diffusion Models Further Improve Adversarial Training},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2023},
+  note      = {arXiv:2302.04638}
+}
+
+@article{gowal2021improving,
+  author    = {Sven Gowal and Sylvestre-Alvise Rebuffi and Olivia Wiles and Florian Stimberg and Dan Andriushchenko Calian and Timothy Mann},
+  title     = {Improving Robustness using Generated Data},
+  journal   = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2021},
+  note      = {arXiv:2110.09468}
+}
+
+@inproceedings{rebuffi2021fixing,
+  author    = {Sylvestre-Alvise Rebuffi and Sven Gowal and Dan A. Calian and Florian Stimberg and Olivia Wiles and Timothy Mann},
+  title     = {Fixing Data Augmentation to Improve Adversarial Robustness},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2021},
+  note      = {arXiv:2103.01946}
+}
+
+@article{kakarala2012bispectrum,
+  title   = {The Bispectrum as a Source of Phase-sensitive Invariants for {F}ourier Descriptors: a Group-theoretic Approach},
+  author  = {Kakarala, Ramakrishna},
+  journal = {Journal of Mathematical Imaging and Vision},
+  volume  = {44}, number = {3}, pages = {341--353},
+  year    = {2012},
+  note    = {arXiv:0902.0196}
+}
+
+@inproceedings{chizat2020implicit,
+  author    = {L\'{e}na\"{i}c Chizat and Francis Bach},
+  title     = {Implicit Bias of Gradient Descent for Wide Two-layer Neural Networks Trained with the Logistic Loss},
+  booktitle = {Conference on Learning Theory (COLT)},
+  year      = {2020},
+  note      = {arXiv:2002.04486}
+}
+
+@inproceedings{wong2020fast,
+  author    = {Eric Wong and Leslie Rice and J. Zico Kolter},
+  title     = {Fast is Better than Free: Revisiting Adversarial Training},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2020},
+  note      = {arXiv:2001.03994}
+}
+@article{greatscore,
+  title={{GREAT} Score: Global Robustness Evaluation of Adversarial Perturbation using Generative Models},
+  author={Li, Zaitang and Chen, Pin-Yu and Ho, Tsung-Yi},
+  journal={arXiv preprint arXiv:2304.09875}, year={2023}}
+
+@article{rdi,
+  title={{RDI}: An Adversarial Robustness Evaluation Metric Based on Model Statistical Features},
+  author={Anonymous}, journal={arXiv preprint arXiv:2504.18556}, year={2025}}
+
+@article{ngnawe,
+  title={Detecting Brittle Decisions for Free: Leveraging Margin Consistency in Deep Robust Classifiers},
+  author={Ngnawe, Jonas and others}, journal={arXiv preprint arXiv:2406.18451}, year={2024}}
+
+@article{macs,
+  title={Margin and Consistency Supervision for Calibrated and Robust Vision Models},
+  author={Khazem, Salim}, journal={arXiv preprint arXiv:2603.05812}, year={2026}}
+
+@article{singlage,
+  title={Shift Invariance Can Reduce Adversarial Robustness},
+  author={Singla, Vasu and Ge, Songwei and Basri, Ronen and Jacobs, David},
+  journal={Advances in Neural Information Processing Systems (NeurIPS)}, year={2021},
+  note={arXiv:2103.02695}}
+
+@article{tramer,
+  title={Fundamental Tradeoffs between Invariance and Sensitivity to Adversarial Perturbations},
+  author={Tram{\`e}r, Florian and Behrmann, Jens and Carlini, Nicholas and Papernot, Nicolas and Jacobsen, J{\"o}rn-Henrik},
+  journal={International Conference on Machine Learning (ICML)}, year={2020}, note={arXiv:2002.04599}}
+
+@article{athalye,
+  title={Obfuscated Gradients Give a False Sense of Security: Circumventing Defenses to Adversarial Examples},
+  author={Athalye, Anish and Carlini, Nicholas and Wagner, David},
+  journal={International Conference on Machine Learning (ICML)}, year={2018}, note={arXiv:1802.00420}}
+
+@article{carlinieval,
+  title={On Evaluating Adversarial Robustness},
+  author={Carlini, Nicholas and others}, journal={arXiv preprint arXiv:1902.06705}, year={2019}}
+
+@article{autoattack,
+  title={Reliable Evaluation of Adversarial Robustness with an Ensemble of Diverse Parameter-free Attacks},
+  author={Croce, Francesco and Hein, Matthias},
+  journal={International Conference on Machine Learning (ICML)}, year={2020}, note={arXiv:2003.01690}}
+
+@article{fare,
+  title={Robust {CLIP}: Unsupervised Adversarial Fine-Tuning of Vision Embeddings for Robust Large Vision-Language Models},
+  author={Schlarmann, Christian and Singh, Naman Deep and Croce, Francesco and Hein, Matthias},
+  journal={International Conference on Machine Learning (ICML)}, year={2024}, note={arXiv:2402.12336}}
+
+@article{tecoa,
+  title={Understanding Zero-Shot Adversarial Robustness for Large-Scale Models},
+  author={Mao, Chengzhi and others},
+  journal={International Conference on Learning Representations (ICLR)}, year={2023}, note={arXiv:2212.07016}}
+
+@article{pmgaft,
+  title={Pre-trained Model Guided Fine-Tuning for Zero-Shot Adversarial Robustness},
+  author={Wang, Sibo and others}, journal={CVPR}, year={2024}, note={arXiv:2401.04350}}
+
+@article{clever,
+  title={Evaluating the Robustness of Neural Networks: An Extreme Value Theory Approach},
+  author={Weng, Tsui-Wei and Zhang, Huan and Chen, Pin-Yu and Yi, Jinfeng and Su, Dong and Gao, Yupeng and Hsieh, Cho-Jui and Daniel, Luca},
+  journal={International Conference on Learning Representations (ICLR)}, year={2018}, note={arXiv:1801.10578}}
+
+@article{equivariance,
+  title={Bridging Symmetry and Robustness: On the Role of Equivariance in Enhancing Adversarial Robustness},
+  author={Wang, Longwei and Uddin, Ifrat Ikhtear and Santosh, KC and Zhang, Chaowei and Qin, Xiao and Zhou, Yang},
+  journal={arXiv preprint arXiv:2510.16171}, year={2025}}
+
+@article{asap,
+  title={Fix your downsampling {ASAP}! Be natively more robust via Aliasing and Spectral Artifact free Pooling},
+  author={Grabinski, Julia and others}, journal={arXiv preprint arXiv:2307.09804}, year={2023}}
+
+@article{zhang2019,
+  title={Making Convolutional Networks Shift-Invariant Again},
+  author={Zhang, Richard}, journal={International Conference on Machine Learning (ICML)}, year={2019},
+  note={arXiv:1904.11486}}
+
+@article{certed,
+  title={{CERT-ED}: Certifiably Robust Text Classification for Edit Distance},
+  author={Anonymous}, journal={arXiv preprint arXiv:2408.00728}, year={2024}}
+
+@article{rsdel,
+  title={Randomized Smoothing of All Shapes and Sizes ({RS-Del}) for Certified Robustness against Edits},
+  author={Anonymous}, journal={arXiv preprint arXiv:2302.01757}, year={2023}}
+
+@article{textcrs,
+  title={{Text-CRS}: A Generalized Certified Robustness Framework against Textual Adversarial Attacks},
+  author={Anonymous}, journal={arXiv preprint arXiv:2307.16630}, year={2023}}
+
+@article{naysayers,
+  title={Language models are not naysayers: An analysis of language models on negation benchmarks},
+  author={Anonymous}, journal={*SEM}, year={2023}, note={arXiv:2306.08189}}
+
+@article{acrpoor,
+  title={Average Certified Radius is a Poor Metric for Randomized Smoothing},
+  author={Sun, Chenhao and Mao, Yuhao and M{\"u}ller, Mark Niklas and Vechev, Martin},
+  journal={arXiv preprint arXiv:2410.06895}, year={2024}}
+
+@article{smalledits,
+  title={Small Edits, Big Consequences: Telling Good from Bad Robustness in Large Language Models},
+  author={Ismailov, Altynbek and Asanova, Salia}, journal={arXiv preprint arXiv:2507.15868}, year={2025}}
+
+@article{raina,
+  title={Extreme Miscalibration and the Illusion of Adversarial Robustness},
+  author={Raina, Vyas and Tan, Samson and Cevher, Volkan and Rawal, Aditya and Zha, Sheng and Karypis, George},
+  journal={ACL}, year={2024}, note={arXiv:2402.17509}}
+
+@article{simongabriel2019adversarial,
+  title={First-order Adversarial Vulnerability of Neural Networks and Input Dimension},
+  author={Simon-Gabriel, Carl-Johann and Ollivier, Yann and Bottou, L{\'e}on and Sch{\"o}lkopf, Bernhard and Lopez-Paz, David},
+  journal={International Conference on Machine Learning (ICML)}, year={2019}, note={arXiv:1802.01421}}
+
+@article{moosavi2019curvature,
+  title={Robustness via Curvature Regularization, and Vice Versa},
+  author={Moosavi-Dezfooli, Seyed-Mohsen and Fawzi, Alhussein and Uesato, Jonathan and Frossard, Pascal},
+  journal={Conference on Computer Vision and Pattern Recognition (CVPR)}, year={2019}, note={arXiv:1811.09716}}
+
+@article{participation2025,
+  title={Catastrophic Overfitting, Entropy Gap and Participation Ratio: A Noiseless $l^p$ Norm Solution for Fast Adversarial Training},
+  author={Mehouachi, Fares B. and Jabari, Saif Eddin},
+  journal={arXiv preprint arXiv:2505.02360}, year={2025}}

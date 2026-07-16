@@ -1,0 +1,64 @@
+====================================================================================================================
+PER-MODEL TABLE (n=30), sorted by Linf robust acc (APGD-CE eps=8/255, 100 iters)
+====================================================================================================================
+model                                  clean   robust   offAA        A  A/sqrtd    eta/L1
+--------------------------------------------------------------------------------------------------------------------
+Standard                               0.948    0.000   0.000    35.54    0.641   0.00358
+Wong2020Fast                           0.842    0.451   0.432    25.18    0.454   0.04112
+Andriushchenko2020Understanding        0.805    0.485   0.439    26.43    0.477   0.04299
+Ding2020MMA                            0.847    0.501   0.414    24.00    0.433   0.02538
+Cui2020Learnable_34_10                 0.885    0.522   0.529    21.68    0.391   0.07622
+Engstrom2019Robustness                 0.887    0.527   0.492    21.34    0.385   0.04883
+Cui2020Learnable_34_20                 0.894    0.549   0.536    21.23    0.383   0.06939
+Addepalli2021Towards_RN18              0.814    0.554   0.511    21.82    0.394   0.05044
+Addepalli2022Efficient_RN18            0.866    0.556   0.525    24.43    0.441   0.05918
+Huang2020Self                          0.833    0.561   0.533    20.37    0.367   0.07275
+Hendrycks2019Using                     0.887    0.562   0.549    20.97    0.378   0.05281
+Zhang2020Attacks                       0.846    0.570   0.535    21.31    0.384   0.06717
+Sehwag2021Proxy_R18                    0.852    0.579   0.555    21.75    0.392   0.06051
+Sehwag2020Hydra                        0.901    0.586   0.571    21.47    0.387   0.07087
+Chen2021LTD_WRN34_10                   0.863    0.592   0.569    20.29    0.366   0.06534
+Gowal2021Improving_R18_ddpm_100m       0.881    0.604   0.586    21.36    0.385   0.05745
+Addepalli2022Efficient_WRN_34_10       0.885    0.609   0.578    21.96    0.396   0.07148
+Jia2022LAS-AT_70_16                    0.852    0.612   0.576    19.50    0.352   0.06579
+Sridhar2021Robust                      0.901    0.613   0.597    20.05    0.362   0.07828
+Sridhar2021Robust_34_15                0.874    0.614   0.604    18.30    0.330   0.08935
+Gowal2020Uncovering_28_10_extra        0.899    0.624   0.628    20.09    0.362   0.08079
+Rade2021Helper_ddpm                    0.882    0.624   0.610    20.57    0.371   0.06741
+Wu2020Adversarial_extra                0.885    0.627   0.600    19.99    0.361   0.07011
+Huang2021Exploring_ema                 0.914    0.632   0.625    19.08    0.344   0.09382
+Rebuffi2021Fixing_28_10_cutmix_ddpm    0.881    0.638   0.608    21.54    0.389   0.07073
+Pang2022Robustness_WRN28_10            0.886    0.640   0.610    20.61    0.372   0.06470
+Zhang2020Geometry                      0.898    0.659   0.596    19.88    0.359   0.04861
+Pang2022Robustness_WRN70_16            0.891    0.663   0.634    18.85    0.340   0.07432
+Rebuffi2021Fixing_70_16_cutmix_ddpm    0.884    0.667   0.642    18.68    0.337   0.08127
+Rebuffi2021Fixing_106_16_cutmix_ddpm   0.886    0.668   0.646    18.08    0.326   0.08224
+--------------------------------------------------------------------------------------------------------------------
+VALIDITY CHECK: Spearman(my APGD robust, official AutoAttack) = +0.960 over 30 models (should be ~+1 if my attack ranks correctly)
+
+SPEARMAN CORRELATIONS with Linf robust acc:
+  Spearman(A,       robust) = -0.791  (p=1.98e-07)   [hypothesis: NEGATIVE]
+  Spearman(eta/L1,  robust) = +0.612  (p=0.000326)   [control, expect POSITIVE]
+  Spearman(clean,   robust) = +0.336  (p=0.069)
+  Spearman(A,       clean)  = -0.319   [how confounded A is with clean acc]
+
+CROSS-CHECK vs OFFICIAL AutoAttack (n=30):
+  Spearman(A, officialAA)          = -0.791
+  partial(A, officialAA | clean)   = -0.764
+
+PARTIAL (rank) CORRELATIONS:
+  partial(A, robust | clean)  = -0.766   [A vs robust, removing clean-acc]
+  partial(A, robust | eta/L1) = -0.647   [A vs robust, removing eta/L1]
+
+BOOTSTRAP 95% CI on Spearman(A, robust): [-0.915, -0.562]  (n_boot=5000)
+
+JACKKNIFE drop-1 of Spearman(A, robust):
+  range [-0.843, -0.768]  (full=-0.791, median=-0.791)
+  most influential model (dropping it weakens most): Standard -> -0.768
+
+========================================================================================================
+VERDICT:
+  Spearman(A,robust)=-0.791. Direction: LOWER A => MORE robust.
+  CLIP reference was Spearman(A,robust) = -0.65.
+  => REPLICATES: anisotropy ranks robustness (lower A = more robust), and survives control for clean accuracy.
+========================================================================================================

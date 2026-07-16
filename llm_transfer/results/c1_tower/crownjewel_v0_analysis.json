@@ -1,0 +1,251 @@
+{
+  "eps": "0.01569",
+  "towers": [
+    "clip",
+    "clip_b16_openai",
+    "clip_b32_laion2b",
+    "clip_l14_laion2b",
+    "fare4",
+    "tecoa4",
+    "fare2",
+    "tecoa2",
+    "fare4_b32",
+    "fare4_b16"
+  ],
+  "n_towers": 10,
+  "saturation": {
+    "shift_consistency_SC": {
+      "mean": 0.9764208018779754,
+      "sd": 0.00934330654292247,
+      "min": 0.9636386036872864,
+      "max": 0.990312397480011
+    },
+    "paraphrase_consistency_PC": {
+      "mean": 0.977940046787262,
+      "sd": 0.008738498978364087,
+      "min": 0.9569255709648132,
+      "max": 0.9903408885002136
+    },
+    "shift_cos_SCcos": {
+      "mean": 0.9804793477058411,
+      "sd": 0.01652236113659168,
+      "min": 0.9523331522941589,
+      "max": 0.9976256489753723
+    },
+    "robust_acc_S": {
+      "mean": 0.31533333333333335,
+      "sd": 0.2736916350769806,
+      "min": 0.0,
+      "max": 0.66
+    }
+  },
+  "dissociation_crosstower": {
+    "SC_vs_S": {
+      "spearman": 0.38143629368324067,
+      "ci95": [
+        -0.4710864704874436,
+        0.8831210898400423
+      ]
+    },
+    "PC_vs_S": {
+      "spearman": 0.11255497190653004,
+      "ci95": [
+        -0.8268226677439754,
+        0.789996151464145
+      ]
+    },
+    "SC_vs_radius": {
+      "spearman": 0.5272727272727272,
+      "ci95": [
+        -0.19205298013245028,
+        0.8867924528301887
+      ]
+    },
+    "PC_vs_radius": {
+      "spearman": 0.2121212121212121,
+      "ci95": [
+        -0.625,
+        0.7358490566037736
+      ]
+    },
+    "etaL1_vs_S": {
+      "spearman": 0.8691745052782041,
+      "ci95": [
+        0.47022174616454915,
+        0.9874208829065749
+      ]
+    },
+    "etaL1_vs_radius": {
+      "spearman": 0.7454545454545454,
+      "ci95": [
+        0.2467164910561137,
+        0.9600000000000001
+      ]
+    },
+    "A_vs_radius_robustonly": {
+      "spearman": -0.7142857142857143,
+      "ci95": [
+        -1.0,
+        0.2284946236558749
+      ]
+    },
+    "A_vs_S_robustonly": {
+      "spearman": -0.3714285714285715,
+      "ci95": [
+        -1.0,
+        0.8000000000000002
+      ]
+    },
+    "etaL1_vs_radius_robustonly": {
+      "spearman": 0.2,
+      "ci95": [
+        -0.8000000000000002,
+        1.0
+      ]
+    },
+    "n_robust": 6
+  },
+  "headline_two_ways": {
+    "etaL1_vs_radius_spearman": 0.7454545454545454,
+    "etaL1_vs_radius_pair_concordance": 0.7777777777777778,
+    "PC_vs_S_spearman": 0.11255497190653004,
+    "PC_vs_S_pair_concordance": 0.5128205128205128
+  },
+  "bonus_SC_vs_PC": {
+    "spearman": 0.8424242424242423,
+    "ci95": [
+      0.40506329113924056,
+      1.0
+    ]
+  },
+  "per_image": {
+    "per_tower": {
+      "clip": {
+        "n": 200,
+        "spearman_ratioL1_radius": 0.611751537990629,
+        "spearman_ratioL1_radius_ci95": [
+          0.5205723615093117,
+          0.6913261575683143
+        ],
+        "floor_frac": 0.715,
+        "radius_uniq": 3
+      },
+      "clip_b16_openai": {
+        "n": 200,
+        "spearman_ratioL1_radius": 0.5482256019795897,
+        "spearman_ratioL1_radius_ci95": [
+          0.4556948562542094,
+          0.6259830225195604
+        ],
+        "floor_frac": 0.865,
+        "radius_uniq": 3
+      },
+      "clip_b32_laion2b": {
+        "n": 200,
+        "spearman_ratioL1_radius": 0.7531993277544414,
+        "spearman_ratioL1_radius_ci95": [
+          0.688047601678079,
+          0.8033935921624777
+        ],
+        "floor_frac": 0.65,
+        "radius_uniq": 4
+      },
+      "clip_l14_laion2b": {
+        "n": 150,
+        "spearman_ratioL1_radius": 0.6306518578881625,
+        "spearman_ratioL1_radius_ci95": [
+          0.5186749762706683,
+          0.7254385842041138
+        ],
+        "floor_frac": 0.5466666666666666,
+        "radius_uniq": 4
+      },
+      "fare4": {
+        "n": 120,
+        "spearman_ratioL1_radius": 0.7469132940657405,
+        "spearman_ratioL1_radius_ci95": [
+          0.6258068449254245,
+          0.8422824442957313
+        ],
+        "floor_frac": 0.041666666666666664,
+        "radius_uniq": 8
+      },
+      "tecoa4": {
+        "n": 120,
+        "spearman_ratioL1_radius": 0.8615118097931015,
+        "spearman_ratioL1_radius_ci95": [
+          0.7898327523429239,
+          0.9093769254376347
+        ],
+        "floor_frac": 0.03333333333333333,
+        "radius_uniq": 8
+      },
+      "fare2": {
+        "n": 120,
+        "spearman_ratioL1_radius": 0.7428403506283978,
+        "spearman_ratioL1_radius_ci95": [
+          0.6256568271261324,
+          0.8346866601078731
+        ],
+        "floor_frac": 0.025,
+        "radius_uniq": 8
+      },
+      "tecoa2": {
+        "n": 120,
+        "spearman_ratioL1_radius": 0.8655219469610079,
+        "spearman_ratioL1_radius_ci95": [
+          0.7822469649404271,
+          0.9236339199547158
+        ],
+        "floor_frac": 0.025,
+        "radius_uniq": 8
+      },
+      "fare4_b32": {
+        "n": 120,
+        "spearman_ratioL1_radius": 0.9571888280105378,
+        "spearman_ratioL1_radius_ci95": [
+          0.9306539870242522,
+          0.9726842389582839
+        ],
+        "floor_frac": 0.08333333333333333,
+        "radius_uniq": 8
+      },
+      "fare4_b16": {
+        "n": 120,
+        "spearman_ratioL1_radius": 0.9489727531202268,
+        "spearman_ratioL1_radius_ci95": [
+          0.9148517750823749,
+          0.9684917645677998
+        ],
+        "floor_frac": 0.075,
+        "radius_uniq": 8
+      }
+    },
+    "pooled_robust": {
+      "n": 720,
+      "spearman_ratioL1_radius": 0.8516642031798141,
+      "spearman_ratioL1_radius_ci95": [
+        0.8214599146694963,
+        0.8782998466662088
+      ],
+      "spearman_anisotropyA_radius": -0.04897286756313286,
+      "spearman_anisotropyA_radius_ci95": [
+        -0.11826576136458139,
+        0.0210242234832582
+      ]
+    }
+  },
+  "sanity": {
+    "robust_acc_le_clean_all": true,
+    "pc_self_check_all_one": true,
+    "nonrobust_S_near_zero": {
+      "clip": 0.0,
+      "clip_b16_openai": 0.0,
+      "clip_b32_laion2b": 0.0,
+      "clip_l14_laion2b": 0.0
+    },
+    "fare4_radius_gt_clip": true,
+    "fare4_radius": 0.024981999769806862,
+    "clip_radius": 0.0013572999741882086
+  }
+}

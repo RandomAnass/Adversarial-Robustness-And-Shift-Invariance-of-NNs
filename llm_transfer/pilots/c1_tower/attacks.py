@@ -90,14 +90,17 @@ def run_fgsm_eval(tower, images, labels, eps, bs=128, device="cuda"):
 
 # ---------------- AutoAttack (APGD-CE + APGD-DLR ensemble) ----------------
 def run_autoattack(tower, images, labels, eps, n_classes, bs=64, device="cuda",
-                   square=True, seed=0, n_iter=100):
-    """AutoAttack ensemble on Linf. Uses apgd-ce + apgd-t (+ optional square).
+                   square=True, seed=0, n_iter=100, targeted=True):
+    """AutoAttack ensemble on Linf. Uses apgd-ce (+ apgd-t if targeted) (+ optional square).
 
     Returns dict: robust_acc (full AA), and per-attack robust accs, plus per-image
     'still_robust' boolean over the standard (non-square) ensemble.
 
     n_iter: APGD iterations (default 100 = RobustBench-grade; use a smaller value only to
     confirm S~0 on known-non-robust towers where the full ensemble is unnecessary).
+    targeted: include the (expensive) targeted APGD-DLR phase. Set False for a strong-but-cheaper
+    APGD-CE-only Linf robust-acc upper bound (the targeted phase is the dominant cost on robust
+    L/14 towers; APGD-CE alone still gives a valid S and preserves the robust-vs-nonrobust spread).
     """
     from autoattack import AutoAttack
     tower = tower.to(device).eval()
@@ -111,7 +114,7 @@ def run_autoattack(tower, images, labels, eps, n_classes, bs=64, device="cuda",
             return self.t(x)
 
     wrap = Wrap(tower).to(device).eval()
-    attacks = ["apgd-ce", "apgd-t"]
+    attacks = ["apgd-ce", "apgd-t"] if targeted else ["apgd-ce"]
     if square:
         attacks_full = attacks + ["square"]
     else:

@@ -130,6 +130,9 @@ def main():
     ap.add_argument("--steps", type=int, default=None)
     ap.add_argument("--rad_n", type=int, default=1000); ap.add_argument("--aa_n", type=int, default=512)
     ap.add_argument("--aa_version", default="standard"); ap.add_argument("--pgd_steps", type=int, default=40)
+    # anisotropy eps-sweep: a FIXED set of eval-eps applied IDENTICALLY to every model, so AA robust
+    # acc is comparable across cells (each model still trained at its own --eps). Norm follows --norm.
+    ap.add_argument("--aa_eps", type=float, nargs="+", default=None)
     ap.add_argument("--gpus", type=int, default=99); ap.add_argument("--serial", action="store_true")
     ap.add_argument("--smoke", action="store_true"); ap.add_argument("--tag", default="at")
     args = ap.parse_args()
@@ -147,6 +150,10 @@ def main():
     steps = args.steps if args.steps is not None else rec["steps"]
     alpha = args.alpha if args.alpha is not None else rec["alpha"]
     aa_specs = rec["aa"]; flip = rec["flip"]
+    if args.aa_eps is not None:      # override eval-eps with a comparable fixed sweep (anisotropy study)
+        nm_norm = "Linf" if args.norm == "linf" else "L2"
+        def _epstag(e): return f"{nm_norm}_{('%g'%e).replace('.','_')}"
+        aa_specs = [(_epstag(e), nm_norm, float(e)) for e in args.aa_eps]
     if args.smoke:
         args.n, args.ntest, args.epochs, args.seeds = 4000, 1000, 2, 1
         widths, arms = [16], ARMS

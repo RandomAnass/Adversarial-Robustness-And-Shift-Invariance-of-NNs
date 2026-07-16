@@ -1,0 +1,543 @@
+\documentclass{article}
+\usepackage[preprint]{neurips_2026}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts,amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dd}{d}
+\newcommand{\etaL}{\eta/L}
+\newcommand{\grad}{\nabla}
+\newcommand{\Vinv}{V_{\mathrm{inv}}}
+\newcommand{\fdc}{f_{\mathrm{dc}}}
+\newcommand{\Pinv}{\Pi_{\mathrm{inv}}}
+\graphicspath{{figures/}}
+
+\title{Invariance is not robustness:\\ what predicts adversarial robustness,
+from CIFAR classifiers to CLIP encoders}
+
+\author{%
+  Anass Al Ammiri \\
+  Technical University of Munich \\
+  \texttt{anass.al-ammiri@tum.de} \\
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A model that assigns the same label to a shifted view of an image is often called robust, and this
+shift-invariance is offered as an explanation for, or a route to, adversarial robustness. We show that
+this is the wrong lens, and identify what predicts robustness instead: a margin-to-sensitivity ratio
+measured in the attack's own norm, and the shape of the gradient behind it. Invariance is about ignoring changes
+that should not matter; adversarial robustness is about not being flipped by a small worst-case change.
+These are different directions, and the invariance metric the field tracks, shift-consistency, is
+\emph{saturated} on modern models: across sixteen frozen vision-language encoders it ranges only from
+$0.96$ to $0.99$, robust or not, so it has no room left to order them. A threat-matched
+margin-to-Lipschitz ratio $\etaL$, the classification margin divided by the dual-norm size of its input
+gradient, does order robustness, from small CIFAR classifiers to a ResNet and, per image, within frozen
+CLIP encoders, and it is a certificate we complete to a two-sided bracket. The much-cited ``invariance helps robustness''
+effect is a weak-attack artifact: it appears under the fast gradient sign method and vanishes under
+AutoAttack. We then close the one gap this diagnostic leaves. The ratio \emph{detects} robustness but
+does not \emph{rank} it among already-robust models; the missing ingredient is the \emph{shape} of the
+gradient, its anisotropy $A=\lVert\grad M\rVert_1/\lVert\grad M\rVert_2$, which ranks thirty official
+RobustBench models at Spearman $-0.79$, and $-0.77$ after controlling for clean accuracy. We identify the
+mechanism, an effective-dimension margin deficit, and separate it from the curvature account. Finally, the
+saturation is modality-general: on zero-shot CLIP both visual (shift) and textual (paraphrase) invariance
+saturate, and $\etaL$ predicts the image-adversarial axis while neither consistency metric does. Throughout we use
+AutoAttack as the arbiter and check for gradient masking.
+\end{abstract}
+
+%======================================================================
+\section{Introduction}\label{sec:intro}
+%======================================================================
+Call an image classifier \emph{shift-invariant} if its prediction is unchanged by translations of the
+input. Two literatures disagree about what this buys. \citet{ge2021shift} show, for a binary problem in
+which each class is one image and all its shifts, that a fully shift-invariant network is fooled by an
+$\ell_2$ perturbation of order $1/\sqrt\dd$ while a fully connected network needs order $1$: invariance
+\emph{reduces} robustness. A separate architectural line points the other way. Anti-aliased pooling
+raises shift-consistency, how often a shift leaves the prediction unchanged, along with clean accuracy
+and corruption robustness \citep{zhang2019making}, and reducing aliasing has since been reported to
+raise \emph{adversarial} robustness too \citep{grabinski2022aliasing,saha2024improving}: invariance
+\emph{helps}. A third line proves a trade-off between geometric and adversarial robustness
+\citep{kamath2021canwehaveitall,tramer2019multiple}.
+
+These statements are not contradictory. They are regimes of one quantity, a margin-to-Lipschitz ratio.
+For an input $x$ with label $y$, let the margin be $M(x)=f_y(x)-\max_{j\neq y}f_j(x)$, the gap between
+the correct logit and the strongest competitor. The per-image ratio is
+$M(x)/\lVert\grad_x M(x)\rVert_q$, the margin divided by how fast it changes when the input is perturbed,
+measured in the norm dual to the attack ($q{=}1$ for an $\ell_\infty$ attack, $q{=}2$ for $\ell_2$). A
+first-order argument gives a certificate: the adversarial radius of $x$ is at least this ratio, because
+a perturbation of size $\delta$ moves the margin by at most $\lVert\grad_x M\rVert_q\lVert\delta\rVert$.
+For a whole model we summarize with $\etaL$, the mean margin $\eta$ over the mean gradient size $L$ on
+correctly classified clean images. We always match the norm to the attack and call this the
+\emph{threat-matched} ratio. It has two properties that make it the right scalar. It needs no attack to
+compute. And it is \emph{gauge-free}: rescaling the logits $f\mapsto cf$ multiplies $\eta$ and $L$ by
+the same $c$, so the ratio, and the input-space radius it lower-bounds, are unchanged. A model's logit
+temperature cannot inflate or deflate it.
+
+The reason invariance and robustness come apart is geometric. Invariance is being flat \emph{along} the
+shift orbit, a direction that stays inside the correct class region. Robustness is the \emph{distance} to
+the decision boundary, a different, near-orthogonal direction. A model can have a long flat orbit (very
+invariant) and still sit a hair from the boundary (fragile). We call this the \emph{dissociation}, and it
+is the paper's organizing observation: shift-invariance stays high and flat while adversarial robustness
+varies widely across models, so one cannot be read off the other. Formally, imposing invariance projects
+the classes onto the invariant subspace, and robustness is a distance to the boundary
+(Figure~\ref{fig:concept}); measuring one says little about the other.
+
+\paragraph{Contributions.}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt]
+\item \textbf{Invariance is saturated and does not rank robustness (\S\ref{sec:saturation}).}
+Shift-consistency ranges only $0.96$ to $0.99$ across sixteen frozen encoders, robust or not; once
+clean accuracy is controlled it does not predict corruption robustness; and in a capacity-matched
+CNN dissection it does not order adversarial robustness and anti-predicts it under adversarial training.
+\item \textbf{The ``invariance helps'' effect is a weak-attack artifact (\S\ref{sec:weak}).} On every
+non-robust encoder, single-step FGSM reports $16$ to $61\%$ robust accuracy that AutoAttack erases to
+zero; retraining the two contrary operators under their own recipe reproduces their advantage under
+FGSM and removes it under a strong attack.
+\item \textbf{$\etaL$ predicts robustness, with theory (\S\ref{sec:etaL}).} The threat-matched ratio
+orders robustness across three datasets, two threat models, a PreActResNet-18, and frozen CLIP encoders
+per image; it is a certificate $r\ge\etaL$ that we complete to a two-sided bracket
+$\etaL\le r\le\eta/\alpha$ with an explicit reachability slope $\alpha$.
+\item \textbf{Detecting is not ranking: gradient shape and its mechanism (\S\ref{sec:aniso}).} Among
+already-robust models $\etaL$ no longer orders robustness; the gradient's anisotropy
+$A=\lVert\grad M\rVert_1/\lVert\grad M\rVert_2$ does, at Spearman $-0.77$ over thirty RobustBench models
+after a clean-accuracy control. We identify the mechanism, an effective-dimension margin deficit
+$r\approx(\eta/L_1)/(1+CA)$, show it is transverse rather than on-direction curvature, and place it as a
+relaxation of \citet{simongabriel2019adversarial}.
+\item \textbf{Robust training re-couples margin and sensitivity (\S\ref{sec:signflip}).} The per-image
+relationship between margin and gradient size flips sign under adversarial training, a consistent
+fingerprint of what robust training changes.
+\item \textbf{Invariance saturates across modalities (\S\ref{sec:crown}).} On zero-shot CLIP, textual
+(paraphrase) invariance is as saturated as visual (shift) invariance, and $\etaL$ predicts the
+image-adversarial axis while neither consistency does, so the saturation of invariance carries over to
+text while the margin diagnostic stays image-specific and the wide adversarial axis stays on the image side.
+\end{itemize}
+
+\begin{figure}[t]\centering
+  \includegraphics[width=0.86\linewidth]{concept.pdf}
+  \caption{The two quantities the paper separates. \textbf{(a)}~Imposing shift-invariance projects each
+  class onto the invariant subspace $\Vinv$ (the DC direction); the classes can overlap in the
+  anti-invariant part $V_{\mathrm{ac}}$, and the surviving discriminative margin $\gamma_{\mathrm{inv}}$
+  is their separation along the invariant direction (Theorem~\ref{thm:A}). \textbf{(b)}~Robustness is a
+  distance: the certified radius satisfies $R\ge\etaL$, the margin over the sensitivity.}
+  \label{fig:concept}
+\end{figure}
+
+%======================================================================
+\section{Setup and definitions}\label{sec:prelim}
+%======================================================================
+We study classifiers $f:\R^\dd\to\R^K$ and the margin $M(x)=f_y(x)-\max_{j\neq y}f_j(x)$ at the correct
+label $y$, which is positive exactly when $x$ is classified correctly. The \emph{robust radius} $r(x)$
+is the smallest $\lVert\delta\rVert$ with $M(x+\delta)\le 0$; robust accuracy at budget $\epsilon$ is
+the fraction of test points with $r(x)>\epsilon$, which we always measure with AutoAttack
+\citep{croce2020reliable} and cross-check against a per-sample minimum-norm attack for the radius.
+\emph{Shift-consistency} is the fraction of translations of $x$ that leave the top-1 label unchanged.
+
+\paragraph{The threat-matched ratio and its shape.}
+The per-image ratio is $M(x)/\lVert\grad_x M(x)\rVert_q$ with $q$ dual to the attack norm; the summary
+$\etaL$ uses the means over correctly classified clean images. We also read the \emph{shape} of the
+gradient through its anisotropy
+\[
+  A(x)=\frac{\lVert\grad_x M(x)\rVert_1}{\lVert\grad_x M(x)\rVert_2}\in[1,\sqrt\dd],
+\]
+which is near $1$ when the gradient is concentrated on a few coordinates and near $\sqrt\dd$ when it is
+spread uniformly. Note $A=(\eta/L_2)/(\eta/L_1)$, so it is the same margin and gradient read as a ratio
+of the two threat-matched ratios; like $\etaL$ it is gauge-free.
+
+\paragraph{Gauge-freeness as an organizing principle.}
+Because $f\mapsto cf$ scales $\eta$ and $L$ together, robustness attaches to the ratio, not to the
+margin or the Lipschitz term alone; those two are individually gauge-dependent, so ``larger margin'' or
+``smaller Lipschitz'' is well posed only once a scale is fixed. We anchor every robustness claim on the
+gauge-invariant quantities $\etaL$, $A$, and the certified radius, and read any margin/Lipschitz split
+at the training-fixed logit scale.
+
+\paragraph{Three model families.} Our evidence spans three families, each answering a different
+question. \emph{Small CIFAR, MNIST, and Fashion-MNIST classifiers and a PreActResNet-18}, where we build
+capacity-matched architectures so that only the shift-invariance mechanism differs, isolate the
+dissociation (\S\ref{sec:etaL}). \emph{Thirty adversarially trained CIFAR-10 models from RobustBench}, an
+independent family we did not train, test whether the gradient's shape ranks robustness
+(\S\ref{sec:aniso}). \emph{Sixteen frozen vision-language (CLIP) image encoders} (ten of them
+adversarially robust) are where invariance is saturated (\S\ref{sec:saturation}) and where a per-image
+analysis removes the adversarial-training confound (\S\ref{sec:etaL}).
+
+%======================================================================
+\section{Invariance is saturated and does not rank robustness}\label{sec:saturation}
+%======================================================================
+The invariance metric the anti-aliasing literature tracks cannot separate modern models. Across sixteen
+frozen vision-language image encoders, robust and non-robust alike, shift-consistency ranges only from
+$0.963$ to $0.988$: every modern encoder is already near-perfectly shift-consistent, so the metric has
+no room to order them on any kind of robustness. Once clean accuracy is controlled it does not predict
+common-corruption robustness either. The same squeeze appears on strong CNN backbones.
+
+This has a direct empirical consequence, the dissociation defined above. In a
+capacity-matched architectural dissection (four operators built to have identical parameter counts, so
+only the shift-invariance mechanism differs), shift-consistency does not order adversarial robustness,
+and under adversarial training it \emph{anti-predicts} it: the exactly shift-invariant operator has
+perfect consistency and the \emph{lowest} robust accuracy. The threat-matched $\etaL$ orders robustness
+instead. Table~\ref{tab:dissoc} previews the pattern that the next sections make precise across
+settings.
+
+\begin{table}[t]\centering\small
+  \caption{The dissociation across settings. $\etaL$ orders robustness where shift-consistency does not.
+  Values correlate with the robust radius (standard training) or threat-matched AutoAttack (adversarial
+  training): Pearson for the CIFAR and ResNet grids, Spearman for the per-image CLIP result (within a
+  fixed encoder).}
+  \label{tab:dissoc}
+  \begin{tabular}{lccc}
+    \toprule
+    setting & $\etaL$ vs robustness & shift-consistency vs robustness & reference \\
+    \midrule
+    CIFAR-10 classifiers (standard)   & $+0.998$ & uninformative ($-0.33$, n.s.) & \S\ref{sec:etaL} \\
+    PreActResNet-18 (AT)              & $+0.91$ & anti-predicts ($-0.81$) & \S\ref{sec:etaL} \\
+    Frozen CLIP encoders (per image)   & $+0.74$ to $+0.96$ & $+0.37$ to $\approx 0$ & \S\ref{sec:etaL} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+%======================================================================
+\section{The ``invariance helps'' effect is a weak-attack artifact}\label{sec:weak}
+%======================================================================
+Reports that architectural invariance confers adversarial robustness without adversarial training are
+measured with weak attacks. On every non-robust encoder, single-step FGSM reports $16$ to $61\%$ robust
+accuracy, and AutoAttack erases it to zero (Figure~\ref{fig:weak}). Under FGSM the ``invariance helps''
+ordering appears, a real trend; under AutoAttack there is no robustness left to order and the trend
+disappears. This is the classic gradient-masking signature \citep{athalye}: a weak attack
+overstates robustness, and the apparent correlation with invariance rides on that overstatement. We
+confirm the same on CNNs: retraining the two operators reported to make invariance help
+\citep{saha2024improving,wang2025bridging} under their own code and recipe, their advantage reproduces
+under FGSM and vanishes under AutoAttack. We check for gradient masking throughout, and find none where
+we make a positive $\etaL$ claim: AutoAttack robust accuracy stays at or below matched multi-step PGD in
+every adversarially trained cell, and on the frozen encoders the parameter-free ensemble does not fall
+below its APGD component.
+
+\begin{figure}[t]\centering
+  \includegraphics[width=0.6\linewidth]{fig3_weakattack.pdf}
+  \caption{Same encoders and budget. Shift-consistency looks like it predicts robustness under FGSM
+  (left) and predicts nothing under AutoAttack (right), because FGSM overstates the robustness of
+  non-robust encoders that AutoAttack drives to zero.}
+  \label{fig:weak}
+\end{figure}
+
+%======================================================================
+\section{The margin-to-Lipschitz ratio predicts robustness}\label{sec:etaL}
+%======================================================================
+\paragraph{Theory: a two-sided bracket.}
+The certificate $r\ge\etaL$ is the standard first-order lower bound. We complete it to a two-sided
+bracket. Let $\alpha$ be a reachability slope: the slowest rate at which the margin can fall as one walks
+from $x$ toward the boundary (a lower bound on that rate). Then
+\[
+  \etaL\;\le\;r\;\le\;\eta/\alpha,
+\qquad\text{so}\qquad
+  1\le \frac{r}{\etaL}\le \kappa:=\frac{L}{\alpha}.
+\]
+The gap is a local condition number $\kappa=L/\alpha$; when $\kappa$ is close to one, $\etaL$ is not
+just a bound but tight, essentially the radius itself. For linear features the two sides coincide ($\kappa{=}1$,
+$r=\eta/\lVert w\rVert$, recovering \citet{hein2017formal}); we verify numerically that the true radius
+lies strictly inside the bracket with $\kappa\in[1.6,2.4]$. This completes the missing upper arm of the
+margin-Lipschitz bound of \citet{tsuzuku2018lipschitz}. The gauge-freeness and the structural theory
+behind $\eta$ (the invariant linear margin is the separation of the data projected onto the invariant
+subspace, which recovers the $1/\sqrt\dd$ collapse of \citet{ge2021shift}) are in
+Appendix~\ref{app:theory}.
+
+\paragraph{Evidence across families.}
+The same law holds from small CNNs to frozen foundation models.
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt]
+\item \textbf{CIFAR-10, standard training.} Across a dense $24$-cell capacity-matched grid, $\etaL$
+orders the $\ell_2$ robust radius at Pearson $+0.998$ (bootstrap CI $[+0.997,+0.999]$, $p<10^{-3}$);
+shift-consistency does not (Pearson $-0.33$, CI $[-0.68,+0.09]$, $p=0.11$).
+\item \textbf{PreActResNet-18, adversarial training.} Over twelve architecture-by-width cells the
+threat-matched $\eta/\lVert\grad M\rVert_1$ orders AutoAttack robustness at Pearson $+0.91$
+($p<10^{-3}$), carrying robustness information beyond clean accuracy (partial correlation $+0.89$
+controlling for clean accuracy); shift-consistency anti-predicts at $-0.81$ (partial $-0.82$). At
+ImageNet-100 resolution, where clean accuracy is essentially constant across arms ($0.641$ to $0.649$),
+the same threat-matched law holds at $+0.90$ while shift-consistency anti-predicts at $-0.87$, so the
+prediction is not a restatement of clean accuracy.
+\item \textbf{Frozen CLIP encoders, per image.} Within each of ten adversarially robust encoders, where
+adversarial training cannot act as a confound, the per-image $\etaL$ orders the per-image adversarial
+radius at Spearman $+0.74$ to $+0.96$, while per-image shift-consistency orders it from $+0.37$ down to
+essentially zero, and the gap is significant in a paired test in every encoder (Figure~\ref{fig:perimg}).
+\end{itemize}
+Fitted without a held-out learnable-invariance operator, $\etaL$ predicts that operator's robustness out
+of sample, and the same threat-matched law holds when we intervene on the training \emph{data} instead
+of the architecture, through diffusion-augmented adversarial training (Appendix~\ref{app:extra}).
+
+\begin{figure}[t]\centering
+  \includegraphics[width=0.72\linewidth]{fig2_perimage.pdf}
+  \caption{Per image, pooled over the robust CLIP encoders ($n{=}1200$; each comparison is within one
+  encoder, so adversarial training cannot confound it). The threat-matched ratio $\eta/L_1$ (left,
+  Spearman $+0.76$) orders each image's certified radius; shift-consistency (right, $+0.33$) does not.
+  Per-encoder ranges ($+0.74$ to $+0.96$ versus $+0.37$ to near zero) are in the text.}
+  \label{fig:perimg}
+\end{figure}
+
+%======================================================================
+\section{Detecting is not ranking: gradient shape and its mechanism}\label{sec:aniso}
+%======================================================================
+The ratio $\etaL$ cleanly \emph{separates} robust models from fragile ones, but \emph{across} the
+already-robust models it no longer orders them: two encoders with the same $\etaL$ can differ in
+robustness, and $\eta/L_1$ ranks the thirty robust RobustBench models only weakly
+(Figure~\ref{fig:aniso}b). This is a different axis from the per-image ranking of \S\ref{sec:etaL}, which
+holds \emph{within} a single encoder; here we compare \emph{across} robust models. The ratio uses the
+\emph{size} of the gradient; ranking robust models needs its \emph{shape}.
+
+\paragraph{Anisotropy ranks robust models.}
+An $\ell_\infty$ attack pushes on every coordinate at once. If the margin's gradient is concentrated on
+a few coordinates, most of the budget is wasted and the model holds; if it is spread over many, the
+attack engages all of them. The anisotropy $A$ measures exactly this spread. Across thirty official
+RobustBench CIFAR-10 $\ell_\infty$ models (a family independent of the CLIP encoders), lower $A$ means
+more robust: Spearman$(A,\text{robust})=-0.79$ over the thirty models (bootstrap interval
+$[-0.92,-0.56]$), which survives controlling for clean accuracy (partial $-0.77$) and for $\eta/L_1$
+itself (partial $-0.65$). Restricted to the twenty-nine robust models, dropping the single non-robust
+one, the ranking is $-0.77$ (Figure~\ref{fig:aniso}a). The size $\eta/L_1$ detects robustness but ranks it only weakly
+(Figure~\ref{fig:aniso}b). The same negative ranking appears within the robust CLIP encoders.
+
+\begin{figure}[t]\centering
+  \includegraphics[width=0.82\linewidth]{robustbench_aniso.pdf}
+  \caption{Thirty RobustBench CIFAR-10 models. \textbf{(a)} the gradient's shape $A$ ranks robustness
+  (Spearman $-0.77$, surviving a clean-accuracy control); \textbf{(b)} the size $\eta/L_1$ detects
+  robustness but ranks it only weakly.}
+  \label{fig:aniso}
+\end{figure}
+
+\paragraph{The mechanism: an effective-dimension margin deficit.}
+Why does spread hurt? The first-order estimate $\eta/L_1$ is only the leading term. A real attack also
+harvests the gradient's variation across coordinates, and it collects more of that variation when the
+gradient is spread over more coordinates. This shrinks the true radius below $\eta/L_1$ by a factor that
+grows with the spread:
+\begin{equation}
+  r\;\approx\;\frac{\eta/L_1}{1+C\,A},
+  \label{eq:deficit}
+\end{equation}
+with a model-level constant $C$. In a controlled model with the margin and the total gradient energy
+held fixed and only the effective dimension varied, the true multi-step $\ell_\infty$ radius orders
+perfectly against $A$ (Spearman $-1.0$), and the deficit scales as $\sqrt{\text{active dims}}=A$
+(log-log slope $0.53$). The effect is \emph{transverse}, spread over the many coordinates, not the
+curvature straight along the attack: we measured the on-direction curvature and it does \emph{not} rank
+robustness, and $A$ does not track it, exactly as in the real encoders. So the curvature-regularization
+account \citep{moosavi2019curvature} is not the ranking mechanism here.
+
+\paragraph{Relation to prior work, and scope.}
+The magnitude-versus-spread reading is the relaxation of \citet{simongabriel2019adversarial}, whose
+dimension law assumes equal gradient variance per coordinate and so fixes $A\propto\sqrt\dd$; we let $A$
+vary at fixed $\dd$ and find it tracks robustness. The nearest metric is the participation ratio of the
+input gradient \citep{participation2025}, used there to \emph{detect} catastrophic overfitting during
+training rather than to rank models across a family. The synthetic model in Eq.~\ref{eq:deficit} is a
+self-consistent stand-alone that assumes per-coordinate independence, not a derivation from the network;
+the strong signal is between models, so $C$ is a model-level property. We therefore present the deficit
+as a proposed mechanism, consistent with every control and refuting the curvature alternative, rather
+than as a first-principles theorem. The law also generalizes to two low-dimensional families. On MNIST
+and Fashion-MNIST a fixed-budget grid compresses $A$ into a narrow band and it does not rank, but
+widening the range with an adversarial-training-strength sweep restores it, so the compression, not the
+low input dimension, was the obstacle. Over twenty-four MNIST cells (with $A$ now spanning $[2.4,16.6]$)
+$A$ ranks threat-matched $\ell_\infty$ robustness at the informative budgets, $-0.83$ ($\varepsilon{=}0.2$)
+and $-0.89$ ($\varepsilon{=}0.3$) on MNIST (partial controlling clean accuracy $-0.75$ and $-0.74$), and
+$-0.61$ ($\varepsilon{=}0.1$) to $-0.80$ ($\varepsilon{=}0.15$) over twenty-four Fashion-MNIST cells
+(partial $-0.53$ and $-0.67$). Two caveats carry over: the sign is correct only in the training norm (in
+the mismatched $\ell_2$ radius on MNIST $A$ takes the wrong sign, $+0.48$ raw, collapsing to $+0.10$ once
+clean accuracy is controlled), and on this single-knob sweep $A$ is collinear with training strength
+($\mathrm{Spearman}(A,\varepsilon)\approx-0.9$), so the cleaner cross-model evidence remains the diverse
+RobustBench panel, where $A$ ranks robustness even after controlling for $\eta/L_1$
+(Appendix~\ref{app:extra}).
+
+%======================================================================
+\section{Robust training re-couples margin and sensitivity}\label{sec:signflip}
+%======================================================================
+The two ingredients of $\etaL$ are coupled, and adversarial training changes how. In a standard model the
+per-image margin and gradient size are anti-aligned: high-margin images sit in flatter regions with
+\emph{smaller} gradients (within-model Spearman $\rho(M,\lVert\grad M\rVert_2)\approx-0.5$ in every one of
+the twelve standard models), so margin and robustness reinforce. Adversarial training flips this to
+positive ($\approx+0.5$ in every one of the twenty-four robust models): a robust model buys extra margin
+partly by raising local sensitivity, so the margin-to-sensitivity ratio is self-limiting
+(Figure~\ref{fig:signflip}). The per-image coupling flips sign, consistently across dozens of models.
+This is why one ratio predicts robustness in both regimes: the margin and the gradient size, read
+separately, are anti-aligned in standard models and aligned after robust training, and only their ratio
+$\etaL$ tracks robustness through both. The same re-coupling explains why $\etaL$ is a diagnostic and not
+a trainable target: because the ratio is scale-invariant its direct maximizer is the constant classifier
+(Lemma~\ref{lem:ratiodegen}), and first-order attempts to raise it collapse the margin
+(Appendix~\ref{app:extra}).
+
+\begin{figure}[t]\centering
+  \includegraphics[width=0.7\linewidth]{resnet_persample_signflip.pdf}
+  \caption{The within-model coupling between margin $M$ and input-gradient norm $\lVert\grad M\rVert_2$
+  flips sign under adversarial training: negative under standard training (high-margin points are
+  flatter) and positive after adversarial training (margin is bought by raising sensitivity), for every
+  model, across the ResNet grid on CIFAR-10 and CIFAR-100.}
+  \label{fig:signflip}
+\end{figure}
+
+%======================================================================
+\section{Invariance saturates across modalities}\label{sec:crown}
+%======================================================================
+The saturation of \S\ref{sec:saturation} is not specific to pixel shifts. On zero-shot CLIP over
+ImageNet-100 we lay out a two-by-two: two modalities (image, text) crossed with two perturbation types
+over a semantically-null family, an average-case invariance and a worst-case adversarial version.
+Images are shifted (average) or attacked with full targeted AutoAttack (worst case); prompts are reworded
+into eleven curated meaning-preserving paraphrases (average, paraphrase-consistency PC) or scored by the
+worst of them (worst case, adversarial-paraphrase accuracy $S_{\text{text}}$). The panel is seventeen
+encoders: four non-robust, thirteen adversarially robust, including two Sim-CLIP towers and one
+text-hardened tower (Figure~\ref{fig:crown}).
+
+Both invariance cells saturate: shift-consistency is $0.977\pm0.009$ and paraphrase-consistency
+$0.977\pm0.007$. Only the image-adversarial cell carries cross-encoder spread ($S=0.385\pm0.244$, range
+$[0,0.69]$, twenty-eight times the shift-consistency spread), and the threat-matched $\eta/L_1$ predicts
+it ($+0.80$, CI $[0.44,0.95]$; partial controlling clean accuracy $+0.82$; per image within the robust
+encoders $+0.89$, $n{=}2600$), while the consistencies do not (shift $+0.21$, paraphrase $-0.30$, both
+intervals spanning zero). The one place the clean two-by-two does not materialize is the text-adversarial
+cell: the worst of eleven curated paraphrases is itself a mild perturbation, so $S_{\text{text}}$ stays
+narrow ($0.896\pm0.029$, four times the paraphrase spread), and $\eta/L_1$, an image-side quantity, is
+orthogonal to its residual variation once clean accuracy is controlled ($-0.54$ raw, partial $+0.01$, so
+the raw anti-correlation is a clean-accuracy artifact). Paraphrase-consistency co-moves with
+$S_{\text{text}}$ ($+0.98$), but that is average against worst case over the same narrow family. A single
+text-hardened encoder, adversarially fine-tuned on the text tower, has the highest $S_{\text{text}}$ and
+paraphrase-consistency in the panel despite a middling vision $\eta/L_1$, which places text robustness as
+a separate axis raised by text training and not by the vision margin.
+
+Two things follow. The saturation of invariance metrics is modality-general: textual paraphrase
+invariance is as saturated as visual shift invariance, and no more predictive of adversarial robustness.
+And the margin diagnostic is modality-specific: $\eta/L_1$ read on the image tower governs the
+image-adversarial axis, while a wide text-adversarial axis, if one is wanted, needs a stronger textual
+perturbation than a small curated paraphrase set supplies.
+
+\begin{figure}[t]\centering
+  \includegraphics[width=0.99\linewidth]{crownjewel_hardened.pdf}
+  \caption{Zero-shot CLIP, ImageNet-100, seventeen encoders, full targeted AutoAttack. \textbf{(a)}~both
+  invariance cells (shift-consistency, paraphrase-consistency) saturate near $1$; the image-adversarial
+  cell $S$ spreads widely while the text-adversarial cell $S_{\text{text}}$ (worst of eleven paraphrases)
+  stays narrow. \textbf{(b)}~$\eta/L_1$ orders the image-adversarial cell ($+0.80$) but not the text cell
+  ($-0.54$ raw, and zero after controlling for clean accuracy), and neither consistency orders either.
+  The continuous $\ell_\infty$ image attack and the discrete paraphrase set are both worst cases over a
+  semantically-null family; the small paraphrase set is the milder perturbation.}
+  \label{fig:crown}
+\end{figure}
+
+%======================================================================
+\section{Related work}\label{sec:related}
+%======================================================================
+\textbf{Invariance and robustness.} \citet{ge2021shift} give the trade-off on single-orbit data;
+\citet{kamath2021canwehaveitall,tramer2019multiple} prove tensions between geometric and adversarial
+robustness; the anti-aliasing line \citep{zhang2019making,grabinski2022aliasing,saha2024improving} and
+the equivariance line \citep{wang2025bridging} report the opposite sign. These locate as positions on the
+threat-matched $\etaL$ axis: Ge's collapse and the trade-off results are the small-margin corner, where
+invariance costs margin and $\etaL$ falls, while the ``helps'' reports are a weak-attack reading that does
+not survive AutoAttack rather than a third regime.
+\textbf{Attack-free robustness estimates.} CLEVER \citep{clever}, the generative GREAT Score
+\citep{greatscore}, and margin-Lipschitz certificates \citep{hein2017formal,tsuzuku2018lipschitz}
+estimate a radius; we make the estimate gauge-free, threat-matched, and two-sided, and add the anisotropy
+refinement for ranking robust models. Certified defenses such as randomized smoothing
+\citep{cohen2019certified} also return a radius, but through a smoothed classifier and sampling; $\etaL$
+is complementary, a first-order read of the base model that needs no smoothing and no attack.
+\textbf{Gradient geometry.} \citet{simongabriel2019adversarial} tie vulnerability to gradient norm and
+dimension under equal per-coordinate variance; we relax that assumption. \citet{moosavi2019curvature}
+regularize curvature for robustness; we show on-direction curvature does not rank robust models and the
+transverse effective-dimension deficit does. The gradient participation ratio \citep{participation2025}
+is used for overfitting detection, not cross-model ranking.
+
+%======================================================================
+\section{Limitations and discussion}\label{sec:disc}
+%======================================================================
+The tower-level CLIP correlation rests on a small number of robust encoders, so the per-image result is
+the load-bearing one; the hardened multimodal benchmark (\S\ref{sec:crown}) expands the panel and uses
+full AutoAttack. The deficit law of Eq.~\ref{eq:deficit} is a proposed, well-controlled mechanism rather
+than a network-level theorem, and the ranking it drives is range-dependent: it needs a wide robustness
+axis, which on low-dimensional families appears only once a training-strength sweep opens it. Finally
+$\etaL$ is a diagnostic to read off a trained model, not a target to train toward. Within those limits, one idea, the margin relative to the
+sensitivity, unifies a split literature, corrects a common evaluation mistake, and turns a vague
+intuition about invariance into something measurable: invariance is not robustness, the margin relative
+to the sensitivity is, its shape is what separates the strong models, and the saturation of invariance
+carries from pixel shifts to text.
+
+\paragraph{Reproducibility and ethics.} All quantities are computed with released attack code
+(AutoAttack, a minimum-norm attack) on standard benchmarks; the contribution is diagnostic and
+defensive, introducing no new attack. Code, configurations, and per-sample outputs are released.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\section{Structural theory and the bracket}\label{app:theory}
+This appendix states the three load-bearing results; full proofs, the power-spectrum escape, and the
+lazy-regime cluster theorem are in the accompanying technical report.
+
+The first result identifies the margin $\eta$ that enters $\etaL$ once invariance is imposed. It says
+that a shift-invariant linear classifier separates classes only through their average (DC) component,
+so the surviving margin is the separation of the DC-projected data, which recovers and generalizes the
+$1/\sqrt\dd$ collapse of \citet{ge2021shift}.
+
+\begin{theorem}[Invariant linear margin equals projection separation]\label{thm:A}
+A linear score $g(x)=w^\top x+b$ is shift-invariant for all $x$ if and only if $w=c\mathbf 1$.
+Consequently, for any finite separable classes $X_+,X_-$, the invariant $\ell_2$ max-margin equals the
+separation of the DC-projected data,
+$\gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}(\mathrm{conv}\,\Pinv X_+,\ \mathrm{conv}\,\Pinv X_-)$,
+with maximizing direction $\pm\mathbf 1/\sqrt\dd$. This holds for any finite separable dataset and does
+not require orbit-closure.
+\end{theorem}
+
+The single-image case, where each class is one image and all its shifts, is the observation of
+\citet{ge2021shift}; the theorem adds the exact convex-hull form for an arbitrary finite dataset, which
+is what the architectural dissection of \S\ref{sec:etaL} measures. The same accounting holds for any
+finite symmetry group, with the DC projector replaced by the group-average projector.
+
+The second result upgrades the certificate $r\ge\etaL$ to a two-sided bracket, so $\etaL$ is a
+characterization of the radius up to a condition number rather than only a lower bound.
+
+\begin{proposition}[Two-sided bracket: a conditional converse]\label{prop:sandwich}
+If the score is $L$-Lipschitz toward the boundary and admits a co-Lipschitz (lower-Lipschitz) constant
+$\alpha$ along a path reaching it, then $\eta/L\le r_2\le\eta/\alpha$ with condition number
+$\kappa:=L/\alpha\ge1$, so $\etaL$ determines the robust radius up to $\kappa$. The bracket is exact
+($\kappa=1$, $r_2=\eta/\lVert w\rVert_2$) for linear invariant features \citep{hein2017formal}; for the
+power-spectrum surrogate both arms are explicit and the realized $\kappa\in[1.6,2.4]$ numerically. This
+completes the certificate chain of \citet{tsuzuku2018lipschitz}, which bounds $r_2$ only from below,
+with the matching upper arm.
+\end{proposition}
+
+The third result is the organizing lemma behind gauge-freeness, and behind why $\etaL$ is a diagnostic
+rather than a training target (\S\ref{sec:signflip}).
+
+\begin{lemma}[Scale-invariance of the ratio]\label{lem:ratiodegen}
+The per-sample ratio $M(x)/\lVert\grad M(x)\rVert$ is invariant to positive rescaling of the score,
+$f\mapsto cf$, since numerator and denominator scale together. Hence an objective that maximizes $\etaL$
+directly is blind to the absolute margin and admits the constant classifier $\grad M\equiv 0$ as a global
+optimizer, so $\etaL$ is ill-posed as a training objective and well-posed only as a diagnostic read at a
+fixed logit scale.
+\end{lemma}
+
+\section{Additional experiments}\label{app:extra}
+The technical report gives the following, summarized here.
+\emph{Cross-budget normalization.} Across adversarial-training budgets
+$\varepsilon\in\{2,4,8,16\}/255$ the raw threat-matched ratio anti-correlates with robust accuracy
+($-0.95$) while the budget-normalized ratio $\eta/(L\varepsilon)$, the certified radius in units of the
+attack, collapses the sweep onto one monotone curve (Pearson $+0.94$); within a fixed budget, which is
+how the dissections compare models, the raw ratio is the right form.
+\emph{A data-axis test.} Intervening on the training data instead of the architecture, through
+diffusion-augmented adversarial training, obeys the same threat-matched law, an independent axis for the
+diagnostic.
+\emph{$\etaL$ is not a trainable target.} Four first-order attempts to raise $\etaL$ (Lemma
+\ref{lem:ratiodegen}) all collapse the margin and leave robustness flat or worse.
+\emph{The anisotropy range study.} On MNIST and Fashion-MNIST a fixed training budget compresses the
+anisotropy $A$ into a narrow band ($[1.9,2.9]$ and $[4.3,5.4]$) where it does not rank robustness. An
+adversarial-training-strength sweep widens the band (to $[2.4,16.6]$ on MNIST, $[4.0,13.2]$ on Fashion)
+and restores the ranking law of \S\ref{sec:aniso}: over twenty-four cells per dataset, $A$ orders
+threat-matched $\ell_\infty$ robust accuracy at $-0.83$ ($\varepsilon{=}0.2$) and $-0.89$
+($\varepsilon{=}0.3$) on MNIST and $-0.61$ ($\varepsilon{=}0.1$) to $-0.80$ ($\varepsilon{=}0.15$) on
+Fashion, with every correlation recomputed three ways and no gradient masking. In the mismatched $\ell_2$
+radius the sign is correct on Fashion ($-0.74$) but reverses on MNIST ($+0.48$ raw, null after controlling
+clean accuracy), because strong high-$\varepsilon$ $\ell_\infty$ training over-fits the $\ell_\infty$ ball
+and shrinks the $\ell_2$ radius; the full per-cell tables are here.
+
+\end{document}

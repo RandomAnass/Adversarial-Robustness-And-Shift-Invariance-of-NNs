@@ -143,3 +143,93 @@ Measured curvature along the ATTACK direction q_align = sign(grad M)^T H sign(gr
 - HONEST paper framing: gradient anisotropy is a cheap attack-free predictor that ranks robust encoders where
   eta/L cannot (robust empirical finding); the curvature proposition is a valid clean-case candidate but is NOT
   the real-encoder mechanism -> present as empirical + open mechanism, do NOT claim the theory explains it.
+
+---
+
+## PART 2 MECHANISM — RESOLVED (2026-07-15). "Why anisotropy ranks robustness" is no longer open.
+
+The earlier "mechanism OPEN" note above is SUPERSEDED. Two results close it:
+
+### (i) RobustBench n=30 replication — independent model family, strong signal
+`llm_transfer/pilots/c1_tower/robustbench_val/{results.json,FINAL_REPORT.txt}`. On 30 OFFICIAL
+RobustBench CIFAR-10 Linf models (ResNets/WRNs, not ViTs), with A=‖∇M‖₁/‖∇M‖₂ and APGD robust acc:
+- **Spearman(A, robust) = −0.791 (p=2e-7)** over all 30; **−0.768 over the 29-model robust panel**
+  (excluding the single non-robust `Standard` model — the fair "ranking-among-robust" number).
+- Validity: my-APGD vs official-AutoAttack Spearman = +0.960. partial(A,robust|clean) = −0.766;
+  partial(A,robust|η/L₁) = −0.647. Bootstrap 95% CI [−0.915,−0.562]; jackknife [−0.843,−0.768].
+- η/L₁ control: +0.61/+0.57 (detects, ranks weakly) — exactly the "size detects, shape ranks" split.
+- FIGURE for deck/paper: `paper/pitch/figures/robustbench_aniso.pdf` (real data, 2-panel).
+
+### (ii) Mechanism = effective-dimension whole-ball margin deficit (verified firsthand, 4 scripts)
+Verified by running `/tmp/.../scratchpad/aniso/step{6,7,9,10}.py` (numbers reproduced exactly):
+- **Law: r ≈ (η/L₁)/(1+C·A)**, C≈2.65. The first-order certificate η/L₁ is only the leading term;
+  a real attack additionally harvests the gradient's per-coordinate variation, collecting a deficit
+  that scales like A=√(effective active dims) at matched per-coord fluctuation.
+- step6: GAP vs m log-log slope **0.531** (√m=A law), Pearson(A,GAP)=0.99997; GAP linear in field-std
+  (slope 1.03). step7: matched η/L₁ + matched energy, **Spearman(A, robust_radius) = −1.0**.
+- step9: single-step ≈ multi-step deficit (Pearson(A,·)=0.9998 both) → the deficit is STATIC, collected
+  in one gradient read; the "multi-step efficiency" hypothesis is DOWNGRADED.
+- step10: Spearman(A,deficit)=+1.0 but **A-vs-q_align NULL (−0.03)** and q_align-vs-deficit NULL →
+  the deficit is a TRANSVERSE effect (spread over A² coords), NOT the on-direction curvature. This
+  REPRODUCES the real-encoder curvature refutation (q_align does not rank robustness) and explains
+  why curvature was refuted yet A works.
+
+### (iii) NOVELTY (answers "is that novel??") — YES, on three counts
+1. Empirical: "gradient anisotropy A ranks adversarial robustness among already-robust models
+   (negatively), on two independent families (CLIP + RobustBench), surviving clean-acc/η/L/backbone
+   controls" — not in the literature (lit-scout found nothing).
+2. Mechanism = RELAXATION of Simon-Gabriel et al. 1802.01421 (vulnerability ∝ ‖∇‖·√d under an
+   equal-variance-per-coordinate assumption that FIXES A∝√d). We let A vary at fixed d and show it
+   tracks robustness — the deficit is the beyond-first-order term their assumption suppresses.
+3. Refutes the curvature/CURE (Moosavi-Dezfooli 2019) story as the RANKER: transverse magnitude-spread,
+   not on-direction curvature. Metric collision to cite (different use): arXiv:2505.02360 (participation
+   ratio PR₁~A² for catastrophic-overfitting DETECTION during training, not cross-model ranking).
+HONEST CAVEAT: the synthetic separable-Gaussian-field model is a self-consistent stand-alone (bakes in
+per-coordinate independence), NOT a first-principles derivation from CLIP geometry. Strong signal is
+BETWEEN-encoder (C is a model-level property); within-encoder per-image partials are weak. Present the
+mechanism as "proposed, internally consistent, refutes curvature" — not "proven from the architecture."
+
+### (iv) BOUNDARY CONDITION (MNIST/Fashion pilot, honest negative)
+Reanalysis of existing MNIST/Fashion AT cells (dec_L1/dec_L2 already logged): A does NOT rank robustness
+there (Spearman +0.035 MNIST, −0.044 Fashion, both null). Cause: those cells are AT at a SINGLE ε,
+varying only by shift-arm+width → narrow robustness band and A compressed to [1.95,2.88]/[4.33,5.43]
+(vs A∈[18,35] where the law holds). The law needs a WIDE robustness range driven by training-strength
+diversity. A proper AT-strength-sweep test on MNIST/Fashion is running to settle whether low input
+dimension is a hard boundary or just needs the wider axis. η/L still predicts on both (+0.5), so the
+DETECTION-level story holds on all families; only the anisotropy RANKING refinement is range-dependent.
+
+---
+
+## CROWN-JEWEL v0 — multimodal dissociation (2026-07-15, VERIFIED firsthand)
+`llm_transfer/pilots/c1_tower/CROWNJEWEL_V0.md` + `run_crownjewel_v0.py`; results
+`crownjewel_v0.json` + `crownjewel_v0_analysis.json`; figure `llm_transfer/paper/figures/crownjewel_v0.pdf`.
+Zero-shot CLIP on ImageNet-100 val (n=1000, 10 encoders: 4 non-robust openai/laion + 6 robust
+FARE/TeCoA), eps=4/255. I INDEPENDENTLY recomputed every headline from the raw per-tower JSON — all
+match the agent's analysis exactly; sanity holds (non-robust S=0.000, all S<=clean, robust radius > non-robust).
+
+VERIFIED NUMBERS:
+- **Two-axis saturation**: shift-consistency SC mean 0.976 (sd 0.010, range 0.964-0.990); paraphrase-
+  consistency PC mean 0.978 (sd 0.009, range 0.957-0.990). Robust acc S spans 0.00-0.66 (sd 0.29).
+  BOTH invariances saturated; robustness is the only axis with spread.
+- **eta/L1 predicts robustness**: cross-tower Spearman(eta/L1, S) = +0.869 [CI 0.47,0.99]; per-image
+  pooled Spearman(eta/L1, radius) = +0.852 (n=720, tight CI) — the powered headline, proper radius metric.
+- **Textual invariance cleanly dissociated**: Spearman(PC, S) = +0.113 [CI -0.83,0.79] ~ null.
+- **Anisotropy A ranks robust towers by radius**: Spearman(A, radius | robust) = -0.714 (reproduces
+  the parent A-ranks-robust-radius law on this panel).
+- SC vs PC = +0.842 (visually-invariant encoders also tend to be paraphrase-invariant).
+- HONEST CAVEAT (reported, not hidden): Spearman(SC, S) = +0.381 [CI -0.47,0.88] — NOT a clean null;
+  on this small panel the 4 non-robust towers happen to sit slightly low in the tight SC band, so SC
+  weakly CO-DETECTS AT. But CI spans 0 (non-significant), it is far below eta/L1 (+0.87), and SC does
+  NOT carry the per-image robustness signal eta/L1 does. So the dissociation holds; SC is a weak (not
+  null) MODEL-LEVEL co-detector here, PC is genuinely null.
+- METHOD CAVEAT: S computed APGD-CE-only (agent added a backward-compatible `targeted=True` default to
+  attacks.py, used False for speed) → S is a strong UPPER BOUND, slightly overestimates robust acc but
+  preserves ordering (validated vs parent full-ensemble within a few points). The per-image RADIUS
+  headline uses the proper DDN/radius metric, unaffected.
+
+VERDICT: the parent thesis "invariance is not robustness" EXTENDS to the multimodal (shift + text +
+images) setting. Both visual and textual invariance saturate across CLIP encoders; adversarial
+robustness is a separate axis that eta/L1 predicts (per-image, powered) and neither consistency carries
+(PC cleanly, SC weakly/non-sig). For the combined paper this is the multimodal generalization of the
+saturation + per-image-dissociation headline. TO STRENGTHEN for main: bigger tower panel, full targeted
+AA for S, more images; consider per-image paraphrase-consistency (not just model-level).

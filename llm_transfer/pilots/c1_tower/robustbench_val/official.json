@@ -1,0 +1,282 @@
+{
+  "Standard": {
+    "clean_acc": 94.78,
+    "autoattack_acc": 0.0,
+    "architecture": "WideResNet-28-10"
+  },
+  "Wong2020Fast": {
+    "clean_acc": 83.34,
+    "autoattack_acc": 43.21,
+    "architecture": "PreActResNet-18"
+  },
+  "Engstrom2019Robustness": {
+    "clean_acc": 87.03,
+    "autoattack_acc": 49.25,
+    "architecture": "ResNet-50"
+  },
+  "Andriushchenko2020Understanding": {
+    "clean_acc": 79.84,
+    "autoattack_acc": 43.93,
+    "architecture": "PreActResNet-18"
+  },
+  "Ding2020MMA": {
+    "clean_acc": 84.36,
+    "autoattack_acc": 41.44,
+    "architecture": "WideResNet-28-4"
+  },
+  "Zhang2019Theoretically": {
+    "clean_acc": 84.92,
+    "autoattack_acc": 53.08,
+    "architecture": "WideResNet-34-10"
+  },
+  "Sitawarin2020Improving": {
+    "clean_acc": 86.84,
+    "autoattack_acc": 50.72,
+    "architecture": "WideResNet-34-10"
+  },
+  "Carmon2019Unlabeled": {
+    "clean_acc": 89.69,
+    "autoattack_acc": 59.53,
+    "architecture": "WideResNet-28-10"
+  },
+  "Sehwag2020Hydra": {
+    "clean_acc": 88.98,
+    "autoattack_acc": 57.14,
+    "architecture": "WideResNet-28-10"
+  },
+  "Wang2020Improving": {
+    "clean_acc": 87.5,
+    "autoattack_acc": 56.29,
+    "architecture": "WideResNet-28-10"
+  },
+  "Hendrycks2019Using": {
+    "clean_acc": 87.11,
+    "autoattack_acc": 54.92,
+    "architecture": "WideResNet-28-10"
+  },
+  "Rice2020Overfitting": {
+    "clean_acc": 85.34,
+    "autoattack_acc": 53.42,
+    "architecture": "WideResNet-34-20"
+  },
+  "Wu2020Adversarial": {
+    "clean_acc": 85.36,
+    "autoattack_acc": 56.17,
+    "architecture": "WideResNet-34-10"
+  },
+  "Sehwag2021Proxy_R18": {
+    "clean_acc": 84.59,
+    "autoattack_acc": 55.54,
+    "architecture": "ResNet-18"
+  },
+  "Rade2021Helper_R18_ddpm": {
+    "clean_acc": 86.86,
+    "autoattack_acc": 57.09,
+    "architecture": "PreActResNet-18"
+  },
+  "Rebuffi2021Fixing_R18_ddpm": {
+    "clean_acc": 83.53,
+    "autoattack_acc": 56.66,
+    "architecture": "PreActResNet-18"
+  },
+  "Addepalli2021Towards_RN18": {
+    "clean_acc": 80.24,
+    "autoattack_acc": 51.06,
+    "architecture": "ResNet-18"
+  },
+  "Addepalli2022Efficient_RN18": {
+    "clean_acc": 85.71,
+    "autoattack_acc": 52.48,
+    "architecture": "ResNet-18"
+  },
+  "Gowal2021Improving_R18_ddpm_100m": {
+    "clean_acc": 87.35,
+    "autoattack_acc": 58.63,
+    "architecture": "PreActResNet-18"
+  },
+  "Cui2020Learnable_34_10": {
+    "clean_acc": 88.22,
+    "autoattack_acc": 52.86,
+    "architecture": "WideResNet-34-10"
+  },
+  "Zhang2020Attacks": {
+    "clean_acc": 84.52,
+    "autoattack_acc": 53.51,
+    "architecture": "WideResNet-34-10"
+  },
+  "Zhang2020Geometry": {
+    "clean_acc": 89.36,
+    "autoattack_acc": 59.64,
+    "architecture": "WideResNet-28-10"
+  },
+  "Huang2020Self": {
+    "clean_acc": 83.48,
+    "autoattack_acc": 53.34,
+    "architecture": "WideResNet-34-10"
+  },
+  "Pang2020Boosting": {
+    "clean_acc": 85.14,
+    "autoattack_acc": 53.74,
+    "architecture": "WideResNet-34-20"
+  },
+  "Chen2021LTD_WRN34_10": {
+    "clean_acc": 85.21,
+    "autoattack_acc": 56.94,
+    "architecture": "WideResNet-34-10"
+  },
+  "Sehwag2021Proxy": {
+    "clean_acc": 86.68,
+    "autoattack_acc": 60.27,
+    "architecture": "WideResNet-34-10"
+  },
+  "Gowal2020Uncovering_28_10_extra": {
+    "clean_acc": 89.48,
+    "autoattack_acc": 62.8,
+    "architecture": "WideResNet-28-10"
+  },
+  "Rebuffi2021Fixing_28_10_cutmix_ddpm": {
+    "clean_acc": 87.33,
+    "autoattack_acc": 60.75,
+    "architecture": "WideResNet-28-10"
+  },
+  "Addepalli2022Efficient_WRN_34_10": {
+    "clean_acc": 88.71,
+    "autoattack_acc": 57.81,
+    "architecture": "WideResNet-34-10"
+  },
+  "Jia2022LAS-AT_34_10": {
+    "clean_acc": 84.98,
+    "autoattack_acc": 56.26,
+    "architecture": "WideResNet-34-10"
+  },
+  "Dai2021Parameterizing": {
+    "clean_acc": 87.02,
+    "autoattack_acc": 61.55,
+    "architecture": "WideResNet-28-10-PSSiLU"
+  },
+  "Zhang2019You": {
+    "clean_acc": 87.2,
+    "autoattack_acc": 44.83,
+    "architecture": "WideResNet-34-10"
+  },
+  "Wu2020Adversarial_extra": {
+    "clean_acc": 88.25,
+    "autoattack_acc": 60.04,
+    "architecture": "WideResNet-28-10"
+  },
+  "Gowal2020Uncovering_70_16": {
+    "clean_acc": 85.29,
+    "autoattack_acc": 57.2,
+    "architecture": "WideResNet-70-16"
+  },
+  "Gowal2020Uncovering_70_16_extra": {
+    "clean_acc": 91.1,
+    "autoattack_acc": 65.88,
+    "architecture": "WideResNet-70-16"
+  },
+  "Gowal2020Uncovering_34_20": {
+    "clean_acc": 85.64,
+    "autoattack_acc": 56.86,
+    "architecture": "WideResNet-34-20"
+  },
+  "Sehwag2021Proxy_ResNest152": {
+    "clean_acc": 87.3,
+    "autoattack_acc": 62.79,
+    "architecture": "ResNest152"
+  },
+  "Chen2020Efficient": {
+    "clean_acc": 85.32,
+    "autoattack_acc": 51.12,
+    "architecture": "WideResNet-34-10"
+  },
+  "Cui2020Learnable_34_20": {
+    "clean_acc": 88.7,
+    "autoattack_acc": 53.57,
+    "architecture": "WideResNet-34-20"
+  },
+  "Rebuffi2021Fixing_106_16_cutmix_ddpm": {
+    "clean_acc": 88.5,
+    "autoattack_acc": 64.64,
+    "architecture": "WideResNet-106-16"
+  },
+  "Rebuffi2021Fixing_70_16_cutmix_ddpm": {
+    "clean_acc": 88.54,
+    "autoattack_acc": 64.25,
+    "architecture": "WideResNet-70-16"
+  },
+  "Rebuffi2021Fixing_70_16_cutmix_extra": {
+    "clean_acc": 92.23,
+    "autoattack_acc": 66.58,
+    "architecture": "WideResNet-70-16"
+  },
+  "Sridhar2021Robust": {
+    "clean_acc": 89.46,
+    "autoattack_acc": 59.66,
+    "architecture": "WideResNet-28-10"
+  },
+  "Sridhar2021Robust_34_15": {
+    "clean_acc": 86.53,
+    "autoattack_acc": 60.41,
+    "architecture": "WideResNet-34-15"
+  },
+  "Rade2021Helper_R18_extra": {
+    "clean_acc": 89.02,
+    "autoattack_acc": 57.67,
+    "architecture": "PreActResNet-18"
+  },
+  "Rade2021Helper_extra": {
+    "clean_acc": 91.47,
+    "autoattack_acc": 62.83,
+    "architecture": "WideResNet-34-10"
+  },
+  "Rade2021Helper_ddpm": {
+    "clean_acc": 88.16,
+    "autoattack_acc": 60.97,
+    "architecture": "WideResNet-28-10"
+  },
+  "Huang2021Exploring": {
+    "clean_acc": 90.56,
+    "autoattack_acc": 61.56,
+    "architecture": "WideResNet-34-R"
+  },
+  "Huang2021Exploring_ema": {
+    "clean_acc": 91.23,
+    "autoattack_acc": 62.54,
+    "architecture": "WideResNet-34-R"
+  },
+  "Addepalli2021Towards_WRN34": {
+    "clean_acc": 85.32,
+    "autoattack_acc": 58.04,
+    "architecture": "WideResNet-34-10"
+  },
+  "Gowal2021Improving_70_16_ddpm_100m": {
+    "clean_acc": 88.74,
+    "autoattack_acc": 66.11,
+    "architecture": "WideResNet-70-16"
+  },
+  "Gowal2021Improving_28_10_ddpm_100m": {
+    "clean_acc": 87.5,
+    "autoattack_acc": 63.44,
+    "architecture": "WideResNet-28-10"
+  },
+  "Chen2021LTD_WRN34_20": {
+    "clean_acc": 86.03,
+    "autoattack_acc": 57.71,
+    "architecture": "WideResNet-34-20"
+  },
+  "Jia2022LAS-AT_70_16": {
+    "clean_acc": 85.66,
+    "autoattack_acc": 57.61,
+    "architecture": "WideResNet-70-16"
+  },
+  "Pang2022Robustness_WRN28_10": {
+    "clean_acc": 88.61,
+    "autoattack_acc": 61.04,
+    "architecture": "WideResNet-28-10"
+  },
+  "Pang2022Robustness_WRN70_16": {
+    "clean_acc": 89.01,
+    "autoattack_acc": 63.35,
+    "architecture": "WideResNet-70-16"
+  }
+}
