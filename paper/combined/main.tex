@@ -470,74 +470,7 @@ defensive, introducing no new attack. Code, configurations, and per-sample outpu
 \bibliography{references}
 
 \appendix
-\section{Structural theory and the bracket}\label{app:theory}
-This appendix states the three load-bearing results; full proofs, the power-spectrum escape, and the
-lazy-regime cluster theorem are in the accompanying technical report.
 
-The first result identifies the margin $\eta$ that enters $\etaL$ once invariance is imposed. It says
-that a shift-invariant linear classifier separates classes only through their average (DC) component,
-so the surviving margin is the separation of the DC-projected data, which recovers and generalizes the
-$1/\sqrt\dd$ collapse of \citet{ge2021shift}.
-
-\begin{theorem}[Invariant linear margin equals projection separation]\label{thm:A}
-A linear score $g(x)=w^\top x+b$ is shift-invariant for all $x$ if and only if $w=c\mathbf 1$.
-Consequently, for any finite separable classes $X_+,X_-$, the invariant $\ell_2$ max-margin equals the
-separation of the DC-projected data,
-$\gamma_{\mathrm{inv}}=\tfrac12\,\mathrm{dist}(\mathrm{conv}\,\Pinv X_+,\ \mathrm{conv}\,\Pinv X_-)$,
-with maximizing direction $\pm\mathbf 1/\sqrt\dd$. This holds for any finite separable dataset and does
-not require orbit-closure.
-\end{theorem}
-
-The single-image case, where each class is one image and all its shifts, is the observation of
-\citet{ge2021shift}; the theorem adds the exact convex-hull form for an arbitrary finite dataset, which
-is what the architectural dissection of \S\ref{sec:etaL} measures. The same accounting holds for any
-finite symmetry group, with the DC projector replaced by the group-average projector.
-
-The second result upgrades the certificate $r\ge\etaL$ to a two-sided bracket, so $\etaL$ is a
-characterization of the radius up to a condition number rather than only a lower bound.
-
-\begin{proposition}[Two-sided bracket: a conditional converse]\label{prop:sandwich}
-If the score is $L$-Lipschitz toward the boundary and admits a co-Lipschitz (lower-Lipschitz) constant
-$\alpha$ along a path reaching it, then $\eta/L\le r_2\le\eta/\alpha$ with condition number
-$\kappa:=L/\alpha\ge1$, so $\etaL$ determines the robust radius up to $\kappa$. The bracket is exact
-($\kappa=1$, $r_2=\eta/\lVert w\rVert_2$) for linear invariant features \citep{hein2017formal}; for the
-power-spectrum surrogate both arms are explicit and the realized $\kappa\in[1.6,2.4]$ numerically. This
-completes the certificate chain of \citet{tsuzuku2018lipschitz}, which bounds $r_2$ only from below,
-with the matching upper arm.
-\end{proposition}
-
-The third result is the organizing lemma behind gauge-freeness, and behind why $\etaL$ is a diagnostic
-rather than a training target (\S\ref{sec:signflip}).
-
-\begin{lemma}[Scale-invariance of the ratio]\label{lem:ratiodegen}
-The per-sample ratio $M(x)/\lVert\grad M(x)\rVert$ is invariant to positive rescaling of the score,
-$f\mapsto cf$, since numerator and denominator scale together. Hence an objective that maximizes $\etaL$
-directly is blind to the absolute margin and admits the constant classifier $\grad M\equiv 0$ as a global
-optimizer, so $\etaL$ is ill-posed as a training objective and well-posed only as a diagnostic read at a
-fixed logit scale.
-\end{lemma}
-
-\section{Additional experiments}\label{app:extra}
-The technical report gives the following, summarized here.
-\emph{Cross-budget normalization.} Across adversarial-training budgets
-$\varepsilon\in\{2,4,8,16\}/255$ the raw threat-matched ratio anti-correlates with robust accuracy
-($-0.95$) while the budget-normalized ratio $\eta/(L\varepsilon)$, the certified radius in units of the
-attack, collapses the sweep onto one monotone curve (Pearson $+0.94$); within a fixed budget, which is
-how the dissections compare models, the raw ratio is the right form.
-\emph{A data-axis test.} Intervening on the training data instead of the architecture, through
-diffusion-augmented adversarial training, obeys the same threat-matched law, an independent axis for the
-diagnostic.
-\emph{$\etaL$ is not a trainable target.} Four first-order attempts to raise $\etaL$ (Lemma
-\ref{lem:ratiodegen}) all collapse the margin and leave robustness flat or worse.
-\emph{The anisotropy range study.} On MNIST and Fashion-MNIST a fixed training budget compresses the
-anisotropy $A$ into a narrow band ($[1.9,2.9]$ and $[4.3,5.4]$) where it does not rank robustness. An
-adversarial-training-strength sweep widens the band (to $[2.4,16.6]$ on MNIST, $[4.0,13.2]$ on Fashion)
-and restores the ranking law of \S\ref{sec:aniso}: over twenty-four cells per dataset, $A$ orders
-threat-matched $\ell_\infty$ robust accuracy at $-0.83$ ($\varepsilon{=}0.2$) and $-0.89$
-($\varepsilon{=}0.3$) on MNIST and $-0.61$ ($\varepsilon{=}0.1$) to $-0.80$ ($\varepsilon{=}0.15$) on
-Fashion, with every correlation recomputed three ways and no gradient masking. In the mismatched $\ell_2$
-radius the sign is correct on Fashion ($-0.74$) but reverses on MNIST ($+0.48$ raw, null after controlling
-clean accuracy), because strong high-$\varepsilon$ $\ell_\infty$ training over-fits the $\ell_\infty$ ball
-and shrinks the $\ell_2$ radius; the full per-cell tables are here.
+\input{appendix_full.tex}
 
 \end{document}

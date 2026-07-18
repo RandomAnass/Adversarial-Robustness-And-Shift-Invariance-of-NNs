@@ -32,11 +32,17 @@ Four parallel agents audited Paper A (vision/CIFAR, `paper/report/main.tex`) and
   **MOST NOVEL and best-powered** single finding, non-definitional. Underused.
 - **NOVELTY THREAT: CLEVER (Weng et al. ICLR 2018)** — "first attack-independent robustness metric,"
   margin÷gradient-norm. Directly preempts the attack-free-η/L framing; must cite+distinguish in BOTH papers.
-- **TWO FLAGGED NUMBERS to verify against source (in Paper A, lines 359/685):** Saha "budgets up to
-  192/255" (192/255 = 0.75 is a physically odd L∞ adversarial budget; agent found no such budget in
-  Saha) and the reproduction "FGSM 28.5%" of Wang's arch (agent says Wang's own FGSM is 65–85%, so
-  "reproduce" may be the wrong word). I could not fetch the full Saha/Wang PDFs to confirm/refute —
-  **user should check these against their own source/experiment logs; if wrong they read as fabricated.**
+- **TWO FLAGGED NUMBERS — RESOLVED, BOTH VERIFIED REAL (2026-07-17, the earlier flag was WRONG):**
+  (1) Saha "budgets up to 192/255": CONFIRMED against Saha Figure 10 (literature/saha2024improving.pdf
+  p.8) — the adversarial-robustness x-axis reads 0, 2/255, 4/255, 8/255, 16/255, 32/255, 64/255,
+  128/255, 192/255, so 192/255 is exactly their max eval budget (PGD+FGSM, L2 and Linf, Foolbox). The
+  claim is accurate. (2) "FGSM 28.5%" reproduction of Wang: CONFIRMED against paper/results/b1_wang/
+  cascaded_s0_eval.json (their_protocol.fgsm_0.03 = 28.53, pgd40_0.03 = 1.75) from a CascadedGCNN
+  trained 200ep with Wang's actual repo SHA 7257b8a0 + verbatim recipe, clean 87.2. The reproduction
+  experiment EXISTS (external/b1/b1_train.py, external/b1_run.sh, paper/results/b1_wang/). The earlier
+  "agent found no such budget / not in repo" was a false alarm (the b1_wang dir + Saha Fig 10 were not
+  checked). NO fabrication; both numbers stand. NOTE: these are in the VISION paper (paper/report), not
+  the combined paper.
 
 ## Paper B — VLM (novelty + combine; correctness already audited)
 - **R1 SATURATION** (SC 0.963–0.988 across 16 encoders, no predictive power beyond clean acc) —
