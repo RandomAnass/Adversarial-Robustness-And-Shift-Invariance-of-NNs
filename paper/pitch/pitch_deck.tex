@@ -475,6 +475,44 @@
 \end{frame}
 
 %==============================================================================
+% FINDING 6: MULTIMODAL
+%==============================================================================
+\begin{frame}{Finding 6: the same story on images and text}{On vision-language models, two kinds of invariance saturate, robustness does not}
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \begin{itemize}\footnotesize\itemsep4pt
+        \item A vision-language model sees an \keyword{image} and a \keyword{text prompt}. Both can be
+          changed in ways that should not matter: shift the image, or reword the prompt.
+        \item \good{Both invariances saturate.} Across many CLIP encoders, shift-consistency and
+          prompt-paraphrase-consistency both sit near $0.98$, robust or not. Neither can rank the models.
+        \item \bad{Adversarial robustness is a separate axis} with real spread, and the margin ratio
+          $\eta/L$ predicts it while neither invariance metric does.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.9,every node/.style={font=\scriptsize}]
+        % two saturated invariance bars near 1, one spread robustness bar
+        \draw[-{Latex[length=1.6mm]},slate] (0,0)--(4.2,0); \node[slate] at (4.5,0) {$1$};
+        \node[slate] at (-0.05,0) {$0$};
+        \foreach \y/\lab in {2.1/{shift invariance},1.4/{prompt invariance}}{
+          \fill[good!70] (3.7,\y-0.12) rectangle (4.0,\y+0.12);
+          \node[good,left] at (3.6,\y) {\lab};}
+        % robustness: scattered dots across the range
+        \node[bad,left] at (3.6,0.6) {robustness};
+        \foreach \x in {0.2,0.6,1.1,1.7,2.0,2.4,2.9}{\fill[bad,opacity=0.7] (\x,0.6) circle (2pt);}
+        \draw[slate,dashed] (3.85,0.2)--(3.85,2.3);
+        \node[good] at (3.85,2.55) {saturated};
+      \end{tikzpicture}\\[0.4em]
+      {\scriptsize\color{slate} Both invariances pin to the right edge; robustness is spread out.}
+    \end{column}
+  \end{columns}
+  \takeaway{Invariance is not robustness in \emph{either} modality. The saturation of the invariance
+  metrics carries from pixel shifts to prompts, and the margin ratio is what predicts robustness.}
+\end{frame}
+
+%==============================================================================
 % WHAT IT MEANS
 %==============================================================================
 \begin{frame}{What it all means}{}
