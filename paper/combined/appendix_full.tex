@@ -291,7 +291,7 @@ Let $g=h\circ\Psi$ with $\Psi$ as above, $x\in\mathcal C(r_0,\sigma_0,B)$,
 $g(x)>0$, $g(0)<0$; by continuity there is $t_\star\in(0,1)$ with
 $g(t_\star x)=0$, set $z=t_\star x$. If
 $h(\Psi(x))-h(\Psi(z))\ge h_-\lVert\Psi(x)-\Psi(z)\rVert_2$ for some $h_->0$,
-then $r_2(x)\le g(x)/(h_-r_0\sigma_0)$. If moreover $h$ is $h_+$-Lipschitz on
+then $r_2(x)\le g(x)/(h_-r_0\sigma_0)$. If in addition $h$ is $h_+$-Lipschitz on
 $\Psi(B_2(0,B'))$ with $B'$ large enough that the certified neighborhood of $x$
 stays in the ball, then
 \[
@@ -1050,12 +1050,12 @@ dataset / metric & budget & $\mathrm{Spearman}(A,\cdot)$ & partial | clean \\
 \multicolumn{4}{l}{\emph{MNIST} ($A\in[2.4,16.6]$)}\\
 AutoAttack $\ell_\infty$ & $\varepsilon{=}0.2$ & $-0.83$ & $-0.75$ \\
 AutoAttack $\ell_\infty$ & $\varepsilon{=}0.3$ & $-0.89$ & $-0.74$ \\
-$\ell_2$ radius (DDN, mismatched) & --- & $+0.48$ & $+0.09$ \\
+$\ell_2$ radius (DDN, mismatched) & n/a & $+0.48$ & $+0.09$ \\
 \midrule
 \multicolumn{4}{l}{\emph{Fashion-MNIST} ($A\in[4.0,13.2]$)}\\
 AutoAttack $\ell_\infty$ & $\varepsilon{=}0.1$  & $-0.61$ & $-0.53$ \\
 AutoAttack $\ell_\infty$ & $\varepsilon{=}0.15$ & $-0.80$ & $-0.67$ \\
-$\ell_2$ radius (DDN, mismatched) & --- & $-0.74$ & $-0.26$ \\
+$\ell_2$ radius (DDN, mismatched) & n/a & $-0.74$ & $-0.26$ \\
 \bottomrule
 \end{tabular}
 \end{table}
