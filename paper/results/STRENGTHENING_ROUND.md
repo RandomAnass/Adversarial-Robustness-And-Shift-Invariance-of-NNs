@@ -29,3 +29,12 @@ Effective n = 8 arm×width cells (seeds aggregated) — this IS the effective-n 
 - R2 "effective n" -> stated honestly (n=8 dissection cells).
 
 ## Still to integrate (text/scoping + these numbers) + pending full-AA validation.
+
+## 3. Per-image FLOOR control (R1/R2/R3), 2026-07-25
+Concern: is the within-encoder per-image eta/L1-vs-radius Spearman driven by fragile floor
+(near-zero-radius) images? Script: llm_transfer/pilots/c1_tower/perimage_floor_control.py
+Data: per_image_crownjewelH_*.pt, 13 robust encoders x 200 = 2600 images.
+- Only **2.3%** of images sit at the radius floor.
+- Pooled Spearman(eta/L1, radius): full **+0.859** -> no-floor **+0.849** (n=2541). Essentially unchanged.
+- Every robust encoder survives individually (per-encoder +0.77..0.97, floor-excluded within 0.02).
+=> Per-image ordering is genuine fine-grained ranking, NOT floor separation. Integrated into sec:etaL.

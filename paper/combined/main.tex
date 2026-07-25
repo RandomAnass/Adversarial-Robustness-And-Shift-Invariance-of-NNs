@@ -285,6 +285,9 @@ orders AutoAttack robustness at partial $+0.95$ and shift-consistency anti-predi
 adversarial training cannot act as a confound, the per-image $\etaL$ orders the per-image adversarial
 radius at Spearman $+0.74$ to $+0.96$, while per-image shift-consistency orders it from $+0.37$ down to
 essentially zero, and the gap is significant in a paired test in every encoder (Figure~\ref{fig:perimg}).
+This ordering is fine-grained, not a floor effect: on the hardened panel's thirteen robust encoders
+($n{=}2600$) only $2.3\%$ of images sit at the radius floor, and excluding them leaves the pooled
+per-image Spearman essentially unchanged ($+0.86\to+0.85$; every encoder survives individually).
 \end{itemize}
 Fitted without a held-out learnable-invariance operator, $\etaL$ predicts that operator's robustness out
 of sample, and the same threat-matched law holds when we intervene on the training \emph{data} instead
