@@ -21,7 +21,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\color{blue!60!black}Project summary for feedback}
-\fancyhead[R]{\small\color{blue!60!black}Shift-invariance and adversarial robustness}
+\fancyhead[R]{\small\color{blue!60!black}Invariance vs robustness}
 \fancyfoot[R]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\arraystretch}{0.95}
@@ -30,106 +30,111 @@
 \titlespacing*{\section}{0pt}{4pt}{2pt}
 \titleformat*{\section}{\normalsize\bfseries}
 
+\newcommand{\etaL}{\ensuremath{\eta/L}}
+
 \begin{document}
 \thispagestyle{fancy}
 
 {\small\color{blue!60!black}Technical University of Munich \hspace{0.3em}$\vert$\hspace{0.3em} Practical course, extended to a paper \hspace{0.3em}$\vert$\hspace{0.3em} Supervisor: M.\ Sabanayagam}
 
 \vspace{0.3em}
-{\Large\bfseries When Does Shift-Invariance Permit Adversarial Robustness?\par}
+{\Large\bfseries Invariance vs Robustness: What Orders a Model's Adversarial Robustness\par}
 \vspace{0.1em}
-{\normalsize A margin-to-Lipschitz account, from training-free geometry to AutoAttack\par}
+{\normalsize A threat-matched margin-to-Lipschitz account, from small classifiers to frozen foundation-model encoders\par}
 \vspace{0.3em}
-{\normalsize\bfseries Anass Al Ammiri}\hfill {\small June 17, 2026}
+{\normalsize\bfseries Anass Al Ammiri}\hfill {\small July 19, 2026}
 
 \vspace{0.3em}
-{\small Current status: technical-report paper at 11 pages with one central concept figure and four empirical regimes; a standalone proofs report at 23 pages; code and results pushed to branch \texttt{cifar-dissection}. Both documents compile cleanly and are kept in sync. This is a two-page summary for feedback, not a submission plan.}
+{\small Current status: a combined paper at roughly 23 pages with a central concept figure and five empirical regimes, plus a full proofs-and-details appendix; code and result files reproduce every number. A pitch deck and an internal reader script accompany this summary. This is a two-page summary for feedback, not a submission plan.}
 \vspace{0.3em}
 
 \begin{tcolorbox}[colback=blue!3,colframe=blue!40!black,boxrule=0.5pt,arc=2pt,left=4pt,right=4pt,top=3pt,bottom=3pt]
 \small
-\textbf{Summary.} Whether shift-invariance helps or hurts adversarial robustness is contested: Ge et al.\ (2021) prove a fully shift-invariant classifier can be far less robust than a fully connected one, while anti-aliasing work reports the opposite correlation. We organise both regimes around one quantity. A shift-invariant linear classifier separates classes only through their projection onto the invariant subspace, with an exact margin identity (the distance between the projected convex hulls); a convolution-plus-pooling layer with a nonlinearity instead computes power-spectrum features, and a degree-three bispectrum invariant separates even the localized, phase-coded case that the power spectrum cannot. The surviving robustness is summarised by a margin-to-Lipschitz ratio $\eta/L$, a Lipschitz--margin certificate (no general converse) that also predicts trained-model robustness. A capacity-matched dissection on MNIST, Fashion-MNIST and CIFAR-10 confirms that $\eta/L$, not shift-consistency, predicts the adversarial robust radius (Pearson $0.998$ on CIFAR), and decomposes each invariance operator's effect into a margin term and a Lipschitz term: anti-aliasing acts on the Lipschitz term, exact invariance costs margin. Under PGD adversarial training a threat-matched $\eta/L$ predicts AutoAttack robust accuracy (Pearson $0.90$) while shift-consistency anti-predicts it ($-0.88$). On the optimization side we prove shift-invariance is margin-free on orbit-closed data, so gradient descent self-symmetrizes; it does help on near-orthogonal cluster-geometry data, where the trajectory-level selection theorem remains open.
+\textbf{Summary.} Whether shift-invariance helps or hurts adversarial robustness is contested: Ge et al.\ (2021) prove a fully shift-invariant classifier can be far less robust than a fully connected one, while anti-aliasing and equivariance work (Zhang 2019; Saha and Gokhale 2024; Wang 2025) reports the opposite correlation. Every ``helps'' result, though, used a gradient attack (FGSM or PGD), never a parameter-free strong attack. We organise both sides around one quantity. A shift-invariant linear classifier separates classes only through their projection onto the invariant subspace, with an exact margin identity (the distance between the projected convex hulls, Proposition~1). The surviving robustness is summarised by a threat-matched, scale-free margin-to-Lipschitz ratio \etaL, a Lipschitz--margin certificate (Hein 2017; Tsuzuku 2018) that we complete to a \emph{two-sided bracket} $\eta/L\le r\le\eta/\alpha$ with condition number $\kappa=L/\alpha\in[1.6,2.4]$ (Proposition~2). Across capacity-matched dissections and, importantly, within single frozen CLIP encoders where training cannot confound, \etaL{} orders the adversarial robust radius while shift-consistency does not; on modern encoders shift-consistency is saturated ($0.963$--$0.988$) and cannot rank at all. The ``invariance helps'' correlation is a \emph{weak-attack artifact}: it appears under FGSM and vanishes under AutoAttack. To rank already-robust models, where \etaL{} no longer separates, the \emph{shape} of the input gradient (an $\ell_1/\ell_2$ anisotropy) tracks robustness across thirty RobustBench models (Spearman $-0.79$), through a proposed spread-over-dimensions deficit.
 \end{tcolorbox}
 
 \vspace{0.2em}
 \begin{multicols}{2}
 
 \section*{1\quad Problem and motivation}
-Image classifiers are often called shift-invariant if circular translations of the input do not change the prediction. The published evidence on what this does to adversarial robustness is mixed. Ge et al.\ (2021) show a fully shift-invariant network needs an $\ell_2$ perturbation of order $1/\sqrt{d}$ to be fooled, while a fully connected one needs order $1$. Anti-aliased pooling work (Zhang 2019; Saha and Gokhale 2024) reports that operators which increase shift-invariance also increase robustness. A separate line proves a trade-off between geometric and adversarial robustness (Kamath et al.\ 2021; Tram\`er et al.\ 2020). A practitioner is left without a rule for when invariance is safe.
+Image classifiers are often called shift-invariant when circular translations of the input do not change the prediction. The published evidence on what this does to adversarial robustness is mixed. Ge et al.\ (2021) show a fully shift-invariant network can be fooled by an $\ell_2$ perturbation of order $1/\sqrt{d}$, where a fully connected one needs order $1$. Anti-aliased pooling and equivariance work (Zhang 2019; Saha and Gokhale 2024; Grabinski 2023; Wang 2025) reports that operators which increase shift-invariance also increase robustness. A separate line proves a trade-off between geometric and adversarial robustness (Kamath et al.\ 2021; Tram\`er et al.\ 2020). The practitioner is left without a rule for when invariance is safe.
 
-\textbf{What is already known.} Invariant and equivariant architectures and their margins (Cohen and Welling 2016; Lawrence et al.\ 2021; Chen and Zhu 2023), invariant scattering and bispectrum features (Bruna and Mallat 2012; Kakarala 2012), Lipschitz--margin certification (Hein and Andriushchenko 2017; Tsuzuku et al.\ 2018), and implicit-bias non-robustness (Frei et al.\ 2023; Li et al.\ 2024) are all relevant pieces, but none ties shift-consistency to the adversarial radius through a single measurable quantity.
+\textbf{Two under-tested assumptions.} The ``helps'' line only ever measured robustness with gradient attacks (FGSM/PGD), which over-report robustness, and it never tested whether the shift-consistency \emph{metric} actually orders robustness across models. Both gaps are testable.
 
-\textbf{The gap.} There was no account that (i) says exactly what discriminative signal survives a given invariance, (ii) turns that into a robustness certificate, and (iii) is validated against a standardized strong attack at matched capacity. This project supplies all three.
+\textbf{The gap.} There was no account that (i) says what discriminative signal survives a given invariance, (ii) turns that into a robustness certificate with a converse, and (iii) is validated against a standardized strong attack at matched capacity and, ideally, inside a single frozen model. This project supplies all three.
 
-\section*{2\quad Method}
-\textbf{Structural core.} For a finite symmetry group acting orthogonally, an invariant linear classifier sees the data only through the group-average projector $P_G$; its maximum $\ell_2$ margin is $\tfrac12\,\mathrm{dist}(\mathrm{conv}\,P_GX_+,\mathrm{conv}\,P_GX_-)$ (the cyclic-shift case is the DC projection). A single convolution, square, and global-average-pooling layer computes power-spectrum coordinates; a degree-three bispectrum invariant additionally separates phase-coded classes such as the Ge black/white dot $\pm e_j$ that the power spectrum cannot.
+\section*{2\quad The quantity and its theory}
+\textbf{Proposition 1 (invariant margin).} For a finite group acting orthogonally, an invariant linear classifier sees the data only through the group-average projector $P_G$; its maximum $\ell_2$ margin is $\tfrac12\,\mathrm{dist}(\mathrm{conv}\,P_GX_+,\mathrm{conv}\,P_GX_-)$, the separation of the class averages. The cyclic-shift case is the DC projection and recovers Ge's $2/\sqrt d$ collapse, now for any finite separable dataset, not one image.
 
-\textbf{The criterion.} The surviving robustness is summarised by $\eta/L$: the margin $\eta$ of the data in the invariant feature space divided by the Lipschitz constant $L$ of that feature. The bound $r_2\ge\eta/L$ is a one-sided Lipschitz--margin certificate; we show there is no general converse, so $\eta/L$ is a certificate and a predictor, not a characterization. A companion orbit-flip radius $\rho_G$ bounds the excessive-invariance (semantic) side, recovering Tram\`er et al.
+\textbf{The criterion.} The surviving robustness is summarised by $\etaL$: the mean margin $\eta$ over the mean dual-norm gradient $L$ on clean, correctly classified images. We \emph{threat-match} the norm to the attack ($q{=}1$ for $\ell_\infty$, $q{=}2$ for $\ell_2$; the mismatched norm gives the wrong sign), and note it is \emph{scale-free}, so robustness attaches to the ratio, not to margin or Lipschitz alone. No attack is needed to compute it.
 
-\textbf{Experiments.} A training-free test computes the achievable separation by classifier family. A capacity-matched dissection trains four architectures (standard, anti-aliased, exact cyclic, shift-augmented) with identical parameter counts, measuring the per-sample $\ell_2$ robust radius with a decoupled direction-and-norm minimum-norm attack (validated against the closed-form linear radius to under one percent) and the margin/Lipschitz decomposition. A PGD-adversarial-training arm makes AutoAttack informative. A synthetic optimization study compares unconstrained and weight-tied ReLU networks on orbit data.
+\textbf{Proposition 2 (two-sided bracket).} With an $L$-Lipschitz and $\alpha$-co-Lipschitz condition toward the boundary, $\eta/L\le r\le\eta/\alpha$, so the true radius is trapped, not merely lower-bounded; the gap is $\kappa=L/\alpha$, exact ($\kappa{=}1$) for linear invariant features and $\kappa\in[1.6,2.4]$ empirically. This is the converse the one-sided Lipschitz--margin certificate lacked.
+
+\textbf{Further theory (appendix).} A convolution--square--pool layer computes power-spectrum coordinates; a degree-three bispectrum invariant separates the phase-coded classes the power spectrum cannot. On orbit-closed data invariance is \emph{margin-free} (invariant and unconstrained max-margin values coincide); it helps only on near-orthogonal cluster geometry, where a trajectory-level selection theorem is the open lazy-regime question.
 
 \section*{3\quad Main empirical evidence}
-The training-free test confirms the structural predictions exactly: the single dot is separable by an unconstrained classifier, weakly by linear invariance, not at all by the power spectrum; orthogonal-frequency data is separable by neither linear classifier yet separable by the power-spectrum invariant.
-
-\textbf{$\eta/L$ predicts robustness; shift-consistency does not.} Across capacity-matched cells, $\eta/L$ tracks the robust radius (Spearman $0.96$ on MNIST, $0.71$ on Fashion-MNIST; Pearson $0.998$ on CIFAR-10), while shift-consistency is uncorrelated or mildly anti-correlated. The exactly invariant model has shift-consistency $1.0$ yet the smallest robust radius.
+\textbf{\etaL{} orders robustness; shift-consistency does not.} Across settings, the threat-matched ratio tracks the robust radius or AutoAttack robust accuracy, while shift-consistency is uncorrelated or anti-correlated.
 
 \vspace{2pt}
 \begin{tcolorbox}[colback=gray!4,colframe=gray!50,boxrule=0.4pt,arc=2pt,left=3pt,right=3pt,top=2pt,bottom=2pt]
 \footnotesize
-\begin{tabular}{@{}l@{\ \ }r@{\ \ }r@{\ \ }r@{}}
+\begin{tabular}{@{}l@{\ \ }r@{\ \ }r@{}}
 \toprule
-CIFAR-10 arm ($w{=}64$) & consist. & $r_2$ & $\eta/L$ \\
+setting (attack / metric) & \etaL & consist. \\
 \midrule
-standard      & $0.89$ & $0.119$ & $0.117$ \\
-anti-aliased  & $0.91$ & $\mathbf{0.141}$ & $\mathbf{0.144}$ \\
-exact cyclic  & $\mathbf{1.00}$ & $\mathbf{0.090}$ & $0.088$ \\
-shift-aug     & $0.94$ & $0.117$ & $0.117$ \\
+CIFAR-10 standard (min-norm $r$)   & $+0.998$ & $-0.33$\,n.s. \\
+PreActResNet-18 AT (AA $\ell_\infty$) & $+0.91$ & $-0.81$ \\
+ImageNet-100 AT (AA $\ell_\infty$)    & $+0.90$ & $-0.87$ \\
+16 CLIP encoders, per image ($r$)  & $+0.74$ to $+0.96$ & $\approx 0$ \\
 \bottomrule
 \end{tabular}\\[2pt]
-Identical parameter counts per width. The most shift-consistent arm (exact cyclic) is the least robust; anti-aliasing is the most robust.
+Pearson or Spearman as appropriate. The per-image rows are \emph{within} a single frozen encoder, so training is not the confound.
 \end{tcolorbox}
 \vspace{1pt}
 
-\textbf{Under adversarial training.} PGD-AT at $\ell_\infty{=}8/255$ makes AutoAttack informative ($27$--$41\%$ robust accuracy, no gradient masking). Shift-consistency still anti-predicts robustness (Pearson $-0.88$), and the threat-matched ratio $\eta/\|\nabla M\|_1$ (the $\ell_\infty$ dual) predicts AutoAttack robust accuracy (Pearson $0.90$), while the $\ell_2$ ratio does not, because adversarial training robustifies in $\ell_\infty$.
+\textbf{The ``helps'' effect is a weak-attack artifact.} Re-running the ``helps'' regime (standard training, FGSM/PGD) on our operators and on Saha (2024) and Wang (2025), the ordering appears under FGSM and disappears under AutoAttack, which drops every non-robust model to near zero; on frozen CLIP encoders FGSM reports $16$--$61\%$ robust accuracy that AutoAttack erases.
+
+\textbf{Saturation and the per-image test.} On sixteen frozen CLIP encoders shift-consistency sits at $0.963$--$0.988$ regardless of robustness, so it cannot rank them. Image by image inside one robust encoder, \etaL{} orders each image's radius (Spearman $+0.74$ to $+0.96$) and per-image consistency does not.
+
+\textbf{Ranking robust models by gradient shape.} Among already-robust models \etaL{} no longer separates. The anisotropy $A=\lVert\nabla M\rVert_1/\lVert\nabla M\rVert_2\in[1,\sqrt d]$ does: over thirty RobustBench CIFAR-10 models, lower $A$ is more robust (Spearman $-0.79$; $-0.77$ controlling for clean accuracy), replicated on an MNIST/Fashion training-strength sweep ($-0.61$ to $-0.89$).
 
 \section*{4\quad Mechanism diagnostics}
-The margin/Lipschitz decomposition separates two mechanisms. Relative to the standard baseline, anti-aliasing leaves the margin essentially unchanged and lowers the Lipschitz constant ($\Delta\log L\approx-0.2$), buying robustness through reduced input sensitivity. Exact cyclic invariance instead shrinks the margin ($\Delta\log\eta\approx-0.3$ to $-0.4$) and loses robustness, the real-data form of the Ge collapse. This is the structural criterion made operational: invariance helps robustness only when it does not cost margin.
+The margin/Lipschitz decomposition separates two mechanisms: anti-aliasing leaves the margin essentially unchanged and lowers the Lipschitz constant ($\Delta\log L\approx-0.2$), buying robustness through reduced sensitivity; exact cyclic invariance shrinks the margin ($\Delta\log\eta\approx-0.3$ to $-0.4$) and loses robustness, the real-data Ge collapse. For the anisotropy law we propose a spread-over-dimensions deficit $r\approx(\eta/L_1)/(1+CA)$, $C\approx2.65$, verified on a controlled model and thirty real ones. It is a proposed mechanism, not a network-level theorem.
 
-\textbf{Optimization.} On orbit-closed data we prove shift-invariance is \emph{margin-free}: the invariant and unconstrained two-layer-ReLU max-margin values coincide (orbit-averaging an unconstrained solution gives an invariant one of equal minimum norm). A synthetic test confirms unconstrained and tied networks reach the same robustness on generic orbit data, while on near-orthogonal cluster-geometry data the tied network reaches a $20$--$60\%$ larger $\eta/L$, most in the lazy regime. So whether invariance re-points the implicit bias is data-geometry-dependent.
-
-\section*{5\quad What was already done}
+\section*{5\quad What is already done}
 \begin{itemize}[leftmargin=1.05em,itemsep=1pt,topsep=2pt]
-\item \textbf{Structural theory}, corrected after an external audit and re-verified: invariant margin as projected-hull distance (general finite group), the $\eta/L$ certificate with an explicit no-converse counterexample, the power-spectrum and bispectrum span lemmas, the exact orbit-rank lemma, and the orbit-flip bound.
-\item \textbf{Capacity-matched dissection} on MNIST, Fashion-MNIST and CIFAR-10; the robust radius validated against AutoAttack to a mean gap of $0.014$, ruling out gradient masking.
-\item \textbf{PGD adversarial-training arm} with AutoAttack and the threat-matched $\eta/L$ law.
-\item \textbf{Optimization sprint}: a margin-free theorem on orbit-closed data, a synthetic unconstrained-versus-tied study showing the data-geometry dichotomy, and explicit ReLU KKT systems for the open selection problem.
-\item \textbf{One central concept figure}; two documents kept in sync; code and results on branch \texttt{cifar-dissection}.
+\item \textbf{Structural theory}, audited and re-verified: the invariant margin identity (Prop.~1), the two-sided bracket (Prop.~2) with a measured $\kappa$, the power-spectrum and bispectrum span lemmas, and the orbit-rank and orbit-flip bounds.
+\item \textbf{Capacity-matched dissection} on MNIST, Fashion-MNIST and CIFAR-10, robust radius validated against AutoAttack (mean gap $0.014$), ruling out gradient masking.
+\item \textbf{Adversarial-training arm} (PGD-AT, AutoAttack) with the threat-matched \etaL{} law and the shift-consistency anti-prediction.
+\item \textbf{Foundation-model regime}: sixteen frozen CLIP encoders, the saturation finding, and the per-image dissociation where training cannot confound.
+\item \textbf{Anisotropy study} on thirty RobustBench models with a clean-accuracy control, plus the effective-dimension deficit.
 \end{itemize}
 
-\section*{6\quad Future work}
+\section*{6\quad Limitations and future work}
 \begin{itemize}[leftmargin=1.05em,itemsep=1pt,topsep=2pt]
-\item \textbf{Cluster-geometry selection theorem.} Prove that on near-orthogonal cluster-geometry orbit data gradient flow selects a higher-$\eta/L$ invariant solution, using the explicit KKT systems and the frequency-domain reduction; the lazy regime shows the largest empirical gap.
-\item \textbf{Bispectrum certified robustness.} Turn the bispectrum separation of phase-coded classes into a certified-radius construction, trading the larger Lipschitz constant against the recovered margin.
-\item \textbf{Scale.} Larger backbones and stronger adversarial-training recipes, to check whether the threat-matched $\eta/L$ law and the consistency anti-prediction persist at RobustBench scale.
+\item \textbf{Not a training target.} \etaL{} is scale-free, so its direct maximizer is the constant classifier: a diagnostic, not a loss.
+\item \textbf{The shape law needs range.} On low-dimensional data anisotropy is compressed and does not rank until a training-strength sweep widens the range.
+\item \textbf{The deficit is proposed, not proven}, and the cluster-geometry selection theorem (lazy regime) is still open.
+\item \textbf{Scale and norms.} Beyond $\ell_\infty$; larger backbones; a genuine text-adversarial axis (current CLIP paraphrase worst case is too mild).
 \end{itemize}
 
 \section*{7\quad Project context}
-This grew out of a TU Munich practical course that reproduced and extended Ge et al.\ (2021). The supervisor's framing asked for a comparison against four papers: Ge et al.\ (2021), the two Kamath et al.\ trade-off papers, and Galloway et al.\ on batch normalization; the dissection reproduces the Galloway effect under fixed-$\epsilon$ accuracy and shows it is threshold-dependent under the radius metric. Repository: \texttt{adversarial-robustness-shift-invariance/}; paper and proofs report under \texttt{paper/report/}. Compute to date is a few GPU-hours on two RTX A6000.
+This grew out of a TU Munich practical course that reproduced and extended Ge et al.\ (2021). The supervisor's framing asked for a comparison against Ge et al.\ (2021), the two Kamath et al.\ trade-off papers, and Galloway et al.\ on batch normalization; the dissection reproduces the Galloway effect under fixed-$\epsilon$ accuracy and shows it is threshold-dependent under the radius metric. Repository: \texttt{adversarial-robustness-shift-invariance/}. Compute to date is a modest number of GPU-hours on two RTX A6000.
 
 \vspace{2pt}
 \textbf{Selected references.}
 {\footnotesize Ge, Singla, Basri, Jacobs, Shift Invariance Can Reduce Adversarial Robustness, NeurIPS 2021.
 Kamath, Deshpande, Subrahmanyam, Balasubramanian, Can We Have It All?, NeurIPS 2021.
 Tram\`er, Behrmann, Carlini, Papernot, Jacobsen, Fundamental Tradeoffs Between Invariance and Sensitivity, ICML 2020.
+Saha, Gokhale, On shift-invariance and adversarial robustness (TIPS), WACV 2024.
+Wang et al., Equivariance and adversarial robustness, 2025.
 Galloway et al., Batch Normalization Is a Cause of Adversarial Vulnerability, 2019.
 Zhang, Making Convolutional Networks Shift-Invariant Again, ICML 2019.
+Hein, Andriushchenko, Formal Guarantees on the Robustness of a Classifier, NeurIPS 2017.
+Tsuzuku, Sato, Sugiyama, Lipschitz-Margin Training, NeurIPS 2018.
 Croce, Hein, Reliable Evaluation with AutoAttack, ICML 2020.
 Rony et al., Decoupling Direction and Norm for Min-Norm Attacks, CVPR 2019.
-Frei, Vardi, Bartlett, Srebro, The Double-Edged Sword of Implicit Bias, COLT 2023.
-Lyu, Li, Gradient Descent Maximizes the Margin of Homogeneous Networks, ICLR 2020.
-Lawrence, Georgiev, Dienes, Kiani, Implicit Bias of Linear Equivariant Networks, ICML 2022.
-Chen, Zhu, On the Implicit Bias of Linear Equivariant Steerable Networks, NeurIPS 2023.
-Kakarala, The Bispectrum as a Source of Phase-Sensitive Invariants, 2012.
+Weng et al., Evaluating the Robustness of Neural Networks: CLEVER, ICLR 2018.
 }
 
 \end{multicols}

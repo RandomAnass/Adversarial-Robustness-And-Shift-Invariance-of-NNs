@@ -1,0 +1,922 @@
+{
+  "tag": "promptcond",
+  "prompts": [
+    "a photo of a {}.",
+    "a photo of the {}.",
+    "an image of a {}.",
+    "a picture of a {}.",
+    "a cropped photo of a {}.",
+    "itap of a {}."
+  ],
+  "K": 6,
+  "n_encoders": 9,
+  "n_single_prompt_cells": 54,
+  "n_robust_encoders": 6,
+  "n_nonrobust_encoders": 3,
+  "A_etaL1_predicts_S_across_prompts": {
+    "A1_pooled": {
+      "pooled_all_cells": {
+        "n_cells": 54,
+        "spearman_etaL1_S": 0.7927702168489611,
+        "spearman_etaL1_S_cluster_ci95": [
+          0.26699893700776967,
+          0.9314553763739583
+        ],
+        "spearman_etaL1_S_naive_ci95": [
+          0.6285527965457975,
+          0.8829568852428988
+        ],
+        "spearman_etaL1_radius": 0.7744911189586494,
+        "spearman_etaL1_radius_cluster_ci95": [
+          0.20701631931721845,
+          0.927311079166184
+        ],
+        "spearman_A_radius": -0.40386521337567133,
+        "spearman_A_radius_cluster_ci95": [
+          -0.901994243084057,
+          0.43443114632042773
+        ]
+      },
+      "pooled_robust_only_cells": {
+        "n_cells": 36,
+        "spearman_etaL1_S": 0.37500001242919073,
+        "spearman_etaL1_S_cluster_ci95": [
+          -0.5423248299302806,
+          0.8657231877560105
+        ],
+        "spearman_etaL1_radius": 0.3145431145431145
+      }
+    },
+    "A2_within_encoder": {
+      "per_encoder": {
+        "clip": {
+          "robust": false,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.0003085882779692989,
+            0.00033434938519327854
+          ],
+          "etaL1_cv": 0.02687637530819456,
+          "S_range": [
+            0.0,
+            0.0
+          ],
+          "S_sd_across_prompts": 0.0,
+          "radius_sd_across_prompts": 0.00010605192440846253,
+          "spearman_etaL1_S": NaN,
+          "spearman_etaL1_radius": 0.08571428571428573
+        },
+        "clip_b16_openai": {
+          "robust": false,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.00047549045685553107,
+            0.000492315853885829
+          ],
+          "etaL1_cv": 0.010710443331948611,
+          "S_range": [
+            0.0,
+            0.0
+          ],
+          "S_sd_across_prompts": 0.0,
+          "radius_sd_across_prompts": 6.062428344592475e-05,
+          "spearman_etaL1_S": NaN,
+          "spearman_etaL1_radius": -0.20291986247835697
+        },
+        "clip_b32_laion2b": {
+          "robust": false,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.0006875468392112333,
+            0.0007175406061618966
+          ],
+          "etaL1_cv": 0.01613646570582101,
+          "S_range": [
+            0.0,
+            0.0
+          ],
+          "S_sd_across_prompts": 0.0,
+          "radius_sd_across_prompts": 0.00019148220404259609,
+          "spearman_etaL1_S": NaN,
+          "spearman_etaL1_radius": 0.14285714285714288
+        },
+        "fare4": {
+          "robust": true,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.011890330876939807,
+            0.012514451045585179
+          ],
+          "etaL1_cv": 0.015432220716796199,
+          "S_range": [
+            0.576,
+            0.656
+          ],
+          "S_sd_across_prompts": 0.027487370837451095,
+          "radius_sd_across_prompts": 0.0014822015510992926,
+          "spearman_etaL1_S": -0.8285714285714287,
+          "spearman_etaL1_radius": -0.6571428571428573
+        },
+        "tecoa4": {
+          "robust": true,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.015781839049012713,
+            0.016359370729372293
+          ],
+          "etaL1_cv": 0.012854899671680638,
+          "S_range": [
+            0.676,
+            0.72
+          ],
+          "S_sd_across_prompts": 0.014742229591663967,
+          "radius_sd_across_prompts": 0.0011836604365326987,
+          "spearman_etaL1_S": 0.46381682852195877,
+          "spearman_etaL1_radius": 0.08571428571428573
+        },
+        "fare2": {
+          "robust": true,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.011128665572747946,
+            0.011594201004531915
+          ],
+          "etaL1_cv": 0.013168133443607614,
+          "S_range": [
+            0.284,
+            0.364
+          ],
+          "S_sd_across_prompts": 0.02667499869832341,
+          "radius_sd_across_prompts": 0.0015052867974179713,
+          "spearman_etaL1_S": 0.2571428571428572,
+          "spearman_etaL1_radius": 0.4285714285714286
+        },
+        "simclip4": {
+          "robust": true,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.012046556157779865,
+            0.01246650358983393
+          ],
+          "etaL1_cv": 0.01156016022074477,
+          "S_range": [
+            0.536,
+            0.62
+          ],
+          "S_sd_across_prompts": 0.02891366458960191,
+          "radius_sd_across_prompts": 0.0018004146167615513,
+          "spearman_etaL1_S": -0.028988551782622423,
+          "spearman_etaL1_radius": -0.08571428571428573
+        },
+        "fare4_b16": {
+          "robust": true,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.01863055322912993,
+            0.019831884244235348
+          ],
+          "etaL1_cv": 0.021010879900092063,
+          "S_range": [
+            0.432,
+            0.52
+          ],
+          "S_sd_across_prompts": 0.02955221367906867,
+          "radius_sd_across_prompts": 0.0013872902093658161,
+          "spearman_etaL1_S": 0.8857142857142858,
+          "spearman_etaL1_radius": -0.2571428571428572
+        },
+        "tecoa4_cnxt": {
+          "robust": true,
+          "n_prompts": 6,
+          "etaL1_range": [
+            0.027295980193915846,
+            0.027801024279688846
+          ],
+          "etaL1_cv": 0.005963313427473969,
+          "S_range": [
+            0.6,
+            0.668
+          ],
+          "S_sd_across_prompts": 0.0257595721151489,
+          "radius_sd_across_prompts": 0.0017433817554459233,
+          "spearman_etaL1_S": -0.2,
+          "spearman_etaL1_radius": -0.028571428571428574
+        }
+      },
+      "n_encoders_with_defined_within_rho_S": 6,
+      "mean_within_encoder_rho_etaL1_S": 0.09151899850417511,
+      "median_within_encoder_rho_etaL1_S": 0.11407715268011738,
+      "mean_within_encoder_rho_etaL1_radius": -0.05429268313251587,
+      "note": "within-encoder rho needs eta/L1 spread across prompts; meaning-preserving prompts keep eta/L1 nearly constant per encoder (see etaL1_cv), so within-encoder rho is noisy/ill-defined -- the ACROSS-prompt claim is that S itself barely moves with prompt (S_sd_across_prompts) while the ACROSS-encoder ranking by eta/L1 is what predicts S. Report both honestly."
+    }
+  },
+  "B_prompt_invariance_confers_robustness": {
+    "per_encoder": {
+      "clip": {
+        "robust": false,
+        "ensemble_S": 0.0,
+        "mean_singleprompt_S": 0.0,
+        "delta_S_ens_minus_mean": 0.0,
+        "ensemble_radius": 0.0014583333395421505,
+        "mean_singleprompt_radius": 0.0014174837075794737,
+        "delta_radius": 4.084963196267677e-05,
+        "ensemble_etaL1": 0.00032642369998396646,
+        "mean_singleprompt_etaL1": 0.0003164238596987066,
+        "delta_etaL1": 9.99984028525984e-06,
+        "ensemble_clean": 0.9129999876022339,
+        "mean_singleprompt_clean": 0.9022500117619833
+      },
+      "clip_b16_openai": {
+        "robust": false,
+        "ensemble_S": 0.0,
+        "mean_singleprompt_S": 0.0,
+        "delta_S_ens_minus_mean": 0.0,
+        "ensemble_radius": 0.0011887254659086466,
+        "mean_singleprompt_radius": 0.0011540032768001158,
+        "delta_radius": 3.472218910853075e-05,
+        "ensemble_etaL1": 0.0004978185644107636,
+        "mean_singleprompt_etaL1": 0.00048590068716115577,
+        "delta_etaL1": 1.1917877249607823e-05,
+        "ensemble_clean": 0.8525000214576721,
+        "mean_singleprompt_clean": 0.84224999944369
+      },
+      "clip_b32_laion2b": {
+        "robust": false,
+        "ensemble_S": 0.0,
+        "mean_singleprompt_S": 0.0,
+        "delta_S_ens_minus_mean": 0.0,
+        "ensemble_radius": 0.0020833334419876337,
+        "mean_singleprompt_radius": 0.0017626634798943996,
+        "delta_radius": 0.00032066996209323406,
+        "ensemble_etaL1": 0.0007166832347174829,
+        "mean_singleprompt_etaL1": 0.0007019453441791866,
+        "delta_etaL1": 1.4737890538296335e-05,
+        "ensemble_clean": 0.8454999923706055,
+        "mean_singleprompt_clean": 0.8395000000794729
+      },
+      "fare4": {
+        "robust": true,
+        "ensemble_S": 0.632,
+        "mean_singleprompt_S": 0.6186666666666667,
+        "delta_S_ens_minus_mean": 0.013333333333333308,
+        "ensemble_radius": 0.02611519768834114,
+        "mean_singleprompt_radius": 0.026274510348836582,
+        "delta_radius": -0.00015931266049544132,
+        "ensemble_etaL1": 0.012485236314482805,
+        "mean_singleprompt_etaL1": 0.012152253374689661,
+        "delta_etaL1": 0.0003329829397931434,
+        "ensemble_clean": 0.8560000061988831,
+        "mean_singleprompt_clean": 0.8519999881585439
+      },
+      "tecoa4": {
+        "robust": true,
+        "ensemble_S": 0.752,
+        "mean_singleprompt_S": 0.7020000000000001,
+        "delta_S_ens_minus_mean": 0.04999999999999993,
+        "ensemble_radius": 0.03162990137934685,
+        "mean_singleprompt_radius": 0.029926471101740997,
+        "delta_radius": 0.0017034302776058503,
+        "ensemble_etaL1": 0.016346950294838836,
+        "mean_singleprompt_etaL1": 0.01614343107303837,
+        "delta_etaL1": 0.0002035192218004661,
+        "ensemble_clean": 0.8815000057220459,
+        "mean_singleprompt_clean": 0.87199999888738
+      },
+      "fare2": {
+        "robust": true,
+        "ensemble_S": 0.34,
+        "mean_singleprompt_S": 0.3366666666666666,
+        "delta_S_ens_minus_mean": 0.0033333333333334103,
+        "ensemble_radius": 0.016899511218070984,
+        "mean_singleprompt_radius": 0.017790033637235563,
+        "delta_radius": -0.0008905224191645793,
+        "ensemble_etaL1": 0.01163195446372295,
+        "mean_singleprompt_etaL1": 0.01131374752424153,
+        "delta_etaL1": 0.0003182069394814212,
+        "ensemble_clean": 0.8974999785423279,
+        "mean_singleprompt_clean": 0.8880833288033804
+      },
+      "simclip4": {
+        "robust": true,
+        "ensemble_S": 0.548,
+        "mean_singleprompt_S": 0.5900000000000001,
+        "delta_S_ens_minus_mean": -0.04200000000000004,
+        "ensemble_radius": 0.024669116362929344,
+        "mean_singleprompt_radius": 0.02466911884645621,
+        "delta_radius": -2.4835268667977584e-09,
+        "ensemble_etaL1": 0.012637656168462243,
+        "mean_singleprompt_etaL1": 0.012352416238111045,
+        "delta_etaL1": 0.0002852399303511985,
+        "ensemble_clean": 0.8410000205039978,
+        "mean_singleprompt_clean": 0.8330833415190378
+      },
+      "fare4_b16": {
+        "robust": true,
+        "ensemble_S": 0.44,
+        "mean_singleprompt_S": 0.478,
+        "delta_S_ens_minus_mean": -0.03799999999999998,
+        "ensemble_radius": 0.020674020051956177,
+        "mean_singleprompt_radius": 0.020604575984179974,
+        "delta_radius": 6.944406777620316e-05,
+        "ensemble_etaL1": 0.019520586036937272,
+        "mean_singleprompt_etaL1": 0.019341714061961165,
+        "delta_etaL1": 0.00017887197497610738,
+        "ensemble_clean": 0.7615000009536743,
+        "mean_singleprompt_clean": 0.749666670958201
+      },
+      "tecoa4_cnxt": {
+        "robust": true,
+        "ensemble_S": 0.628,
+        "mean_singleprompt_S": 0.6326666666666667,
+        "delta_S_ens_minus_mean": -0.004666666666666708,
+        "ensemble_radius": 0.025269608944654465,
+        "mean_singleprompt_radius": 0.02619689640899499,
+        "delta_radius": -0.0009272874643405267,
+        "ensemble_etaL1": 0.027630418106696895,
+        "mean_singleprompt_etaL1": 0.02752270474172629,
+        "delta_etaL1": 0.00010771336497060469,
+        "ensemble_clean": 0.8105000257492065,
+        "mean_singleprompt_clean": 0.8066666722297668
+      }
+    },
+    "mean_delta_S_ens_minus_mean_singleprompt": -0.002000000000000008,
+    "delta_S_ci95": [
+      -0.017925925925925925,
+      0.015411111111111039
+    ],
+    "mean_delta_radius": 2.1332344557675663e-05,
+    "mean_delta_etaL1": 0.00016257666438290058,
+    "n_encoders_ensemble_more_robust_than_mean": 3,
+    "n_encoders": 9,
+    "ensemble_residual_vs_etaL1_fit_mean_S_units": -0.005161544666319622,
+    "ensemble_residual_vs_etaL1_fit_ci95": [
+      -0.07634562937552575,
+      0.06840974624658082
+    ],
+    "ens_clean_ge_mean_all": true,
+    "note": "delta_S ~ 0 and residual ~ 0 => the ensemble's robustness is whatever eta/L1 already predicts; prompt-invariance does not buy adversarial robustness. Report as-is either way."
+  },
+  "C_cross_prompt_transfer": {
+    "per_encoder": {
+      "clip": {
+        "robust": false,
+        "mean_transfer_all_pairs": 0.999904761904762,
+        "median_transfer_all_pairs": 1.0,
+        "min_transfer": 0.996
+      },
+      "clip_b16_openai": {
+        "robust": false,
+        "mean_transfer_all_pairs": 1.0,
+        "median_transfer_all_pairs": 1.0,
+        "min_transfer": 1.0
+      },
+      "clip_b32_laion2b": {
+        "robust": false,
+        "mean_transfer_all_pairs": 1.0,
+        "median_transfer_all_pairs": 1.0,
+        "min_transfer": 1.0
+      },
+      "fare4": {
+        "robust": true,
+        "mean_transfer_all_pairs": 0.8773897910460204,
+        "median_transfer_all_pairs": 0.8795604395604395,
+        "min_transfer": 0.7093023255813954
+      },
+      "tecoa4": {
+        "robust": true,
+        "mean_transfer_all_pairs": 0.8751668890647383,
+        "median_transfer_all_pairs": 0.8757716049382716,
+        "min_transfer": 0.7662337662337663
+      },
+      "fare2": {
+        "robust": true,
+        "mean_transfer_all_pairs": 0.9234321236477188,
+        "median_transfer_all_pairs": 0.9276729559748428,
+        "min_transfer": 0.8630952380952381
+      },
+      "simclip4": {
+        "robust": true,
+        "mean_transfer_all_pairs": 0.8998412882951983,
+        "median_transfer_all_pairs": 0.9105047991468184,
+        "min_transfer": 0.7525773195876289
+      },
+      "fare4_b16": {
+        "robust": true,
+        "mean_transfer_all_pairs": 0.9057499751870547,
+        "median_transfer_all_pairs": 0.9071428571428571,
+        "min_transfer": 0.7816901408450704
+      },
+      "tecoa4_cnxt": {
+        "robust": true,
+        "mean_transfer_all_pairs": 0.9115797234026795,
+        "median_transfer_all_pairs": 0.9166304819800261,
+        "min_transfer": 0.8152173913043478
+      }
+    },
+    "pooled_all_offdiag": {
+      "mean": 0.932562728060908,
+      "sd": 0.06386688649585583,
+      "min": 0.7093023255813954,
+      "max": 1.0,
+      "n": 378
+    },
+    "pooled_single_to_single": {
+      "mean": 0.9263666236116699,
+      "sd": 0.06731237367401144,
+      "min": 0.7093023255813954,
+      "max": 1.0,
+      "n": 270
+    },
+    "pooled_single_to_ensemble": {
+      "mean": 0.9389942161997084,
+      "sd": 0.056672226427565885,
+      "min": 0.8023255813953488,
+      "max": 1.0,
+      "n": 54
+    },
+    "pooled_ensemble_to_single": {
+      "mean": 0.9571117621682975,
+      "sd": 0.043015778166866116,
+      "min": 0.8225806451612904,
+      "max": 1.0,
+      "n": 54
+    },
+    "all_in_unit_interval": true,
+    "note": "transfer fraction = of the adversarial images that fool the SOURCE prompt's head, the fraction that ALSO flip the TARGET prompt's head. High transfer => the vulnerability is a property of the IMAGE ENCODER, not the specific prompt."
+  },
+  "D_2x2_restatement": {
+    "SC_encoder_level": {
+      "mean": 0.9765509300761752,
+      "sd": 0.008269344842639964,
+      "min": 0.9597916603088379,
+      "max": 0.989479124546051,
+      "n": 9
+    },
+    "PC_encoder_level": {
+      "mean": 0.9772453573015001,
+      "sd": 0.007809811682771191,
+      "min": 0.956458330154419,
+      "max": 0.98395836353302,
+      "n": 9
+    },
+    "S_across_all_cells": {
+      "mean": 0.3731111111111111,
+      "sd": 0.28223280820041347,
+      "min": 0.0,
+      "max": 0.72,
+      "n": 54
+    },
+    "S_across_encoders_at_reference_prompt": {
+      "mean": 0.37022222222222223,
+      "sd": 0.27851741528544305,
+      "min": 0.0,
+      "max": 0.712,
+      "n": 9
+    },
+    "radius_across_all_cells": {
+      "mean": 0.016643972976857588,
+      "sd": 0.011299914235660678,
+      "min": 0.0010784313781186938,
+      "max": 0.03183823451399803,
+      "n": 54
+    },
+    "S_sd_within_encoder_across_prompts_mean": 0.01701444994569533,
+    "S_sd_across_encoders_mean_over_prompts": 0.2821102832011536
+  },
+  "sanity": {
+    "S_le_clean_all_cells": true,
+    "nonrobust_S_le_0p05_all_prompts": true,
+    "nonrobust_S_per_prompt": {
+      "clip": {
+        "p0": 0.0,
+        "p1": 0.0,
+        "p2": 0.0,
+        "p3": 0.0,
+        "p4": 0.0,
+        "p5": 0.0,
+        "ensemble": 0.0
+      },
+      "clip_b16_openai": {
+        "p0": 0.0,
+        "p1": 0.0,
+        "p2": 0.0,
+        "p3": 0.0,
+        "p4": 0.0,
+        "p5": 0.0,
+        "ensemble": 0.0
+      },
+      "clip_b32_laion2b": {
+        "p0": 0.0,
+        "p1": 0.0,
+        "p2": 0.0,
+        "p3": 0.0,
+        "p4": 0.0,
+        "p5": 0.0,
+        "ensemble": 0.0
+      }
+    },
+    "transfer_in_unit_interval": true,
+    "ensemble_clean_ge_mean_singleprompt_all": true,
+    "pc_self_check_all_one": true,
+    "targeted_aa_complete_all_cells": false,
+    "targeted_aa_incomplete_cells": [
+      "clip/p0",
+      "clip/p1",
+      "clip/p2",
+      "clip/p3",
+      "clip/p4",
+      "clip/p5",
+      "clip/ensemble",
+      "clip_b16_openai/p0",
+      "clip_b16_openai/p1",
+      "clip_b16_openai/p2",
+      "clip_b16_openai/p3",
+      "clip_b16_openai/p4",
+      "clip_b16_openai/p5",
+      "clip_b16_openai/ensemble",
+      "clip_b32_laion2b/p0",
+      "clip_b32_laion2b/p1",
+      "clip_b32_laion2b/p2",
+      "clip_b32_laion2b/p3",
+      "clip_b32_laion2b/p4",
+      "clip_b32_laion2b/p5",
+      "clip_b32_laion2b/ensemble",
+      "fare4/p0",
+      "fare4/p1",
+      "fare4/p2",
+      "fare4/p3",
+      "fare4/p4",
+      "fare4/p5",
+      "fare4/ensemble",
+      "tecoa4/p0",
+      "tecoa4/p1",
+      "tecoa4/p2",
+      "tecoa4/p3",
+      "tecoa4/p4",
+      "tecoa4/p5",
+      "tecoa4/ensemble",
+      "fare2/p0",
+      "fare2/p1",
+      "fare2/p2",
+      "fare2/p3",
+      "fare2/p4",
+      "fare2/p5",
+      "fare2/ensemble",
+      "simclip4/p0",
+      "simclip4/p1",
+      "simclip4/p2",
+      "simclip4/p3",
+      "simclip4/p4",
+      "simclip4/p5",
+      "simclip4/ensemble",
+      "fare4_b16/p0",
+      "fare4_b16/p1",
+      "fare4_b16/p2",
+      "fare4_b16/p3",
+      "fare4_b16/p4",
+      "fare4_b16/p5",
+      "fare4_b16/ensemble",
+      "tecoa4_cnxt/p0",
+      "tecoa4_cnxt/p1",
+      "tecoa4_cnxt/p2",
+      "tecoa4_cnxt/p3",
+      "tecoa4_cnxt/p4",
+      "tecoa4_cnxt/p5",
+      "tecoa4_cnxt/ensemble"
+    ],
+    "fare4_radius_gt_clip_meanoverprompts": true
+  },
+  "headline_two_ways": {
+    "etaL1_vs_S_pooled_spearman": 0.7927702168489611,
+    "etaL1_vs_S_pooled_pair_concordance": 0.8218210361067504,
+    "etaL1_vs_S_robustonly_spearman": 0.37500001242919073,
+    "note": "headline = pooled Spearman(eta/L1, S) over all (encoder,prompt) cells, recomputed as pairwise rank concordance; both should agree in sign/strength."
+  },
+  "E_per_image": {
+    "per_cell": {
+      "clip/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7120286759218524,
+        "floor_frac": 0.65
+      },
+      "clip/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.4291401283550133,
+        "floor_frac": 0.725
+      },
+      "clip/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.4795217555623368,
+        "floor_frac": 0.8
+      },
+      "clip/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.5747527168913226,
+        "floor_frac": 0.65
+      },
+      "clip/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.6826734861717974,
+        "floor_frac": 0.7125
+      },
+      "clip/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.626621702961138,
+        "floor_frac": 0.6875
+      },
+      "clip/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.6514900724647514,
+        "floor_frac": 0.6625
+      },
+      "clip_b16_openai/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.4338126997886674,
+        "floor_frac": 0.925
+      },
+      "clip_b16_openai/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.6055879020000995,
+        "floor_frac": 0.8375
+      },
+      "clip_b16_openai/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.5507372749836195,
+        "floor_frac": 0.875
+      },
+      "clip_b16_openai/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.5687535659889219,
+        "floor_frac": 0.8625
+      },
+      "clip_b16_openai/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.5998112825736018,
+        "floor_frac": 0.8375
+      },
+      "clip_b16_openai/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.4239778315502952,
+        "floor_frac": 0.925
+      },
+      "clip_b16_openai/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.5817926995639463,
+        "floor_frac": 0.8375
+      },
+      "clip_b32_laion2b/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7933148624700322,
+        "floor_frac": 0.5625
+      },
+      "clip_b32_laion2b/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7667613068840804,
+        "floor_frac": 0.7
+      },
+      "clip_b32_laion2b/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8061750771436174,
+        "floor_frac": 0.55
+      },
+      "clip_b32_laion2b/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8038715822850897,
+        "floor_frac": 0.55
+      },
+      "clip_b32_laion2b/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8124229651193962,
+        "floor_frac": 0.625
+      },
+      "clip_b32_laion2b/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7965437949021142,
+        "floor_frac": 0.6
+      },
+      "clip_b32_laion2b/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8705522210768362,
+        "floor_frac": 0.525
+      },
+      "fare4/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7826298879557836,
+        "floor_frac": 0.025
+      },
+      "fare4/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8395072430814774,
+        "floor_frac": 0.0125
+      },
+      "fare4/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8057216254192583,
+        "floor_frac": 0.05
+      },
+      "fare4/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8681783627947988,
+        "floor_frac": 0.0125
+      },
+      "fare4/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7378341252477632,
+        "floor_frac": 0.025
+      },
+      "fare4/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8147381820740666,
+        "floor_frac": 0.025
+      },
+      "fare4/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7575499615487404,
+        "floor_frac": 0.0125
+      },
+      "tecoa4/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8378208884196563,
+        "floor_frac": 0.025
+      },
+      "tecoa4/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.820427744280155,
+        "floor_frac": 0.025
+      },
+      "tecoa4/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7632470357345075,
+        "floor_frac": 0.0125
+      },
+      "tecoa4/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8904854480856776,
+        "floor_frac": 0.0375
+      },
+      "tecoa4/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7288846937886352,
+        "floor_frac": 0.0125
+      },
+      "tecoa4/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8257206996402191,
+        "floor_frac": 0.0125
+      },
+      "tecoa4/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.765760430804325,
+        "floor_frac": 0.0375
+      },
+      "fare2/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8909523004019541,
+        "floor_frac": 0.0125
+      },
+      "fare2/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8692494078126375,
+        "floor_frac": 0.075
+      },
+      "fare2/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8479228118337159,
+        "floor_frac": 0.05
+      },
+      "fare2/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7941945096402081,
+        "floor_frac": 0.0125
+      },
+      "fare2/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8015207906646237,
+        "floor_frac": 0.025
+      },
+      "fare2/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8344156250123262,
+        "floor_frac": 0.025
+      },
+      "fare2/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8255786400269581,
+        "floor_frac": 0.0375
+      },
+      "simclip4/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7756700961837671,
+        "floor_frac": 0.0375
+      },
+      "simclip4/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8718179861084421,
+        "floor_frac": 0.0375
+      },
+      "simclip4/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7556470749092744,
+        "floor_frac": 0.0375
+      },
+      "simclip4/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.785920464150041,
+        "floor_frac": 0.025
+      },
+      "simclip4/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7480289237712028,
+        "floor_frac": 0.0375
+      },
+      "simclip4/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.7033093053378544,
+        "floor_frac": 0.025
+      },
+      "simclip4/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8294977575979561,
+        "floor_frac": 0.0375
+      },
+      "fare4_b16/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9459648587321631,
+        "floor_frac": 0.025
+      },
+      "fare4_b16/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9358374186759153,
+        "floor_frac": 0.0375
+      },
+      "fare4_b16/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9515732807046318,
+        "floor_frac": 0.0375
+      },
+      "fare4_b16/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9482356626174152,
+        "floor_frac": 0.0375
+      },
+      "fare4_b16/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9650934982830115,
+        "floor_frac": 0.0125
+      },
+      "fare4_b16/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9565069669419223,
+        "floor_frac": 0.05
+      },
+      "fare4_b16/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.930711539320885,
+        "floor_frac": 0.0375
+      },
+      "tecoa4_cnxt/p0": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9406120776329284,
+        "floor_frac": 0.0125
+      },
+      "tecoa4_cnxt/p1": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9115437439960065,
+        "floor_frac": 0.0125
+      },
+      "tecoa4_cnxt/p2": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9468801371573342,
+        "floor_frac": 0.05
+      },
+      "tecoa4_cnxt/p3": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.957726183862354,
+        "floor_frac": 0.0375
+      },
+      "tecoa4_cnxt/p4": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.8991463588437487,
+        "floor_frac": 0.025
+      },
+      "tecoa4_cnxt/p5": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9335881081865716,
+        "floor_frac": 0.0375
+      },
+      "tecoa4_cnxt/ensemble": {
+        "n": 80,
+        "spearman_ratioL1_radius": 0.9424051298094719,
+        "floor_frac": 0.025
+      }
+    },
+    "pooled_robust_refprompt": {
+      "n": 480,
+      "spearman_ratioL1_radius": 0.8618378476499917,
+      "spearman_ratioL1_radius_ci95": [
+        0.8284586808820347,
+        0.8896999914220943
+      ]
+    }
+  }
+}

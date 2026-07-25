@@ -99,7 +99,9 @@ invariant $\ell_2$ max-margin equals the separation of the DC-projected data,
 \]
 where $I_\pm=[\min_{x\in X_\pm}\fdc(x),\ \max_{x\in X_\pm}\fdc(x)]$, with
 maximizing direction $\pm\one/\sqrt\dd$ oriented toward the positive class. This
-holds for any finite separable dataset and does not require orbit-closure.
+holds for any finite separable dataset and does not require orbit-closure; when the
+DC-projected intervals $I_+,I_-$ overlap the formula gives $\gamma_{\mathrm{inv}}=0$,
+i.e.\ full-space separability does not imply the invariant problem is separable.
 \end{theorem}
 \begin{proof}
 \emph{Characterization of invariant normals.} Invariance of $g$ under every
@@ -214,10 +216,12 @@ certificate \citep{hein2017formal,tsuzuku2018lipschitz}.
 
 \emph{Upper arm.} At $t=T$, $g(\gamma(T))=0$ and $|g(x)|=\eta$, so
 $\eta=|g(x)-g(\gamma(T))|\ge\alpha\lVert\gamma(T)-x\rVert_2$, giving
-$\lVert\gamma(T)-x\rVert_2\le\eta/\alpha$. Since $\gamma(T)\in\mathcal B$ has
-$\sign g(\gamma(T))\neq y$, and by continuity points immediately beyond
-$\gamma(T)$ have strictly opposite sign, the perturbation $\delta=\gamma(T)-x$ is
-label-flipping and $r_2\le\lVert\gamma(T)-x\rVert_2\le\eta/\alpha$.
+$\lVert\gamma(T)-x\rVert_2\le\eta/\alpha$. Provided $\gamma(T)$ is a \emph{transversal} crossing---$g$
+changes sign there, rather than merely touching zero tangentially---the
+perturbation $\delta=\gamma(T)-x$ is label-flipping and
+$r_2\le\lVert\gamma(T)-x\rVert_2\le\eta/\alpha$. Transversality is a genuine
+hypothesis: a tangential zero (e.g.\ $g(\gamma(t))=(t-1)^2\eta$) satisfies the
+co-Lipschitz bound yet does not flip the label, so it cannot be dropped.
 
 \emph{$\alpha\le L$.} As $g(\gamma(T))=0\neq g(x)$ we have $\gamma(T)\neq x$, and
 the same secant obeys
@@ -331,20 +335,22 @@ $cM(x)/\lVert c\grad M(x)\rVert=M(x)/\lVert\grad M(x)\rVert$: the ratio, and the
 input-space radius it lower-bounds, are unchanged.
 \end{proof}
 
-\begin{corollary}[The direct maximizer is the constant classifier]\label{cor:ratiodegen-app}
+\begin{corollary}[The direct maximizer is a flat, zero-gradient score]\label{cor:ratiodegen-app}
 An objective that maximizes $\etaL$ directly (equivalently penalizes
 $\lVert\grad M\rVert/M$ over correctly classified points) is blind to the
-absolute margin and admits the constant classifier $\grad M\equiv0$ as a global
-optimizer, so $\etaL$ is ill-posed as a training objective and well-posed only as
-a diagnostic read at a fixed logit scale.
+absolute margin and admits a flat, zero-gradient score ($\grad M\equiv0$) as a
+global optimizer, so $\etaL$ is ill-posed as a training objective and well-posed
+only as a diagnostic read at a fixed logit scale.
 \end{corollary}
 \begin{proof}
-The penalty $\E[\lVert\grad M\rVert/M]\ge0$ attains its infimum $0$ only as
-$\grad M\to0$, i.e.\ at a constant score, which classifies at chance. Because the
-ratio is scale-invariant (Lemma~\ref{lem:ratiodegen}) the objective cannot
-distinguish a large-margin robust classifier from a degenerate flat one; this is
-the constant-function degeneracy noted by \citet{tsuzuku2018lipschitz} in the
-large-target limit, reached here through scale-invariance.
+The penalty $\E[\lVert\grad M\rVert/M]\ge0$ attains its infimum $0$ as
+$\grad M\to0$ with the margin held positive---a flat, zero-gradient score (in the
+limit a hard step that separates almost everywhere), which is maximally
+non-robust. Because the ratio is scale-invariant (Lemma~\ref{lem:ratiodegen}) the
+objective cannot distinguish a large-margin robust classifier from such a
+degenerate flat one; this is the constant-function degeneracy noted by
+\citet{tsuzuku2018lipschitz} in the large-target limit, reached here through
+scale-invariance.
 \end{proof}
 
 \subsection{Result 4: the nonlinear escape (power-spectrum span and radius)}

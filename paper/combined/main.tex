@@ -56,8 +56,9 @@ effect is a weak-attack artifact: it appears under the fast gradient sign method
 AutoAttack. We then close the one gap this diagnostic leaves. The ratio \emph{detects} robustness but
 does not \emph{rank} it among already-robust models; the missing ingredient is the \emph{shape} of the
 gradient, its anisotropy $A=\lVert\grad M\rVert_1/\lVert\grad M\rVert_2$, which ranks thirty official
-RobustBench models at Spearman $-0.79$, and $-0.77$ after controlling for clean accuracy. We identify the
-mechanism, an effective-dimension margin deficit, and separate it from the curvature account. Finally, the
+RobustBench models at Spearman $-0.79$ ($-0.69$ after controlling for clean accuracy and model size) and
+improves held-out prediction of robustness. We propose a mechanism, an effective-dimension margin
+deficit, and separate it from the curvature account. Finally, the
 saturation is modality-general: on zero-shot CLIP both visual (shift) and textual (paraphrase) invariance
 saturate, and $\etaL$ predicts the image-adversarial axis while neither consistency metric does. Throughout we use
 AutoAttack as the arbiter and check for gradient masking.
@@ -112,14 +113,16 @@ zero; retraining the two contrary operators under their own recipe reproduces th
 FGSM and removes it under a strong attack.
 \item \textbf{$\etaL$ predicts robustness, with theory (\S\ref{sec:etaL}).} The threat-matched ratio
 orders robustness across three datasets, two threat models, a PreActResNet-18, and frozen CLIP encoders
-per image; it is a certificate $r\ge\etaL$ that we complete to a two-sided bracket
-$\etaL\le r\le\eta/\alpha$ with an explicit reachability slope $\alpha$.
+per image; it is the standard Lipschitz--margin certificate $r\ge\etaL$, which we complete to a two-sided bracket
+$\etaL\le r\le\eta/\alpha$ under a reachability condition---certified for linear and power-spectrum
+features, and a conditional converse for trained networks.
 \item \textbf{Detecting is not ranking: gradient shape and its mechanism (\S\ref{sec:aniso}).} Among
 already-robust models $\etaL$ no longer orders robustness; the gradient's anisotropy
-$A=\lVert\grad M\rVert_1/\lVert\grad M\rVert_2$ does, at Spearman $-0.77$ over thirty RobustBench models
-after a clean-accuracy control. We identify the mechanism, an effective-dimension margin deficit
-$r\approx(\eta/L_1)/(1+CA)$, show it is transverse rather than on-direction curvature, and place it as a
-relaxation of \citet{simongabriel2019adversarial}.
+$A=\lVert\grad M\rVert_1/\lVert\grad M\rVert_2$ does, at Spearman $-0.79$ over thirty official RobustBench
+models ($-0.69$ controlling clean accuracy and model size, $-0.67$ within a single architecture family),
+and it improves held-out robustness prediction. We propose a mechanism, an effective-dimension margin
+deficit $r\approx(\eta/L_1)/(1+CA)$, show it is transverse rather than on-direction curvature, and place
+it as a relaxation of \citet{simongabriel2019adversarial}.
 \item \textbf{Robust training re-couples margin and sensitivity (\S\ref{sec:signflip}).} The per-image
 relationship between margin and gradient size flips sign under adversarial training, a consistent
 fingerprint of what robust training changes.
@@ -247,10 +250,15 @@ from $x$ toward the boundary (a lower bound on that rate). Then
   1\le \frac{r}{\etaL}\le \kappa:=\frac{L}{\alpha}.
 \]
 The gap is a local condition number $\kappa=L/\alpha$; when $\kappa$ is close to one, $\etaL$ is not
-just a bound but tight, essentially the radius itself. For linear features the two sides coincide ($\kappa{=}1$,
-$r=\eta/\lVert w\rVert$, recovering \citet{hein2017formal}); we verify numerically that the true radius
-lies strictly inside the bracket with $\kappa\in[1.6,2.4]$. This completes the missing upper arm of the
-margin-Lipschitz bound of \citet{tsuzuku2018lipschitz}. The gauge-freeness and the structural theory
+just a bound but tight, essentially the radius itself. The upper arm requires $\alpha$ to be certified
+independently and to correspond to a genuine (transversal) boundary crossing, and we certify it in two
+settings: for linear invariant features the two sides coincide exactly ($\kappa{=}1$,
+$r=\eta/\lVert w\rVert$, recovering \citet{hein2017formal}), and for a radial power-spectrum surrogate,
+whose reaching geometry is known a priori, the true radius lies strictly inside the bracket with
+$\kappa\in[1.6,2.4]$. For a trained network $\alpha$ is not independently certified, so there the upper
+arm is a \emph{conditional} converse, not a certified bound. This supplies the upper arm that the
+margin-Lipschitz bound of \citet{tsuzuku2018lipschitz} leaves open, for feature families with a-priori
+reachability. The gauge-freeness and the structural theory
 behind $\eta$ (the invariant linear margin is the separation of the data projected onto the invariant
 subspace, which recovers the $1/\sqrt\dd$ collapse of \citet{ge2021shift}) are in
 Appendix~\ref{app:theory}.
@@ -258,16 +266,21 @@ Appendix~\ref{app:theory}.
 \paragraph{Evidence across families.}
 The same law holds from small CNNs to frozen foundation models.
 \begin{itemize}[leftmargin=1.2em,itemsep=2pt]
-\item \textbf{CIFAR-10, standard training.} Across a dense $24$-cell capacity-matched grid, $\etaL$
-orders the $\ell_2$ robust radius at Pearson $+0.998$ (bootstrap CI $[+0.997,+0.999]$, $p<10^{-3}$);
-shift-consistency does not (Pearson $-0.33$, CI $[-0.68,+0.09]$, $p=0.11$).
+\item \textbf{CIFAR-10, standard training.} Across a capacity-matched grid ($24$ runs over eight
+arm-by-width cells), $\etaL$ orders the $\ell_2$ robust radius at Pearson $+0.998$; on the eight cell
+means, controlling for clean accuracy, the partial is $+0.994$, while shift-consistency does not order
+the radius (Pearson $-0.33$, $p=0.11$; partial $-0.59$, n.s.). This is a within-model tightness check,
+since $\etaL$ lower-bounds each model's own radius; the cross-model and per-image results below are the
+out-of-sample evidence.
 \item \textbf{PreActResNet-18, adversarial training.} Over twelve architecture-by-width cells the
 threat-matched $\eta/\lVert\grad M\rVert_1$ orders AutoAttack robustness at Pearson $+0.91$
 ($p<10^{-3}$), carrying robustness information beyond clean accuracy (partial correlation $+0.89$
 controlling for clean accuracy); shift-consistency anti-predicts at $-0.81$ (partial $-0.82$). At
 ImageNet-100 resolution, where clean accuracy is essentially constant across arms ($0.641$ to $0.649$),
 the same threat-matched law holds at $+0.90$ while shift-consistency anti-predicts at $-0.87$, so the
-prediction is not a restatement of clean accuracy.
+prediction is not a restatement of clean accuracy. Controlling clean accuracy at the operator-arm level
+(the four capacity-matched operators, eight arm-by-width cells) leaves the ordering intact: $\eta/L_1$
+orders AutoAttack robustness at partial $+0.95$ and shift-consistency anti-predicts at $-0.86$.
 \item \textbf{Frozen CLIP encoders, per image.} Within each of ten adversarially robust encoders, where
 adversarial training cannot act as a confound, the per-image $\etaL$ orders the per-image adversarial
 radius at Spearman $+0.74$ to $+0.96$, while per-image shift-consistency orders it from $+0.37$ down to
@@ -303,8 +316,13 @@ attack engages all of them. The anisotropy $A$ measures exactly this spread. Acr
 RobustBench CIFAR-10 $\ell_\infty$ models (a family independent of the CLIP encoders), lower $A$ means
 more robust: Spearman$(A,\text{robust})=-0.79$ over the thirty models (bootstrap interval
 $[-0.92,-0.56]$), which survives controlling for clean accuracy (partial $-0.77$) and for $\eta/L_1$
-itself (partial $-0.65$). Restricted to the twenty-nine robust models, dropping the single non-robust
-one, the ranking is $-0.77$ (Figure~\ref{fig:aniso}a). The size $\eta/L_1$ detects robustness but ranks it only weakly
+itself (partial $-0.65$). It also survives the natural capacity confound and the choice of attack:
+against the models' \emph{official} RobustBench AutoAttack accuracy, partialling out clean accuracy
+\emph{and} a model-size proxy jointly leaves $-0.69$ ($p{=}4\times10^{-5}$), and the ranking holds
+\emph{within} one architecture family, ordering the twenty-two WideResNets at $-0.67$
+($p{=}6\times10^{-4}$). And $A$ is not a free knob fit after the fact: added to $\eta/L_1$ it improves
+leave-one-out prediction of held-out robustness by $30\%$ (rank correlation $+0.67\to+0.74$). Restricted
+to the twenty-nine robust models the ranking is $-0.77$ (Figure~\ref{fig:aniso}a). The size $\eta/L_1$ detects robustness but ranks it only weakly
 (Figure~\ref{fig:aniso}b). The same negative ranking appears within the robust CLIP encoders.
 
 \begin{figure}[t]\centering
@@ -336,8 +354,9 @@ account \citep{moosavi2019curvature} is not the ranking mechanism here.
 The magnitude-versus-spread reading is the relaxation of \citet{simongabriel2019adversarial}, whose
 dimension law assumes equal gradient variance per coordinate and so fixes $A\propto\sqrt\dd$; we let $A$
 vary at fixed $\dd$ and find it tracks robustness. The nearest metric is the participation ratio of the
-input gradient \citep{participation2025}, used there to \emph{detect} catastrophic overfitting during
-training rather than to rank models across a family. The synthetic model in Eq.~\ref{eq:deficit} is a
+input gradient \citep{participation2025}, which equals $\dd/A^2$ up to normalization; it is used there to
+\emph{detect} catastrophic overfitting during training, so our contribution is the cross-model ranking,
+not the statistic itself. The synthetic model in Eq.~\ref{eq:deficit} is a
 self-consistent stand-alone that assumes per-coordinate independence, not a derivation from the network;
 the strong signal is between models, so $C$ is a model-level property. We therefore present the deficit
 as a proposed mechanism, consistent with every control and refuting the curvature alternative, rather
@@ -368,7 +387,7 @@ partly by raising local sensitivity, so the margin-to-sensitivity ratio is self-
 This is why one ratio predicts robustness in both regimes: the margin and the gradient size, read
 separately, are anti-aligned in standard models and aligned after robust training, and only their ratio
 $\etaL$ tracks robustness through both. The same re-coupling explains why $\etaL$ is a diagnostic and not
-a trainable target: because the ratio is scale-invariant its direct maximizer is the constant classifier
+a trainable target: because the ratio is scale-invariant its direct maximizer is a flat, zero-gradient score
 (Lemma~\ref{lem:ratiodegen}), and first-order attempts to raise it collapse the margin
 (Appendix~\ref{app:extra}).
 
@@ -408,6 +427,20 @@ text-hardened encoder, adversarially fine-tuned on the text tower, has the highe
 paraphrase-consistency in the panel despite a middling vision $\eta/L_1$, which places text robustness as
 a separate axis raised by text training and not by the vision margin.
 
+We sharpen the prompt channel with a prompt-conditioned variant. On nine encoders (three non-robust,
+six robust) we condition both the margin and the image AutoAttack on each of six meaning-preserving
+prompts and on their ensemble head (Figure~\ref{fig:crownpc}). Read this way, the prompt-conditioned
+$\eta/L_1$ still orders robustness across all fifty-four $(\text{encoder},\text{prompt})$ cells
+(Spearman $+0.79$; robust radius $+0.77$; cluster-bootstrap CI $[0.27,0.93]$), reproducing the
+cross-encoder prediction under every prompt. Prompt invariance again does not buy robustness: the
+ensemble head, which is maximally prompt-invariant, is no more robust than the mean single prompt
+($\Delta S=-0.002$, CI $[-0.018,0.015]$; more robust in only three of nine encoders), and adversarial
+examples transfer across prompts almost completely (mean $0.93$), so the adversarial direction is
+essentially prompt-independent. Consistent with saturation, rewording barely moves the margin within an
+encoder (coefficient of variation $1.3\%$ in $\eta/L_1$), so this sharpens the between-encoder
+prediction rather than adding a within-model dissociation; the attack here is a uniform APGD-CE upper
+bound, which preserves the cross-cell ordering the correlations use.
+
 Two things follow. The saturation of invariance metrics is modality-general: textual paraphrase
 invariance is as saturated as visual shift invariance, and no more predictive of adversarial robustness.
 And the margin diagnostic is modality-specific: $\eta/L_1$ read on the image tower governs the
@@ -426,16 +459,32 @@ perturbation than a small curated paraphrase set supplies.
   \label{fig:crown}
 \end{figure}
 
+\begin{figure}[t]\centering
+  \includegraphics[width=0.94\linewidth]{crownjewel_promptcond.pdf}
+  \caption{Prompt-conditioned check: nine CLIP encoders (three non-robust, six robust), six
+  meaning-preserving prompts plus their ensemble, with the margin and the image AutoAttack conditioned on
+  each prompt ($S$ is a uniform APGD-CE upper bound). \textbf{(A)}~the prompt-conditioned $\eta/L_1$ orders
+  the image-adversarial $S$ across all $(\text{encoder},\text{prompt})$ cells ($+0.79$). \textbf{(B)}~$S$
+  spreads across encoders but is nearly flat across the six prompts (circles) and the prompt-invariant
+  ensemble (diamond), so prompt invariance does not buy robustness. \textbf{(C)}~adversarial examples
+  transfer across prompts (mean off-diagonal $0.93$), so the vulnerability is a property of the image
+  encoder, not the prompt. A prompt-channel confirmation of the modality-general saturation, not a
+  separate within-model effect.}
+  \label{fig:crownpc}
+\end{figure}
+
 %======================================================================
 \section{Related work}\label{sec:related}
 %======================================================================
 \textbf{Invariance and robustness.} \citet{ge2021shift} give the trade-off on single-orbit data;
 \citet{kamath2021canwehaveitall,tramer2019multiple} prove tensions between geometric and adversarial
-robustness; the anti-aliasing line \citep{zhang2019making,grabinski2022aliasing,saha2024improving} and
-the equivariance line \citep{wang2025bridging} report the opposite sign. These locate as positions on the
-threat-matched $\etaL$ axis: Ge's collapse and the trade-off results are the small-margin corner, where
-invariance costs margin and $\etaL$ falls, while the ``helps'' reports are a weak-attack reading that does
-not survive AutoAttack rather than a third regime.
+robustness; the anti-aliasing line \citep{zhang2019making,grabinski2022aliasing,saha2024improving},
+truly shift-invariant designs \citep{chaman2021truly}, and the equivariance line \citep{wang2025bridging}
+report the opposite sign. We read these as positions on the threat-matched $\etaL$ axis: Ge's collapse
+and the trade-off results are the small-margin corner, where invariance costs margin and $\etaL$ falls,
+while the ``helps'' reports are a weak-attack reading that does not survive AutoAttack rather than a third
+regime. We demonstrate the weak-attack reading directly for the two operators we retrain
+(\S\ref{sec:weak}) and offer the $\etaL$-axis account as a unifying narrative for the broader line.
 \textbf{Attack-free robustness estimates.} CLEVER \citep{clever}, the generative GREAT Score
 \citep{greatscore}, and margin-Lipschitz certificates \citep{hein2017formal,tsuzuku2018lipschitz}
 estimate a radius; we make the estimate gauge-free, threat-matched, and two-sided, and add the anisotropy
@@ -453,7 +502,12 @@ is used for overfitting detection, not cross-model ranking.
 %======================================================================
 The tower-level CLIP correlation rests on a small number of robust encoders, so the per-image result is
 the load-bearing one; the hardened multimodal benchmark (\S\ref{sec:crown}) expands the panel and uses
-full AutoAttack. The deficit law of Eq.~\ref{eq:deficit} is a proposed, well-controlled mechanism rather
+full AutoAttack. Several tower-level correlations rest on $n{=}17$ to $30$ with wide intervals and no
+family-wise correction; we treat these as suggestive and lean on the large-$n$ per-image (thousands of
+images) and RobustBench analyses for the load-bearing claims. The prompt-conditioned panel
+(\S\ref{sec:crown}) scores robustness with a uniform APGD-CE upper bound rather than full targeted
+AutoAttack; applied identically to every cell it can only lower $S$ and preserves the cross-cell ordering
+the correlation uses. The deficit law of Eq.~\ref{eq:deficit} is a proposed, well-controlled mechanism rather
 than a network-level theorem, and the ranking it drives is range-dependent: it needs a wide robustness
 axis, which on low-dimensional families appears only once a training-strength sweep opens it. Finally
 $\etaL$ is a diagnostic to read off a trained model, not a target to train toward. Within those limits, one idea, the margin relative to the

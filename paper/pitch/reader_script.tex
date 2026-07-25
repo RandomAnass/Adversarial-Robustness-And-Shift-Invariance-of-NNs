@@ -1,0 +1,257 @@
+%==============================================================================
+%  Invariance vs robustness -- INTERNAL reader script (not for sharing)
+%  Companion to pitch_deck.pdf. One block per slide: the exact words to say,
+%  plus a backup bank of anticipated questions with short answers.
+%==============================================================================
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+\definecolor{TUMblue}{HTML}{0065BD}
+\definecolor{TUMdarker}{HTML}{003359}
+\definecolor{slate}{HTML}{52606D}
+
+\newcommand{\etaL}{\ensuremath{\eta/L}}
+
+\titleformat{\section}{\large\bfseries\color{TUMdarker}}{\thesection.}{0.5em}{}
+\titlespacing{\section}{0pt}{1.4em}{0.5em}
+
+% one slide block: \slide{n}{title}{script}
+\newcommand{\slide}[3]{%
+  \par\vspace{0.9em}%
+  {\color{TUMblue}\bfseries Slide #1 \textbullet\ #2}\par
+  \vspace{0.25em}#3\par}
+
+\newcommand{\qa}[2]{\par\vspace{0.5em}{\bfseries #1}\ \ #2\par}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries\color{TUMdarker} Invariance vs robustness}\\[0.3em]
+  {\large\color{slate} Internal reader script and question bank}\\[0.4em]
+  {\small\color{slate} Companion to \texttt{pitch\_deck.pdf}. Not for sharing.
+  Nineteen slides; script per slide, then the backup question bank.}
+\end{center}
+\vspace{0.6em}
+\hrule
+\vspace{0.4em}
+
+{\small\color{slate} How to use this: each block below matches one slide in
+\texttt{pitch\_deck.pdf}, in order. The text in each block is what to say out loud on that
+slide. It is written for a pitch to one person (Maha), not a conference talk, so it is short and
+plain. The question bank at the end is not in the shared deck; keep it here.}
+
+\section{Per-slide script}
+
+\slide{1}{Title --- ``Invariance vs robustness''}{%
+This is a project that grew out of the practical course. It is about two properties of a vision
+model, invariance and adversarial robustness. The literature has related them and reached opposite
+conclusions. I will show what actually orders robustness across models, and it is not the invariance
+metric people track.}
+
+\slide{2}{The two properties, on one image}{%
+Here is one image and a standard ImageNet classifier. On top, a change of one part in 255, which you
+cannot see, turns a heron into an elephant. That is adversarial robustness, or the lack of it. On the
+bottom, sliding the image around does nothing to the label. That is shift invariance. The whole
+question is how these two relate.}
+
+\slide{3}{The literature relates them, and disagrees}{%
+One line of work, anti-aliasing and equivariance, reports that invariance helps robustness: Zhang,
+Saha and Gokhale, Grabinski, Wang. Another, Ge and Kamath, reports the opposite, or a proven
+trade-off. They study different data, models, and attacks. And, importantly, the ``helps'' side only
+ever used gradient attacks like FGSM and PGD, never a strong parameter-free attack. So the
+disagreement is not actually resolved. My question is: is there a quantity that orders robustness
+across models?}
+
+\slide{4}{How we frame the project}{%
+To frame the scope. The project proves a bracket around the robust radius, shows a dissociation
+across model families, debunks the weak-attack effect, and adds a shape term for ranking robust
+models. It does not claim the ratio is a new object, it does not claim co-existence of invariance and
+robustness as a discovery, and it does not propose a new attack or a new defense. The ratio is a
+diagnostic.}
+
+\slide{5}{Where this started (practical-course recap)}{%
+This began as the practical course, which I did with you. Two points. First, what we did: we
+reproduced Ge's ordering with FGSM and PGD, then extended it to the standard architecture knobs,
+pooling, kernel size, depth, a dense layer. Second, what we found and what it left open: the simple
+``more consistency, less robust'' ordering broke, several CNNs were both consistent and as robust as
+the fully-connected baseline, and we screened models on a consistency-versus-robustness graph. But it
+never said which quantity predicts robustness when consistency does not, and it used only weak
+attacks. That is what the rest of the project addresses.}
+
+\slide{6}{From the project to now}{%
+Two things happened since. First, the co-existence we saw in the course is now in a published paper,
+TIPS from Saha and Gokhale in 2024, so it is established, not something we are claiming. Second, there
+are still additions we can make on top of it: nobody ran a strong parameter-free attack on this line,
+nobody checked whether the invariance metric actually orders robustness, and there was no attack-free
+predictor of robustness. So the question is: is there such a quantity? The answer is yes, and it is a
+margin quantity.}
+
+\slide{7}{Invariance and robustness are different directions}{%
+Geometrically these are different directions. On the left, imposing invariance projects the classes
+onto their average part, which can shrink the margin; that is Ge's mechanism. Robustness is the
+distance to the decision boundary. On the right, take one point: a shift moves it around the boundary,
+so the label is kept; an attack moves it toward the boundary and crosses. The two directions are
+nearly orthogonal, so a good invariance score need not buy you robustness.}
+
+\slide{8}{The quantity, from a standard certificate}{%
+The quantity itself is not new, it is the Lipschitz--margin certificate. The margin, divided by the
+size of its gradient, lower-bounds the robust radius. We do two things to it. We match the norm to the
+attack, the dual norm, which matters: the wrong norm flips the sign of the correlation. And we note it
+is scale-free, so robustness attaches to the ratio, not to the margin or the Lipschitz constant
+separately. We call the model-level summary eta over L, the mean margin over the mean dual-norm
+gradient on clean correctly-classified images. No attack is needed to compute it.}
+
+\slide{9}{Proposition 1: invariance fixes the usable margin}{%
+Proposition one. A shift-invariant linear model must have a constant weight vector, so it depends only
+on the average of the input. The best margin it can achieve is then half the distance between the two
+class averages. In plain words: invariance throws away everything but the average, and the average is
+close for the two classes, so the margin is small. Ge proved this for the single-image case; we prove
+it for any finite separable dataset.}
+
+\slide{10}{Proposition 2: the ratio brackets the true radius}{%
+Proposition two. The certificate gives a lower bound on the radius. We prove a matching upper bound,
+so the true radius is trapped between eta over L and eta over alpha. The gap between the two is a
+condition number kappa, and we measure it between 1.6 and 2.4 in our tests, so the lower bound is
+essentially tight and eta over L is essentially the radius. The lower bound is Hein and Tsuzuku; the
+upper bound is what we add.}
+
+\slide{11}{Does shift-consistency order robustness? Does the ratio?}{%
+Here is the main dissociation. We build four invariance operators, standard, anti-aliased, exactly
+cyclic, and shift-augmented, with identical parameter counts, so only the invariance mechanism
+differs. Across three datasets and up to a ResNet-18, shift-consistency does not order robustness, and
+under adversarial training it actually anti-predicts it. The threat-matched ratio orders it, and it
+carries information beyond clean accuracy, the partial correlation is plus 0.89.}
+
+\slide{12}{Is the ``invariance helps'' effect real?}{%
+Is the ``helps'' effect real? We rerun that exact regime, weak attacks on undefended models, on our
+operators and on Saha's and Wang's, and then we add AutoAttack. Under FGSM the ordering shows up.
+Under AutoAttack every non-robust model drops to near zero and the ordering is gone. On frozen CLIP
+encoders, FGSM reports 16 to 61 percent robust accuracy that AutoAttack erases. So the ``helps''
+effect is a weak-attack artifact, and nobody in that line had run a strong attack.}
+
+\slide{13}{Per image, where training cannot confound}{%
+The cleanest test. On sixteen frozen CLIP encoders the invariance metric is saturated, it sits between
+0.963 and 0.988 for everyone, robust or not, so it cannot rank them. So we go per image inside a
+single encoder, where training cannot be the confound: there the ratio orders each image's radius
+strongly, Spearman 0.74 to 0.96, and per-image consistency does not, it runs from 0.37 down to about
+zero.}
+
+\slide{14}{Ranking already-robust models: the gradient's shape}{%
+Among already-robust models the ratio no longer separates them. What does is the shape of the
+gradient, an L1-over-L2 anisotropy between 1 and root d. An infinity-norm attack wastes budget on a
+concentrated gradient and exploits a spread-out one, so lower anisotropy is more robust. On thirty
+RobustBench CIFAR-10 models the correlation is minus 0.79, and minus 0.77 controlling for clean
+accuracy, and it replicates on MNIST and Fashion. We propose a spread-over-dimensions deficit as the
+mechanism and verify it on a controlled model and thirty real ones, but we call it a proposed
+mechanism, not a theorem.}
+
+\slide{15}{The results across settings}{%
+One table pulling it together. The threat-matched ratio orders robustness in every setting.
+Shift-consistency does not, and near zero means it does not order the radius at all. The shape term
+ranks the already-robust models, so it only appears in the rows where we rank robust models. The blank
+cells are quantities we did not measure in that setting, for instance we did not compute
+shift-consistency for the downloaded RobustBench models. Every number here reproduces from the code
+and result files.}
+
+\slide{16}{Where it breaks}{%
+Where it breaks, stated on purpose. First, the ratio cannot be trained toward, it is scale-free and
+its direct maximizer is the constant classifier, so it is a diagnostic, not a loss. Second, the shape
+law needs a wide robustness range to show up; on low-dimensional data it is compressed. Third, the
+deficit is a proposed mechanism, not a network-level proof. Fourth, on text the worst case over a
+small paraphrase set is too mild to be a real second adversarial axis.}
+
+\slide{17}{Proposed contributions, and existing results}{%
+To be explicit about what is ours. On the left, the proposed contributions: the dissociation, the
+powered per-image version inside one encoder, the weak-attack result, the upper arm of the bracket,
+the anisotropy ranking and its mechanism, the saturation finding, and the sign-flip under adversarial
+training. On the right, the existing results we use or refine: the certificate itself, CLEVER, the
+fact these are related at all, Ge's DC mechanism, randomized smoothing, the dimension and curvature
+views, the participation ratio, AutoAttack, and Ngnawe's margin consistency.}
+
+\slide{18}{Summary and directions}{%
+To summarize. Shift-consistency, the metric this literature tracks, does not order adversarial
+robustness, and the ``helps'' effect vanishes under a strong attack. A threat-matched, scale-free
+margin-to-Lipschitz ratio, which we complete to a two-sided bracket, orders robustness from small
+classifiers to frozen CLIP encoders. And to rank already-robust models you need the shape of the
+gradient. Next directions: other norms beyond L-infinity, the rich-regime optimization question, a
+real text-adversarial axis, and scaling the anisotropy study beyond RobustBench.}
+
+\slide{19}{Where your input would help most}{%
+This last slide is really the point of sending it to you. Four things. First, positioning: eta over L
+is a certificate and we add a two-sided bracket; given your certificate work, is that a genuine
+addition or is it subsumed by smoothing and Lipschitz certification, and how would you frame
+certificate versus diagnostic. Second, the kernel theory: our lazy-regime result treats orbit-averaging
+as a projection in the tangent-kernel space; given your deep-net-as-kernel-machine work, is that the
+right lens and where are the pitfalls. Third, which parts look weakest to you and what would you rerun
+or design differently. Fourth, are we missing work at the certified-robustness-times-invariance
+intersection, and which result should headline, the dissociation or the anisotropy law.}
+
+\vspace{1.2em}
+\hrule
+\vspace{0.4em}
+\section{Backup: anticipated questions}
+
+{\small\color{slate} Not in the shared deck. Short answers to have ready.}
+
+\subsection*{Novelty and positioning}
+\qa{1. Is \etaL{} just the Lipschitz--margin bound?}{The lower bound, yes. We add threat-matching, the
+scale-free reading, the upper bound, and the empirical dissociation across families.}
+\qa{2. Saha/TIPS reports invariance helps. How do you differ?}{That link is a weak-attack reading; under
+AutoAttack consistency does not order robustness.}
+\qa{3. Ge already showed invariance can hurt.}{Ge gives a margin-collapse on specific data; we give the
+ratio that predicts robustness across models, with Ge's condition as a corollary.}
+\qa{4. Wang 2025 also uses the word ``anisotropy''.}{Theirs is on-orbit gradient variability for
+equivariance; ours is a scalar $\ell_1/\ell_2$ ratio that ranks robust models. Different object; their
+diagnostic tool is CLEVER, the same margin/Lipschitz family as ours.}
+\qa{5. Is the anisotropy result just CLEVER or the participation ratio?}{CLEVER estimates a radius; the
+participation ratio is for catastrophic-overfitting detection during training. Ranking robust models by
+gradient spread is the new part.}
+\qa{6. Why not just report robust accuracy?}{\etaL{} needs no attack, is per-sample, and ranks cheaply;
+robust accuracy is the ground truth we validate against.}
+
+\subsection*{Methodology}
+\qa{7. Which attack is the arbiter?}{AutoAttack; we check gradient masking (AutoAttack $\le$ matched PGD)
+wherever we claim robustness.}
+\qa{8. Why does FGSM vs AutoAttack matter?}{FGSM over-reports robustness by a large factor; the ``helps''
+ordering only survives FGSM.}
+\qa{9. How is the radius measured?}{A per-sample minimum-norm attack (DDN), validated against the analytic
+linear radius; not grid-PGD.}
+\qa{10. Capacity-matched, really?}{The four arms have identical parameter counts; only the invariance
+operator differs.}
+\qa{11. Seeds and confidence intervals?}{Multiple seeds; bootstrap CIs and permutation tests on the dense
+grids.}
+\qa{12. Is BatchNorm a confound (Galloway)?}{Controlled for; the dissociation survives BN-free and
+matched-capacity arms.}
+\qa{13. Threat-matching, concretely?}{$\ell_\infty$ uses the $\ell_1$ gradient norm, $\ell_2$ the $\ell_2$
+norm; the mismatched norm gives the wrong sign on MNIST.}
+\qa{14. Clean-accuracy confound?}{Partial correlations control for it (\etaL{} vs AutoAttack partial
+$+0.89$; anisotropy partial $-0.77$).}
+
+\subsection*{Theory and scope}
+\qa{15. Is the bracket tight?}{Exact ($\kappa=1$) for linear invariant features; $\kappa\in[1.6,2.4]$ for
+the power-spectrum surrogate.}
+\qa{16. What is $\alpha$?}{The slowest rate the margin can fall along a path to the boundary, a
+co-Lipschitz slope.}
+\qa{17. Does Proposition 1 need orbit-closure?}{No; it holds for any finite separable dataset via
+projection onto the invariant subspace.}
+\qa{18. Is the deficit a theorem?}{No; a proposed mechanism, verified on a controlled model and 30 real
+ones.}
+\qa{19. Why is curvature not the ranker?}{On-direction curvature does not rank robust models and the
+anisotropy does not track it; the deficit is transverse.}
+\qa{20. Relation to Simon-Gabriel?}{They fix equal per-coordinate variance, so $A\propto\sqrt d$; we let
+$A$ vary at fixed $d$ and it tracks robustness.}
+\qa{21. Can \etaL{} be trained?}{No; scale-free, so its direct maximizer is the constant classifier.}
+\qa{22. What is the practical use?}{A cheap, attack-free screen for architectures before paying for
+adversarial training.}
+\qa{23. What would falsify the claim?}{A family where consistency orders threat-matched robustness and
+\etaL{} does not; we did not find one.}
+
+\end{document}
